@@ -1,0 +1,13 @@
+
+# Version Control
+.git
+**/.gitignore
+
+# Environment
+**/.env*
+
+# VSCode
+.vscode
+
+# Node
+**/node_modules

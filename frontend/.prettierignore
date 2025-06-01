@@ -1,0 +1,14 @@
+# Ignore artifacts:
+build
+coverage
+.next
+.cache
+.storybook
+package-lock.json
+public
+node_modules
+next-env.d.ts
+next.config.ts
+yarn.lock
+vitest.*.ts
+tailwind.config.ts

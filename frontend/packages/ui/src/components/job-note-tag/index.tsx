@@ -1,0 +1,1 @@
+export { JobNoteTag } from './JobNoteTag';

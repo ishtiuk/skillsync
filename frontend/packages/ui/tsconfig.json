@@ -1,0 +1,27 @@
+{
+  "extends": "@workspace/typescript-config/react-library.json",
+
+  "compilerOptions": {
+    "baseUrl": ".",
+
+    "paths": {
+      "@/icons/*": ["./src/icons/*"],
+      "@/hooks/*": ["./src/hooks/*"],
+      "@/workspace/ui/*": ["./src/*"],
+      "@/*": ["./*", "../../apps/pathways/*"],
+      "@/components/*": ["./src/components/*"],
+      "@/mocks/*": ["../../apps/pathways/mocks/*"],
+      "@/lib/*": ["./src/lib/*", "../../apps/pathways/lib/*"],
+      "@/public/*": [
+        "./src/public/*",
+        "../../apps/candid/public/*",
+        "../../apps/pathways/public/*"
+      ]
+    },
+
+    "types": ["vitest/globals", "@testing-library/jest-dom"]
+  },
+
+  "include": ["src/**/*"],
+  "exclude": ["node_modules", "dist"]
+}

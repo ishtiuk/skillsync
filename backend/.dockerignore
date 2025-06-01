@@ -1,0 +1,32 @@
+# General
+.dockerignore
+Dockerfile
+.git
+.gitignore
+.env
+.vscode/
+.idea/
+__pycache__/
+*.py[cod]
+*.swp
+*.swo
+*.log
+*.sqlite3
+*.db
+*.DS_Store
+
+# Python
+venv/
+env/
+build/
+dist/
+*.egg-info/
+.mypy_cache/
+.pytest_cache/
+.tox/
+.coverage
+htmlcov/
+pip-wheel-metadata/
+.cache/
+*.pyo
+*.pyd
