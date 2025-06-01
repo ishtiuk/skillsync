@@ -1,0 +1,148 @@
+{
+    "user_data": {
+        "valid_user": {
+            "email": "test@example.com",
+            "password": "Test@123",
+            "first_name": "Test",
+            "last_name": "User",
+            "provider": "self",
+            "platform": "pathways",
+            "provider_id": "test@example.com"
+        },
+        "new_user": {
+            "email": "new@example.com",
+            "password": "Test@123",
+            "first_name": "New",
+            "last_name": "User",
+            "provider": "self",
+            "platform": "pathways"
+        },
+        "invalid_user": {
+            "email": "invalid-email",
+            "password": "Test@123",
+            "first_name": "New",
+            "last_name": "User",
+            "provider": "self",
+            "platform": "pathways"
+        },
+        "login_data": {
+            "valid": {
+                "email": "test@example.com",
+                "password": "Test@123",
+                "platform": "pathways"
+            },
+            "invalid": {
+                "email": "wrong@example.com",
+                "password": "wrong",
+                "platform": "pathways"
+            }
+        },
+        "update_user": {
+            "first_name": "Updated",
+            "last_name": "Name",
+            "city": "New City",
+            "country": "USA"
+        }
+    },
+    "experience_data": {
+        "valid_experience": {
+            "position_title": "Software Engineer",
+            "company_name": "Tech Corp",
+            "employment_type": "Full-time",
+            "is_current": true,
+            "start_month": 1,
+            "start_year": 2023
+        },
+        "update_experience": {
+            "position_title": "Senior Software Engineer",
+            "is_current": false,
+            "end_month": 12,
+            "end_year": 2023
+        }
+    },
+    "company_data": {
+        "valid_company": {
+            "name": "Test Company",
+            "type": "Technology",
+            "size": "50-100",
+            "no_of_employees": 75,
+            "is_bipoc_owned": true,
+            "location": "San Francisco",
+            "city": "San Francisco",
+            "state": "CA",
+            "country": "USA",
+            "overview": "A test company description",
+            "benefits": ["Health Insurance", "401k"],
+            "select_a_pathway": "Technology"
+        },
+        "invalid_company": {
+            "name": "",
+            "type": "",
+            "location": "",
+            "no_of_employees": ""
+        },
+        "update_company": {
+            "name": "Updated Company",
+            "type": "Technology",
+            "size": "100-200",
+            "select_a_pathway": "Energy"
+        }
+    },
+    "job_role_data": {
+        "valid_job_role": {
+        "title": "Software Engineer",
+        "job_category": "software-engineering",
+        "position_type": "Full-Time",
+        "level_of_experience": "Mid",
+        "role_description": "Test role description",
+        "workplace_type": "Remote",
+        "city": "San Francisco",
+        "state": "CA",
+        "country": "USA",
+        "pay_type": "Salary",
+        "minimum_pay": 100000,
+        "maximum_pay": 150000,
+        "pay_frequency": "Monthly",
+        "required_files": ["Resume", "Cover Letter"],
+        "status": "Open",
+        "show_recruiter": true
+        },
+        "update_job_role": {
+        "title": "Senior Software Engineer",
+        "level_of_experience": "Senior",
+        "minimum_pay": 130000,
+        "maximum_pay": 180000
+        },
+        "invalid_job_role": {
+        "title": "",
+        "job_category": "invalid-category",
+        "position_type": "Invalid",
+        "level_of_experience": "Invalid"
+        }
+    },
+    "goals_data": {
+        "valid_goal": {
+            "name": "Complete Technical Interview Prep",
+            "type": "interviewing",
+            "description": "Prepare for technical interviews",
+            "tasks": {
+                "Complete DSA course": false,
+                "Practice LeetCode": false,
+                "Mock interviews": false
+            }
+        },
+        "update_goal": {
+            "name": "Updated Interview Prep",
+            "description": "Updated preparation plan",
+            "tasks": {
+                "System Design": false,
+                "Behavioral Questions": false
+            }
+        },
+        "invalid_goal": {
+            "name": "",
+            "type": "invalid_type",
+            "tasks": "not_a_dict"
+        }
+    }
+}

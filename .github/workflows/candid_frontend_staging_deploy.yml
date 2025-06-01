@@ -1,0 +1,71 @@
+name: Deploy Candid
+
+on:
+    push:
+        branches:
+            - develop
+        paths:
+            - 'frontend/apps/candid/version.txt'
+
+jobs:
+    deploy:
+        runs-on: ubuntu-latest
+    
+        steps:
+            - name: Checkout/Download code into Github server
+              uses: actions/checkout@v4
+            
+            - name: Ensure version.txt was changed
+              run: |
+                    if ! git diff --name-only ${{ github.event.before }} ${{ github.sha }} | grep "frontend/apps/candid/version.txt"; then
+                        echo "❌ version.txt was not updated. Please bump the version to trigger a deploy."
+                        exit 1
+                    fi
+
+            - name: Read version from version.txt
+              id: version
+              run: VERSION=$(cat frontend/apps/candid/version.txt) && echo "version=$VERSION" >> $GITHUB_OUTPUT
+
+
+            - name: Configure AWS credentials
+              uses: aws-actions/configure-aws-credentials@v2
+              with:
+                    aws-region: ${{vars.AWS_FRONTEND_REGION}}
+                    aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+                    aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+            
+            - name: Login to ECR
+              id: login-ecr
+              uses: aws-actions/amazon-ecr-login@v2
+
+            
+            - name: Install make
+              run: sudo apt-get update && sudo apt-get install -y make
+            
+            - name: Build and push Docker image
+              working-directory: frontend/apps/candid
+              env:
+                    CI: true
+                    REPOSITORY: candid
+                    IMAGE_VERSION_STAGING: ${{ vars.IMAGE_VERSION_STAGING }}
+                    AWS_REGION: ${{ vars.AWS_FRONTEND_REGION }}
+                    API_URL_STAGING: ${{ vars.API_URL_STAGING }}
+                    AWS_ACCOUNT_ID: ${{ secrets.AWS_ACCOUNT_ID }}
+                    ECR_REPOSITORY: ${{ secrets.ECR_REPOSITORY }}
+                    IMAGE_NAME_STAGING: ${{ vars.FRONTEND_IMAGE_NAME }}
+              run: make deploy-staging
+            
+            - name: Deploy to EC2 Instance
+              uses: appleboy/ssh-action@v1.2.0
+              with:
+                    host: ${{ secrets.EC2_HOST_CANDID }}
+                    username: ${{ secrets.EC2_USERNAME }}
+                    key: ${{ secrets.EC2_KEY_CANDID }}
+                    port: 22
+                    script: |
+                        aws ecr get-login-password --region ${{vars.AWS_FRONTEND_REGION}} | docker login --username AWS --password-stdin ${{ secrets.AWS_ACCOUNT_ID }}.dkr.ecr.${{vars.AWS_FRONTEND_REGION}}.amazonaws.com
+                        docker pull ${{ secrets.AWS_ACCOUNT_ID }}.dkr.ecr.${{vars.AWS_FRONTEND_REGION}}.amazonaws.com/candid/${{ vars.FRONTEND_IMAGE_NAME }}:${{ vars.IMAGE_VERSION_STAGING }}
+                        docker stop candid-frontend-staging || true
+                        docker rm candid-frontend-staging || true
+                        docker run -d --name candid-frontend-staging -p 3000:3000 \
+                        ${{ secrets.AWS_ACCOUNT_ID }}.dkr.ecr.${{vars.AWS_FRONTEND_REGION}}.amazonaws.com/candid/${{ vars.FRONTEND_IMAGE_NAME }}:${{ vars.IMAGE_VERSION_STAGING }}
