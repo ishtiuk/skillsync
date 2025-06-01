@@ -22,8 +22,8 @@ class JobApplication(Base):
     updated_at = Column(DateTime, default=datetime.utcnow)
 
     # Relationships
-    user = relationship("UserCareerForge", back_populates="applications")
-    position = relationship("Position", back_populates="applications")
+    user = relationship("UserCareerForge", backref="applications")
+    position = relationship("Position", backref="applications")
 
 class Experience(Base):
     __tablename__ = "experiences"
@@ -44,7 +44,7 @@ class Experience(Base):
     updated_at = Column(DateTime, default=datetime.utcnow)
 
     # Relationships
-    user = relationship("UserCareerForge", back_populates="experiences")
+    user = relationship("UserCareerForge", backref="experiences")
 
 class Portfolio(Base):
     __tablename__ = "portfolios"
@@ -62,7 +62,7 @@ class Portfolio(Base):
     updated_at = Column(DateTime, default=datetime.utcnow)
 
     # Relationships
-    user = relationship("UserCareerForge", back_populates="portfolios")
+    user = relationship("UserCareerForge", backref="portfolios")
 
 class Milestone(Base):
     __tablename__ = "milestones"
@@ -80,4 +80,4 @@ class Milestone(Base):
     updated_at = Column(DateTime, default=datetime.utcnow)
 
     # Relationships
-    user = relationship("UserCareerForge", back_populates="milestones")
+    user = relationship("UserCareerForge", backref="milestones")

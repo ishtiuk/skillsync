@@ -28,8 +28,8 @@ class Organization(Base):
     created_at = Column(DateTime, default=datetime.utcnow)
     updated_at = Column(DateTime, default=datetime.utcnow)
 
-    members = relationship("UserTalentHub", back_populates="organization")
-    positions = relationship("Position", back_populates="organization")
+    members = relationship("UserTalentHub", backref="organization")
+    positions = relationship("Position", backref="organization")
 
 class Position(Base):
     __tablename__ = "positions"
@@ -57,6 +57,5 @@ class Position(Base):
     created_at = Column(DateTime, default=datetime.utcnow)
     updated_at = Column(DateTime, default=datetime.utcnow)
 
-    organization = relationship("Organization", back_populates="positions")
-    recruiter = relationship("UserTalentHub", back_populates="positions")
-    applications = relationship("JobApplication", back_populates="position")
+    recruiter = relationship("UserTalentHub", backref="positions")
+    applications = relationship("JobApplication", backref="position")

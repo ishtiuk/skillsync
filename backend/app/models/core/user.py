@@ -36,10 +36,10 @@ class BaseUser(Base):
     updated_at = Column(DateTime, default=datetime.utcnow)
     last_password_change = Column(DateTime(timezone=True))
 
-    careerforge_profile = relationship("UserCareerForge", back_populates="base_user", uselist=False)
-    talenthub_profile = relationship("UserTalentHub", back_populates="base_user", uselist=False)
-    subscription = relationship("Subscription", back_populates="user", uselist=False)
-    feature_usage = relationship("FeatureUsage", back_populates="user", uselist=False)
+    careerforge_profile = relationship("UserCareerForge", backref="base_user")
+    talenthub_profile = relationship("UserTalentHub", backref="base_user")
+    subscription = relationship("Subscription", backref="user")
+    feature_usage = relationship("FeatureUsage", backref="user")
 
 class UserCareerForge(Base):
     __tablename__ = "user_careerforge"
@@ -83,10 +83,9 @@ class UserCareerForge(Base):
     # UI Customization
     background_image_url = Column(String)
     
-    base_user = relationship("BaseUser", back_populates="careerforge_profile")
-    experiences = relationship("Experience", back_populates="user")
-    portfolios = relationship("Portfolio", back_populates="user")
-    milestones = relationship("Milestone", back_populates="user")
+    experiences = relationship("Experience", backref="user")
+    portfolios = relationship("Portfolio", backref="user")
+    milestones = relationship("Milestone", backref="user")
 
 class UserTalentHub(Base):
     __tablename__ = "user_talenthub"
@@ -113,6 +112,5 @@ class UserTalentHub(Base):
     candidate_scoring_weights = Column(JSON)  # Customized weights for candidate matching
     interview_availability = Column(JSON)  # Recruiter's available time slots
     
-    base_user = relationship("BaseUser", back_populates="talenthub_profile")
-    organization = relationship("Organization", back_populates="members")
-    positions = relationship("Position", back_populates="recruiter")
+    organization = relationship("Organization", backref="members")
+    positions = relationship("Position", backref="recruiter")
