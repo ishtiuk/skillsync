@@ -43,12 +43,20 @@ async def login(request: LoginRequest, db: Session = Depends(get_db)):
         if user_service.validate_user(
             email=request.email, password=request.password, platform=request.platform, db=db
         ):
-            access_token = create_access_token(subject=request.email)
+            access_token = create_access_token(subject=request.email, platform=request.platform)
             return JSONResponse(
-                content={"access_token": access_token}, status_code=status.HTTP_200_OK
+                content={"message": "Successfully Logged In", "access_token": access_token},
+                status_code=status.HTTP_200_OK,
             )
     except InvalidUserException as e:
+        logger.error(f"Login failed: {str(e)}")
         raise HTTPException(status_code=e.status_code, detail=e.message)
+    except Exception as e:
+        logger.error(f"Unexpected error during login: {str(e)}")
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail=error_messages.INTERNAL_SERVER_ERROR,
+        )
 
 
 @user_router.post("/auth/login/google", tags=["auth"])

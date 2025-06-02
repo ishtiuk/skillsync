@@ -1,6 +1,7 @@
-from uuid import UUID
+import uuid
 
 from sqlalchemy import JSON, Boolean, Column, ForeignKey, String
+from sqlalchemy.dialects.postgresql import UUID
 
 from app.db.base_class import Base
 
@@ -8,7 +9,7 @@ from app.db.base_class import Base
 class JobApplication(Base):
     __tablename__ = "job_applications"
 
-    id = Column(UUID(as_uuid=True), primary_key=True)
+    id = Column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
     user_id = Column(UUID(as_uuid=True), ForeignKey("user_careerforge.id"))
     position_id = Column(UUID(as_uuid=True), ForeignKey("positions.id"))
     activity = Column(String(512), nullable=True)

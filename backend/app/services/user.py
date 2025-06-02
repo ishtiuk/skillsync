@@ -78,15 +78,11 @@ class UserService:
 
         if not user:
             logger.info("Email not found")
-            raise InvalidUserException(
-                message=error_messages.INVALID_USER_EXCEPTION["INVALID_USER_NAME_PASSWORD"]
-            )
+            raise InvalidUserException(message="Invalid credentials")
 
         if not verify_password(password, user.password_hash):
             logger.info("Invalid password")
-            raise InvalidUserException(
-                message=error_messages.INVALID_USER_EXCEPTION["INVALID_USER_NAME_PASSWORD"]
-            )
+            raise InvalidUserException(message="Invalid credentials")
 
         return True
 

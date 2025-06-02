@@ -1,7 +1,7 @@
-from datetime import datetime
-from uuid import UUID
+import uuid
 
-from sqlalchemy import ARRAY, Column, DateTime, ForeignKey, Integer, String
+from sqlalchemy import ARRAY, Column, ForeignKey, Integer, String
+from sqlalchemy.dialects.postgresql import UUID
 from sqlalchemy.orm import relationship
 
 from app.db.base_class import Base
@@ -10,8 +10,8 @@ from app.db.base_class import Base
 class Organization(Base):
     __tablename__ = "organizations"
 
-    id = Column(UUID(as_uuid=True), primary_key=True)
-    created_by = Column(UUID(as_uuid=True), ForeignKey("users.id"), nullable=False)
+    id = Column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
+    created_by = Column(UUID(as_uuid=True), ForeignKey("base_users.id"), nullable=False)
     name = Column(String, nullable=False)
     type = Column(String)
     size = Column(String)
@@ -24,8 +24,6 @@ class Organization(Base):
     benefits = Column(ARRAY(String))
     select_career_path = Column(String)
     logo_url = Column(String)
-    created_at = Column(DateTime, default=datetime.utcnow)
-    updated_at = Column(DateTime, default=datetime.utcnow)
 
     members = relationship("UserTalentHub", backref="organization")
     positions = relationship("Position", backref="organization")

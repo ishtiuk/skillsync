@@ -28,7 +28,6 @@ class ValidationMiddleware:
                     token_data = verify_token(token)
                     request.app.state.user = token_data["email"]
                     request.app.state.platform = token_data["platform"]  # Store platform info
-
                 else:
                     return JSONResponse(
                         status_code=status.HTTP_401_UNAUTHORIZED,

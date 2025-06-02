@@ -1,28 +1,39 @@
 services:
   api:
-    container_name: green_jobs_backend
+    container_name: skillsync_backend
     restart: on-failure
     depends_on:
-      - greenjobs_db
+      - skillsync_db
     env_file:
       - .env
-
     build:
       context: .
       dockerfile: Dockerfile
     ports:
-      - "8000:5000"
+      - "8000:8000"
+    volumes:
+      - .:/skillsync_backend
+      - ./app:/skillsync_backend/app
+    environment:
+      - PYTHONPATH=/skillsync_backend
+      - PYTHONDONTWRITEBYTECODE=1
+      - PYTHONUNBUFFERED=1
 
-  greenjobs_db:
-    image: bitnami/postgresql:15.3.0-debian-11-r85
+  skillsync_db:
+    image: postgres:15-alpine
     ports:
       - "5432:5432"
     volumes:
-      - green_jobs-db:/bitnami/postgresql
+      - skillsync_db:/var/lib/postgresql/data
     environment:
-      - POSTGRESQL_USERNAME=postgres
-      - POSTGRESQL_PASSWORD=password
-      - POSTGRESQL_DATABASE=green_jobs_db
+      - POSTGRES_USER=postgres
+      - POSTGRES_PASSWORD=password
+      - POSTGRES_DB=skillsync_db
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
 
 volumes:
-  green_jobs-db:
+  skillsync_db:
