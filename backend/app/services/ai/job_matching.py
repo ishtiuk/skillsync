@@ -1,83 +1,82 @@
-from typing import List, Dict
-import numpy as np
-from sqlalchemy.orm import Session
+# from typing import Dict, List
 
-from app.models.talenthub.organization import Position
-from app.models.core.user import UserCareerForge
-from app.utils.exceptions import AIServiceException
+# import numpy as np
+# from sqlalchemy.orm import Session
 
-class JobMatchingService:
-    def __init__(self):
-        self.similarity_threshold = 0.7
+# from app.utils.exceptions import AIServiceException
+# from backend.app.models.organization import Position
+# from backend.app.models.user import UserCareerForge
 
-    def calculate_similarity(self, vec1: np.ndarray, vec2: np.ndarray) -> float:
-        """Calculate cosine similarity between two vectors"""
-        return np.dot(vec1, vec2) / (np.linalg.norm(vec1) * np.linalg.norm(vec2))
 
-    def match_jobs(
-        self, 
-        db: Session, 
-        user: UserCareerForge, 
-        positions: List[Position]
-    ) -> List[Dict]:
-        """Match user profile with job positions"""
-        try:
-            if not user.skill_vector:
-                raise AIServiceException("User skill vector not available")
+# class JobMatchingService:
+#     def __init__(self):
+#         self.similarity_threshold = 0.7
 
-            user_vector = np.array(user.skill_vector)
-            matches = []
+#     def calculate_similarity(self, vec1: np.ndarray, vec2: np.ndarray) -> float:
+#         """Calculate cosine similarity between two vectors"""
+#         return np.dot(vec1, vec2) / (np.linalg.norm(vec1) * np.linalg.norm(vec2))
 
-            for position in positions:
-                # Calculate required skills match
-                required_skills_vector = position.required_skills_vector
-                if required_skills_vector:
-                    skill_similarity = self.calculate_similarity(
-                        user_vector, 
-                        np.array(required_skills_vector)
-                    )
-                else:
-                    continue
+#     def match_jobs(
+#         self, db: Session, user: UserCareerForge, positions: List[Position]
+#     ) -> List[Dict]:
+#         """Match user profile with job positions"""
+#         try:
+#             if not user.skill_vector:
+#                 raise AIServiceException("User skill vector not available")
 
-                if skill_similarity >= self.similarity_threshold:
-                    matches.append({
-                        "position": position,
-                        "match_score": float(skill_similarity),
-                        "matching_skills": [],  # Add skill matching logic
-                        "missing_skills": []    # Add skill gap analysis
-                    })
+#             user_vector = np.array(user.skill_vector)
+#             matches = []
 
-            # Sort matches by score
-            matches.sort(key=lambda x: x["match_score"], reverse=True)
-            return matches
+#             for position in positions:
+#                 # Calculate required skills match
+#                 required_skills_vector = position.required_skills_vector
+#                 if required_skills_vector:
+#                     skill_similarity = self.calculate_similarity(
+#                         user_vector, np.array(required_skills_vector)
+#                     )
+#                 else:
+#                     continue
 
-        except Exception as e:
-            raise AIServiceException(f"Job matching failed: {str(e)}")
+#                 if skill_similarity >= self.similarity_threshold:
+#                     matches.append(
+#                         {
+#                             "position": position,
+#                             "match_score": float(skill_similarity),
+#                             "matching_skills": [],  # Add skill matching logic
+#                             "missing_skills": [],  # Add skill gap analysis
+#                         }
+#                     )
 
-    def get_skill_recommendations(
-        self, 
-        user: UserCareerForge, 
-        target_position: Position
-    ) -> List[str]:
-        """Get skill recommendations for a target position"""
-        try:
-            current_skills = set(user.skills or [])
-            required_skills = set(target_position.required_skills or [])
-            preferred_skills = set(target_position.preferred_skills or [])
+#             # Sort matches by score
+#             matches.sort(key=lambda x: x["match_score"], reverse=True)
+#             return matches
 
-            # Skills user needs to acquire
-            missing_required = required_skills - current_skills
-            missing_preferred = preferred_skills - current_skills
+#         except Exception as e:
+#             raise AIServiceException(f"Job matching failed: {str(e)}")
 
-            recommendations = {
-                "required_skills": list(missing_required),
-                "preferred_skills": list(missing_preferred),
-                "priority": "high" if missing_required else "medium"
-            }
+#     def get_skill_recommendations(
+#         self, user: UserCareerForge, target_position: Position
+#     ) -> List[str]:
+#         """Get skill recommendations for a target position"""
+#         try:
+#             current_skills = set(user.skills or [])
+#             required_skills = set(target_position.required_skills or [])
+#             preferred_skills = set(target_position.preferred_skills or [])
 
-            return recommendations
+#             # Skills user needs to acquire
+#             missing_required = required_skills - current_skills
+#             missing_preferred = preferred_skills - current_skills
 
-        except Exception as e:
-            raise AIServiceException(f"Skill recommendation failed: {str(e)}")
+#             recommendations = {
+#                 "required_skills": list(missing_required),
+#                 "preferred_skills": list(missing_preferred),
+#                 "priority": "high" if missing_required else "medium",
+#             }
 
-job_matching_service = JobMatchingService()
+#             return recommendations
+
+#         except Exception as e:
+#             raise AIServiceException(f"Skill recommendation failed: {str(e)}")
+
+
+# job_matching_service = JobMatchingService()

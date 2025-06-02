@@ -1,39 +1,15 @@
 from datetime import datetime
-from typing import Dict, List
 from uuid import UUID
 
-from sqlalchemy import Boolean, Column, DateTime, ForeignKey, Integer, String, JSON, ARRAY
-from sqlalchemy.dialects.postgresql import UUID
+from sqlalchemy import ARRAY, Column, DateTime, ForeignKey, Integer, String
 from sqlalchemy.orm import relationship
 
 from app.db.base_class import Base
 
-class Organization(Base):
-    __tablename__ = "organizations"
-    
-    id = Column(UUID(as_uuid=True), primary_key=True)
-    name = Column(String, nullable=False)
-    type = Column(String)
-    size = Column(String)
-    no_of_employees = Column(Integer)
-    is_bipoc_owned = Column(Boolean, default=False)
-    location = Column(String)
-    city = Column(String)
-    state = Column(String)
-    country = Column(String)
-    overview = Column(String)
-    benefits = Column(JSON)
-    select_a_pathway = Column(String)
-    logo_url = Column(String)
-    created_at = Column(DateTime, default=datetime.utcnow)
-    updated_at = Column(DateTime, default=datetime.utcnow)
-
-    members = relationship("UserTalentHub", backref="organization")
-    positions = relationship("Position", backref="organization")
 
 class Position(Base):
     __tablename__ = "positions"
-    
+
     id = Column(UUID(as_uuid=True), primary_key=True)
     organization_id = Column(UUID(as_uuid=True), ForeignKey("organizations.id"))
     recruiter_id = Column(UUID(as_uuid=True), ForeignKey("user_talenthub.id"))
