@@ -1,11 +1,9 @@
-from core.logger import logger
 import traceback
 
 from fastapi import status
 
 from core.constants import error_messages
-
-
+from core.logger import logger
 
 
 class BaseCustomException(Exception):
@@ -81,6 +79,12 @@ class PermissionDeniedException(BaseCustomException):
 class ConflictException(BaseCustomException):
     def __init__(self, message=error_messages.CONFLICT_ERROR, status_code=status.HTTP_409_CONFLICT):
         super().__init__(message, status_code)
+
+
+class PlatformException(Exception):
+    def __init__(self, message: str, status_code: int = 403):
+        self.message = message
+        self.status_code = status_code
 
 
 class CustomException(Exception):
