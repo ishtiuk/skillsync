@@ -2,6 +2,7 @@ import uuid
 
 from sqlalchemy import JSON, Boolean, Column, ForeignKey, String
 from sqlalchemy.dialects.postgresql import UUID
+from sqlalchemy.orm import relationship
 
 from app.db.base_class import Base
 
@@ -17,3 +18,5 @@ class JobApplication(Base):
     notes = Column(String(4096), nullable=True)
     stage = Column(JSON, nullable=True)
     is_favourite = Column(Boolean, nullable=False, server_default="false")
+
+    position = relationship("Position", backref="applications")

@@ -3,7 +3,8 @@ services:
     container_name: skillsync_backend
     restart: on-failure
     depends_on:
-      - skillsync_db
+      skillsync_db:
+        condition: service_healthy
     env_file:
       - .env
     build:
@@ -12,12 +13,16 @@ services:
     ports:
       - "8000:8000"
     volumes:
-      - .:/skillsync_backend
+      - ./:/skillsync_backend
       - ./app:/skillsync_backend/app
+      - ./alembic:/skillsync_backend/alembic
+      - ./core:/skillsync_backend/core
     environment:
       - PYTHONPATH=/skillsync_backend
       - PYTHONDONTWRITEBYTECODE=1
       - PYTHONUNBUFFERED=1
+    networks:
+      - skillsync_network
 
   skillsync_db:
     image: postgres:15-alpine
@@ -34,6 +39,14 @@ services:
       interval: 5s
       timeout: 5s
       retries: 5
+    networks:
+      - skillsync_network
+    restart: unless-stopped
 
 volumes:
   skillsync_db:
+    name: skillsync_db_data
+
+networks:
+  skillsync_network:
+    name: skillsync_network

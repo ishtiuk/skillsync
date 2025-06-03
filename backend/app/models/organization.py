@@ -25,5 +25,4 @@ class Organization(Base):
     select_career_path = Column(String)
     logo_url = Column(String)
 
-    members = relationship("UserTalentHub", backref="organization")
     positions = relationship("Position", backref="organization")

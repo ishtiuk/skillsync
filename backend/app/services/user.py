@@ -1,8 +1,8 @@
+from datetime import datetime
 from typing import List, Union
 
 from fastapi import Depends, Request
 from pydantic import UUID4
-from sqlalchemy.exc import IntegrityError
 from sqlalchemy.orm import Session
 
 from app.db.crud import CRUDBase
@@ -20,6 +20,7 @@ from app.schemas.user import (
     UserUpdateRequest,
 )
 from app.utils.exceptions import (
+    ConflictException,
     DatabaseException,
     InvalidUserException,
     PlatformException,
@@ -90,7 +91,21 @@ class UserService:
         self, db: Session, user: UserCreateRequest
     ) -> Union[UserCareerForge, UserTalentHub]:
         try:
-            # Create base user first
+            # Check if email already exists in the platform-specific table
+            if user.platform == Platform.careerforge:
+                existing_user = user_careerforge_crud.get_by_field(
+                    db=db, field="email", value=user.email
+                )
+            else:
+                existing_user = user_talenthub_crud.get_by_field(
+                    db=db, field="email", value=user.email
+                )
+
+            if existing_user:
+                logger.error(f"Failed to create user: Email {user.email} already exists")
+                raise ConflictException(message=error_messages.CONFLICT_ERROR)
+
+            # If email doesn't exist, proceed with user creation
             base_user_data = BaseUserCreate(
                 provider="self",
                 provider_id=user.email,
@@ -105,7 +120,6 @@ class UserService:
                 "last_name": user.last_name,
                 "password_hash": get_password_hash(user.password),
                 "is_active": True,
-                "role": "user",
             }
 
             if user.platform == Platform.careerforge:
@@ -115,9 +129,8 @@ class UserService:
 
             return profile
 
-        except IntegrityError:
-            logger.error(f"Failed to create user: Email {user.email} already exists")
-            raise DatabaseException(message=error_messages.CONFLICT_ERROR)
+        except ConflictException:
+            raise ConflictException(message=error_messages.CONFLICT_ERROR)
         except Exception as e:
             logger.error(f"Failed to create user: {str(e)}")
             raise DatabaseException(message=error_messages.INTERNAL_SERVER_ERROR)
@@ -127,6 +140,20 @@ class UserService:
     ) -> Union[UserCareerForge, UserTalentHub]:
         """Create user with Google OAuth"""
         try:
+            # Check if email already exists in the platform-specific table
+            if user.platform == Platform.careerforge:
+                existing_user = user_careerforge_crud.get_by_field(
+                    db=db, field="email", value=user.email
+                )
+            else:
+                existing_user = user_talenthub_crud.get_by_field(
+                    db=db, field="email", value=user.email
+                )
+
+            if existing_user:
+                logger.error(f"Failed to create Google user: Email {user.email} already exists")
+                raise ConflictException(message=error_messages.CONFLICT_ERROR)
+
             # Create base user first
             base_user_data = BaseUserCreate(
                 provider="google",
@@ -153,9 +180,8 @@ class UserService:
 
             return profile
 
-        except IntegrityError:
-            logger.error(f"Failed to create Google user: Email {user.email} already exists")
-            raise DatabaseException(message=error_messages.CONFLICT_ERROR)
+        except ConflictException:
+            raise ConflictException(message=error_messages.CONFLICT_ERROR)
         except Exception as e:
             logger.error(f"Failed to create Google user: {str(e)}")
             raise DatabaseException(message=error_messages.INTERNAL_SERVER_ERROR)
@@ -323,21 +349,96 @@ class UserService:
         user: Union[UserCareerForge, UserTalentHub],
         update_data: UserUpdateRequest,
     ) -> Union[UserCareerForge, UserTalentHub]:
+        """Update user data based on platform type"""
         try:
-            update_dict = {
-                key: value
-                for key, value in update_data.dict(exclude_unset=True).items()
-                if value is not None
-            }
+            # Common attributes for both platforms
+            common_attributes = [
+                "first_name",
+                "last_name",
+                "gender",
+                "nationality",
+                "phone_number",
+                "city",
+                "state",
+                "country",
+                "profile_picture_url",
+                "personal_website_url",
+                "current_job_title",
+                "linkedin_url",
+                "instagram_url",
+                "facebook_url",
+                "x_twitter_url",
+            ]
 
+            # CareerForge-specific attributes
+            careerforge_attributes = [
+                "profile_strength",
+                "parsed_resume",
+                "skill_vector",
+                "career_stage",
+                "industry_focus",
+                "ethnicity",
+                "current_career",
+                "job_search_phase",
+                "skills",
+                "interests",
+                "career_summary",
+                "birthday",
+                "background_image_url",
+                "achievement_score",
+                "github_url",
+            ]
+
+            # TalentHub-specific attributes
+            talenthub_attributes = [
+                "department",
+                "hiring_capacity",
+                "recruitment_focus",
+                "notification_preferences",
+                "candidate_scoring_weights",
+                "interview_availability",
+                "verified",
+                "verification_date",
+                "verification_method",
+                "talent_pipeline_size",
+                "success_metrics",
+            ]
+
+            # Set the CRUD base based on user type
             if isinstance(user, UserCareerForge):
-                updated_user = user_careerforge_crud.update(db=db, db_obj=user, obj_in=update_dict)
+                crud_base = user_careerforge_crud
+                platform_attributes = careerforge_attributes
             else:
-                updated_user = user_talenthub_crud.update(db=db, db_obj=user, obj_in=update_dict)
+                crud_base = user_talenthub_crud
+                platform_attributes = talenthub_attributes
 
+            # Update common attributes
+            for attr in common_attributes:
+                value = getattr(update_data, attr, None)
+                if value is not None:
+                    setattr(user, attr, value)
+
+            # Update platform-specific attributes
+            for attr in platform_attributes:
+                value = getattr(update_data, attr, None)
+                if value is not None:
+                    if isinstance(value, list):
+                        value = list(set(value))  # Deduplicate lists
+                    setattr(user, attr, value)
+
+            # Update timestamps
+            user.updated_at = datetime.now()
+            last_active = getattr(update_data, "last_active", None)
+            if last_active:
+                user.last_active = last_active
+
+            # Update the user in database
+            updated_user = crud_base.update(db=db, obj_in=user)
             return updated_user
+
         except Exception as e:
-            logger.error(f"Failed to update user: {str(e)}")
+            db.rollback()
+            logger.error(f"Failed to update user data: {str(e)}")
             raise DatabaseException(message=error_messages.INTERNAL_SERVER_ERROR)
 
 

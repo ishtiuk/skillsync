@@ -4,10 +4,10 @@ from sqlalchemy import ARRAY, JSON, Boolean, Column, DateTime, Float, ForeignKey
 from sqlalchemy.dialects.postgresql import UUID
 from sqlalchemy.orm import relationship
 
-from app.db.base_class import Base
+from app.db.base_class import Base, Timestamp
 
 
-class BaseUser(Base):
+class BaseUser(Base, Timestamp):
     __tablename__ = "base_users"
 
     id = Column(UUID(as_uuid=True), primary_key=True, index=True, default=uuid.uuid4)
@@ -18,11 +18,11 @@ class BaseUser(Base):
 
     careerforge_profile = relationship("UserCareerForge", backref="base_user")
     talenthub_profile = relationship("UserTalentHub", backref="base_user")
-    subscription = relationship("Subscription", backref="user")
-    feature_usage = relationship("FeatureUsage", backref="user")
+    # subscription = relationship("Subscription", backref="user")
+    # feature_usage = relationship("FeatureUsage", backref="user")
 
 
-class UserCareerForge(Base):
+class UserCareerForge(Base, Timestamp):
     __tablename__ = "user_careerforge"
 
     id = Column(UUID(as_uuid=True), primary_key=True, index=True, default=uuid.uuid4)
@@ -32,7 +32,6 @@ class UserCareerForge(Base):
     email = Column(String, unique=True, index=True)
     password_hash = Column(String)
     is_active = Column(Boolean, default=True)
-    role = Column(String(32), server_default="user")  # user, admin, moderator
     last_active = Column(DateTime(timezone=True))
 
     # Basic Info
@@ -77,12 +76,15 @@ class UserCareerForge(Base):
     # UI Customization
     background_image_url = Column(String)
 
+    # Relationships defined with backref
     experiences = relationship("Experience", backref="user")
     portfolios = relationship("Portfolio", backref="user")
     milestones = relationship("Milestone", backref="user")
+    job_applications = relationship("JobApplication", backref="user")
+    user_files = relationship("UserFiles", backref="user")
 
 
-class UserTalentHub(Base):
+class UserTalentHub(Base, Timestamp):
     __tablename__ = "user_talenthub"
 
     id = Column(UUID(as_uuid=True), primary_key=True, index=True, default=uuid.uuid4)
@@ -93,7 +95,6 @@ class UserTalentHub(Base):
     email = Column(String, unique=True, index=True)
     password_hash = Column(String)
     is_active = Column(Boolean, default=True)
-    role = Column(String(32), server_default="user")  # user, admin, moderator
     last_active = Column(DateTime(timezone=True))
 
     # Basic Info
@@ -101,10 +102,10 @@ class UserTalentHub(Base):
     last_name = Column(String)
     phone_number = Column(String)
     profile_picture_url = Column(String)
+    country = Column(String)
 
     # Role Information
     department = Column(String)
-    role = Column(String)  # role within organization
     hiring_capacity = Column(Integer)
     recruitment_focus = Column(ARRAY(String))
 
@@ -121,4 +122,14 @@ class UserTalentHub(Base):
     interview_availability = Column(JSON)  # Recruiter's available time slots
 
     organization = relationship("Organization", backref="members")
-    positions = relationship("Position", backref="recruiter")
+
+
+class UserFiles(Base, Timestamp):
+    __tablename__ = "user_files"
+    __table_args__ = {"extend_existing": True}
+
+    id = Column(UUID(as_uuid=True), primary_key=True, index=True, default=uuid.uuid4)
+    user_id = Column(UUID(as_uuid=True), ForeignKey("user_careerforge.id"), nullable=False)
+    file_name = Column(String(512), nullable=False)
+    file_url = Column(String(512), nullable=False)
+    file_type = Column(String(32), nullable=False)

@@ -2,7 +2,6 @@ import uuid
 
 from sqlalchemy import ARRAY, Boolean, Column, DateTime, ForeignKey, String
 from sqlalchemy.dialects.postgresql import UUID
-from sqlalchemy.orm import relationship
 
 from app.db.base_class import Base
 
@@ -22,5 +21,3 @@ class Experience(Base):
     achievements = Column(ARRAY(String))
     location = Column(String)
     employment_type = Column(String)
-
-    user = relationship("UserCareerForge", backref="experiences")
