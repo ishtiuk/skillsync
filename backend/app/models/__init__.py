@@ -1,4 +1,4 @@
-from .cover_letters import CoverLetter
+from .cover_letters import CoverLetters
 from .experience import Experience
 from .milestone import Milestone
 from .organization import Organization
