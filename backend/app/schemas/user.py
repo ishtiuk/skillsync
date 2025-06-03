@@ -28,7 +28,6 @@ class UserBase(BaseModel):
     password: str
     first_name: str
     last_name: str
-    role: str = "user"
     is_active: bool = True
 
 
@@ -85,6 +84,7 @@ class UserCareerForgeProfile(BaseModel):
     birthday: Optional[str] = None
     current_job_title: Optional[str] = None
     background_image_url: Optional[str] = None
+    github_url: Optional[str] = None
 
     class Config:
         from_attributes = True
@@ -101,7 +101,6 @@ class UserTalentHubProfile(BaseModel):
     # Organization Info
     organization_id: Optional[UUID4] = None
     department: Optional[str] = None
-    role: Optional[str] = None
     hiring_capacity: Optional[int] = None
     recruitment_focus: Optional[List[str]] = None
 
@@ -164,7 +163,7 @@ class PublicUserResponse(BaseModel):
     x_twitter_url: Optional[str] = None
     personal_website_url: Optional[str] = None
     skills: Optional[List[str]] = None
-    career_summary: Optional[str] = (None,)
+    career_summary: Optional[str] = None
     profile_picture_url: Optional[str] = None
     current_career: Optional[str] = None
     background_image_url: Optional[str] = None
@@ -199,26 +198,58 @@ class UpdatePasswordRequest(BaseModel):
     token: str
 
 
+class CareerStage(str, Enum):
+    entry = "entry"
+    mid = "mid"
+    senior = "senior"
+    expert = "expert"
+
+
 class UserUpdateRequest(BaseModel):
+    # Common fields for both platforms
     first_name: Optional[str] = None
     last_name: Optional[str] = None
     gender: Optional[str] = None
-    ethnicity: Optional[str] = None
     nationality: Optional[str] = None
     phone_number: Optional[str] = None
     city: Optional[str] = None
     state: Optional[str] = None
     country: Optional[str] = None
+    profile_picture_url: Optional[str] = None
+    personal_website_url: Optional[str] = None
+    current_job_title: Optional[str] = None
+
+    # Social media fields (common)
     linkedin_url: Optional[str] = None
     instagram_url: Optional[str] = None
     facebook_url: Optional[str] = None
     x_twitter_url: Optional[str] = None
-    personal_website_url: Optional[str] = None
+
+    # CareerForge-specific fields
+    profile_strength: Optional[int] = None
+    parsed_resume: Optional[Dict] = None
+    skill_vector: Optional[List[float]] = None
+    career_stage: Optional[str] = None  # entry, mid, senior, expert
+    industry_focus: Optional[List[str]] = None
+    ethnicity: Optional[str] = None
     current_career: Optional[str] = None
     job_search_phase: Optional[str] = None
     skills: Optional[List[str]] = None
     interests: Optional[List[str]] = None
     career_summary: Optional[str] = None
     birthday: Optional[str] = None
-    current_job_title: Optional[str] = None
     background_image_url: Optional[str] = None
+    achievement_score: Optional[int] = None
+
+    # TalentHub-specific fields
+    department: Optional[str] = None
+    hiring_capacity: Optional[int] = None
+    recruitment_focus: Optional[List[str]] = None
+    notification_preferences: Optional[Dict] = None
+    candidate_scoring_weights: Optional[Dict] = None
+    interview_availability: Optional[Dict] = None
+    verified: Optional[bool] = None
+    verification_date: Optional[datetime] = None
+    verification_method: Optional[str] = None
+    talent_pipeline_size: Optional[int] = None
+    success_metrics: Optional[Dict] = None

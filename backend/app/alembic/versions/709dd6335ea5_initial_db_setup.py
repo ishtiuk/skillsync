@@ -1,16 +1,17 @@
 """initial_db_setup
 
-Revision ID: 5782a2f91331
+Revision ID: 709dd6335ea5
 Revises:
-Create Date: 2025-06-03 00:30:41.980601
+Create Date: 2025-06-04 00:37:53.567096
 
 """
 
 import sqlalchemy as sa
+
 from alembic import op
 
 # revision identifiers, used by Alembic.
-revision = "5782a2f91331"
+revision = "709dd6335ea5"
 down_revision = None
 branch_labels = None
 depends_on = None
@@ -25,6 +26,10 @@ def upgrade() -> None:
         sa.Column("provider_id", sa.String(), nullable=False),
         sa.Column("platform", sa.String(length=32), nullable=False),
         sa.Column("account_tier", sa.String(length=32), server_default="free", nullable=True),
+        sa.Column(
+            "created_at", sa.DateTime(timezone=True), server_default=sa.text("now()"), nullable=True
+        ),
+        sa.Column("updated_at", sa.DateTime(timezone=True), nullable=True),
         sa.PrimaryKeyConstraint("id"),
     )
     op.create_index(op.f("ix_base_users_id"), "base_users", ["id"], unique=False)
@@ -57,7 +62,6 @@ def upgrade() -> None:
         sa.Column("email", sa.String(), nullable=True),
         sa.Column("password_hash", sa.String(), nullable=True),
         sa.Column("is_active", sa.Boolean(), nullable=True),
-        sa.Column("role", sa.String(length=32), server_default="user", nullable=True),
         sa.Column("last_active", sa.DateTime(timezone=True), nullable=True),
         sa.Column("first_name", sa.String(), nullable=True),
         sa.Column("last_name", sa.String(), nullable=True),
@@ -89,6 +93,10 @@ def upgrade() -> None:
         sa.Column("personal_website_url", sa.String(), nullable=True),
         sa.Column("github_url", sa.String(), nullable=True),
         sa.Column("background_image_url", sa.String(), nullable=True),
+        sa.Column(
+            "created_at", sa.DateTime(timezone=True), server_default=sa.text("now()"), nullable=True
+        ),
+        sa.Column("updated_at", sa.DateTime(timezone=True), nullable=True),
         sa.ForeignKeyConstraint(
             ["base_user_id"],
             ["base_users.id"],
@@ -171,6 +179,24 @@ def upgrade() -> None:
         sa.PrimaryKeyConstraint("id"),
     )
     op.create_table(
+        "user_files",
+        sa.Column("id", sa.UUID(), nullable=False),
+        sa.Column("user_id", sa.UUID(), nullable=False),
+        sa.Column("file_name", sa.String(length=512), nullable=False),
+        sa.Column("file_url", sa.String(length=512), nullable=False),
+        sa.Column("file_type", sa.String(length=32), nullable=False),
+        sa.Column(
+            "created_at", sa.DateTime(timezone=True), server_default=sa.text("now()"), nullable=True
+        ),
+        sa.Column("updated_at", sa.DateTime(timezone=True), nullable=True),
+        sa.ForeignKeyConstraint(
+            ["user_id"],
+            ["user_careerforge.id"],
+        ),
+        sa.PrimaryKeyConstraint("id"),
+    )
+    op.create_index(op.f("ix_user_files_id"), "user_files", ["id"], unique=False)
+    op.create_table(
         "user_talenthub",
         sa.Column("id", sa.UUID(), nullable=False),
         sa.Column("base_user_id", sa.UUID(), nullable=True),
@@ -178,12 +204,12 @@ def upgrade() -> None:
         sa.Column("email", sa.String(), nullable=True),
         sa.Column("password_hash", sa.String(), nullable=True),
         sa.Column("is_active", sa.Boolean(), nullable=True),
-        sa.Column("role", sa.String(), nullable=True),
         sa.Column("last_active", sa.DateTime(timezone=True), nullable=True),
         sa.Column("first_name", sa.String(), nullable=True),
         sa.Column("last_name", sa.String(), nullable=True),
         sa.Column("phone_number", sa.String(), nullable=True),
         sa.Column("profile_picture_url", sa.String(), nullable=True),
+        sa.Column("country", sa.String(), nullable=True),
         sa.Column("department", sa.String(), nullable=True),
         sa.Column("hiring_capacity", sa.Integer(), nullable=True),
         sa.Column("recruitment_focus", sa.ARRAY(sa.String()), nullable=True),
@@ -195,6 +221,10 @@ def upgrade() -> None:
         sa.Column("notification_preferences", sa.JSON(), nullable=True),
         sa.Column("candidate_scoring_weights", sa.JSON(), nullable=True),
         sa.Column("interview_availability", sa.JSON(), nullable=True),
+        sa.Column(
+            "created_at", sa.DateTime(timezone=True), server_default=sa.text("now()"), nullable=True
+        ),
+        sa.Column("updated_at", sa.DateTime(timezone=True), nullable=True),
         sa.ForeignKeyConstraint(
             ["base_user_id"],
             ["base_users.id"],
@@ -269,6 +299,8 @@ def downgrade() -> None:
     op.drop_index(op.f("ix_user_talenthub_id"), table_name="user_talenthub")
     op.drop_index(op.f("ix_user_talenthub_email"), table_name="user_talenthub")
     op.drop_table("user_talenthub")
+    op.drop_index(op.f("ix_user_files_id"), table_name="user_files")
+    op.drop_table("user_files")
     op.drop_table("portfolios")
     op.drop_table("milestones")
     op.drop_table("experiences")

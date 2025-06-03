@@ -1,36 +1,21 @@
-FROM python:3.11-slim
-
-# Set environment variables
-ENV PYTHONDONTWRITEBYTECODE=1 \
-    PYTHONUNBUFFERED=1 \
-    POETRY_VERSION=1.6.1 \
-    POETRY_HOME="/opt/poetry" \
-    POETRY_VIRTUALENVS_CREATE=false
+FROM python:3.11.4
 
 # Install system dependencies
-RUN apt-get update \
-    && apt-get install -y --no-install-recommends \
-        curl \
-        build-essential \
-        libpq-dev \
+RUN apt-get update && apt-get install -y \
+    libpq-dev \
     && rm -rf /var/lib/apt/lists/*
 
-# Install Poetry
-RUN curl -sSL https://install.python-poetry.org | python -
+WORKDIR /skillsync_backend/app/
 
-# Add Poetry to PATH
-ENV PATH="${POETRY_HOME}/bin:${PATH}"
+COPY ./requirements.txt requirements.txt
+RUN python -m pip install --upgrade pip
+RUN python -m pip install -r requirements.txt
 
-WORKDIR /skillsync_backend
-
-# Copy only requirements first to leverage Docker cache
-COPY pyproject.toml poetry.lock* ./
-
-# Install dependencies
-RUN poetry install --no-root --no-dev
-
-# Copy the rest of the application
+WORKDIR /skillsync_backend/
 COPY . .
 
-# Set the default command
-CMD ["poetry", "run", "python", "main.py"]
+ENV PYTHONPATH=/skillsync_backend
+ENV PYTHONDONTWRITEBYTECODE=1
+ENV PYTHONUNBUFFERED=1
+
+CMD ["sh", "-c", "echo 'Running database migrations...' && alembic upgrade head && echo 'Starting FastAPI application...' && python main.py"]

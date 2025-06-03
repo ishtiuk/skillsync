@@ -2,7 +2,6 @@ import uuid
 
 from sqlalchemy import ARRAY, Column, ForeignKey, Integer, String
 from sqlalchemy.dialects.postgresql import UUID
-from sqlalchemy.orm import relationship
 
 from app.db.base_class import Base
 
@@ -19,5 +18,3 @@ class Portfolio(Base):
     github_url = Column(String)
     showcase_priority = Column(Integer)
     visibility = Column(String(32))
-
-    user = relationship("UserCareerForge", backref="portfolios")

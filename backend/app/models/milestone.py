@@ -2,7 +2,6 @@ import uuid
 
 from sqlalchemy import Boolean, Column, DateTime, ForeignKey, Integer, String
 from sqlalchemy.dialects.postgresql import UUID
-from sqlalchemy.orm import relationship
 
 from app.db.base_class import Base
 
@@ -19,5 +18,3 @@ class Milestone(Base):
     verified = Column(Boolean, server_default="false")
     proof_url = Column(String)
     completed_at = Column(DateTime)
-
-    user = relationship("UserCareerForge", backref="milestones")
