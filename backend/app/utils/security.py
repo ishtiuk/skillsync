@@ -6,13 +6,13 @@ from jose import JWTError, jwt
 from passlib.context import CryptContext
 
 from app.db.crud import CRUDBase
-from app.models.user import BaseUser, UserCandid, UserPathways
+from app.models.user import BaseUser, UserCareerforge, UserTalenthub
 from app.schemas.user import Platform
 from core.config import settings
 
 base_user_crud = CRUDBase(model=BaseUser)
-pathways_user_crud = CRUDBase(model=UserPathways)
-candid_user_crud = CRUDBase(model=UserCandid)
+careerforge_user_crud = CRUDBase(model=UserCareerforge)
+talent_user_crud = CRUDBase(model=UserTalenthub)
 
 password_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
 

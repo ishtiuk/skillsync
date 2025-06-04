@@ -2,7 +2,7 @@ import uuid
 
 from sqlalchemy import ARRAY, Column, ForeignKey, String
 from sqlalchemy.dialects.postgresql import UUID
-from sqlalchemy.orm import relationship, backref
+from sqlalchemy.orm import backref, relationship
 
 from app.db.base_class import Base, Timestamp
 
@@ -10,22 +10,25 @@ from app.db.base_class import Base, Timestamp
 class BaseUser(Base, Timestamp):
     __tablename__ = "base_users"
 
-    id = Column(UUID(as_uuid=True), primary_key=True, index=True, default=uuid.uuid4)
+    id = Column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
     provider = Column(String(32), nullable=False)
     provider_id = Column(String, nullable=False)
-    platform = Column(String(32), nullable=False)  # 'pathways' or 'candid'
+    platform = Column(String(32), nullable=False)  # 'careerforge' or 'talenthub'
 
-    user_pathways = relationship("UserPathways", backref="base_user", uselist=False)
-    user_candid = relationship("UserCandid", backref="base_user", uselist=False)
+    user_careerforge = relationship(
+        "UserCareerforge", backref=backref("base_user", uselist=False), uselist=False
+    )
+    user_talenthub = relationship(
+        "UserTalenthub", backref=backref("base_user", uselist=False), uselist=False
+    )
     payments = relationship("Payments", backref="base_user")
     feature_tracking = relationship("FeatureTracking", backref="user")
 
 
-class UserPathways(Base, Timestamp):
-    __tablename__ = "user_pathways"
-    __table_args__ = {"extend_existing": True}
+class UserCareerforge(Base, Timestamp):
+    __tablename__ = "user_careerforge"
 
-    id = Column(UUID(as_uuid=True), primary_key=True, index=True, default=uuid.uuid4)
+    id = Column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
     base_user_id = Column(UUID(as_uuid=True), ForeignKey("base_users.id"), nullable=False)
     email = Column(String, unique=True, index=True, nullable=False)
     password_hash = Column(String, nullable=False)
@@ -53,18 +56,17 @@ class UserPathways(Base, Timestamp):
     profile_picture_url = Column(String(512), nullable=True)
     background_image_url = Column(String(512), nullable=True)
 
-    user_files_fk = relationship("UserFiles", backref="user_pathways")
-    job_experiences_fk = relationship("JobExperiences", backref="user_pathways")
-    applied_jobs_fk = relationship("AppliedJobs", backref="user_pathways")
-    cover_letters_fk = relationship("CoverLetters", backref="user_pathways")
-    goals_fk = relationship("Goals", backref="user_pathways")
+    user_files_fk = relationship("UserFiles", backref="user_careerforge")
+    experiences_fk = relationship("Experiences", backref="user_careerforge")
+    tracked_jobs_fk = relationship("TrackedJobs", backref="user_careerforge")
+    cover_letters_fk = relationship("CoverLetters", backref="user_careerforge")
+    milestones_fk = relationship("Milestones", backref="user_careerforge")
 
 
-class UserCandid(Base, Timestamp):
-    __tablename__ = "user_candid"
-    __table_args__ = {"extend_existing": True}
+class UserTalenthub(Base, Timestamp):
+    __tablename__ = "user_talenthub"
 
-    id = Column(UUID(as_uuid=True), primary_key=True, index=True, default=uuid.uuid4)
+    id = Column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
     base_user_id = Column(UUID(as_uuid=True), ForeignKey("base_users.id"), nullable=False)
     email = Column(String, unique=True, index=True, nullable=False)
     password_hash = Column(String, nullable=False)
@@ -78,24 +80,15 @@ class UserCandid(Base, Timestamp):
     profile_picture_url = Column(String(512), nullable=True)
     current_job_title = Column(String(64), nullable=True)
 
-    companies_fk = relationship(
-        "Companies", 
-        backref=backref("user_candid", overlaps="companies_fk"),
-        overlaps="user_candid"
-    )
-    job_roles_fk = relationship(
-        "JobRoles", 
-        backref=backref("user_candid", overlaps="job_roles_fk"),
-        overlaps="user_candid"
-    )
+    organizations_fk = relationship("Organizations", backref="user_talenthub")
+    positions_fk = relationship("Positions", backref="user_talenthub")
 
 
 class UserFiles(Base, Timestamp):
     __tablename__ = "user_files"
-    __table_args__ = {"extend_existing": True}
 
-    id = Column(UUID(as_uuid=True), primary_key=True, index=True, default=uuid.uuid4)
-    user_id = Column(UUID(as_uuid=True), ForeignKey("user_pathways.id"), nullable=False)
+    id = Column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
+    user_id = Column(UUID(as_uuid=True), ForeignKey("user_careerforge.id"), nullable=False)
     file_name = Column(String(512), nullable=False)
     file_url = Column(String(512), nullable=False)
     file_type = Column(String(32), nullable=False)

@@ -3,11 +3,11 @@ from typing import Dict, Optional
 
 from pydantic import UUID4, BaseModel, model_validator
 
-from app.schemas.job_role import JobRoleResponse
+from backend.app.schemas.positions import JobApplicationResponse
 from core.constants import constants
 
 
-class AppliedJobBase(BaseModel):
+class TrackedJobBase(BaseModel):
     job_id: UUID4
     activity: Optional[str] = None
     reaction: Optional[str] = None
@@ -64,11 +64,11 @@ class AppliedJobBase(BaseModel):
         return self
 
 
-class AppliedJobCreate(AppliedJobBase):
+class TrackedJobCreate(TrackedJobBase):
     pass
 
 
-class AppliedJobUpdate(BaseModel):
+class TrackedJobUpdate(BaseModel):
     activity: Optional[str] = None
     reaction: Optional[str] = None
     notes: Optional[str] = None
@@ -136,12 +136,12 @@ class AppliedJobUpdate(BaseModel):
         return self
 
 
-class AppliedJobResponse(AppliedJobBase):
+class TrackedJobResponse(TrackedJobBase):
     id: UUID4
     user_id: UUID4
     created_at: datetime
     updated_at: datetime
-    job_info: JobRoleResponse
+    job_info: JobApplicationResponse
 
     class Config:
         from_attributes = True

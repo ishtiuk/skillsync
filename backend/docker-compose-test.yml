@@ -1,13 +1,13 @@
 services:
   test_db:
     image: bitnami/postgresql:15.3.0-debian-11-r85
-    container_name: backend-test_db
+    container_name: skillsync-test_db
     ports:
       - "5433:5432"
     environment:
       - POSTGRESQL_USERNAME=postgres
       - POSTGRESQL_PASSWORD=password
-      - POSTGRESQL_DATABASE=green_jobs_test_db
+      - POSTGRESQL_DATABASE=skillsync_test_db
     healthcheck:
       test: ["CMD-SHELL", "pg_isready -U postgres"]
       interval: 5s

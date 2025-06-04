@@ -2,18 +2,17 @@ import uuid
 
 from sqlalchemy import ARRAY, Boolean, Column, Float, ForeignKey, String
 from sqlalchemy.dialects.postgresql import UUID
-from sqlalchemy.orm import relationship
 
 from app.db.base_class import Base, Timestamp
 
 
-class JobRoles(Base, Timestamp):
-    __tablename__ = "job_roles"
+class Positions(Base, Timestamp):
+    __tablename__ = "positions"
     __table_args__ = {"extend_existing": True}
 
     id = Column(UUID(as_uuid=True), primary_key=True, index=True, default=uuid.uuid4)
-    user_id = Column(UUID(as_uuid=True), ForeignKey("user_candid.id"), nullable=False)
-    company_id = Column(UUID(as_uuid=True), ForeignKey("companies.id"), nullable=False)
+    user_id = Column(UUID(as_uuid=True), ForeignKey("user_talenthub.id"), nullable=False)
+    organization_id = Column(UUID(as_uuid=True), ForeignKey("organizations.id"), nullable=False)
     title = Column(String(128), nullable=False)
     job_category = Column(String(128), nullable=False)
     position_type = Column(String(128), nullable=False)

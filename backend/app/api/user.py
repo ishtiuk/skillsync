@@ -7,7 +7,7 @@ from pydantic import UUID4
 from sqlalchemy.orm import Session
 
 from app.db.session import get_db
-from app.models.user import UserCandid, UserPathways
+from app.models.user import UserCareerforge, UserTalenthub
 from app.schemas.user import (
     CreateExp,
     ExpResponse,
@@ -26,11 +26,11 @@ from app.schemas.user import (
 from app.services.google_auth import google_auth_service
 from app.services.user import get_active_user, get_platform, user_service
 from app.utils.exceptions import (
+    ConflictException,
     DatabaseException,
     GoogleAuthException,
     InvalidUserException,
     ResourceNotFound,
-    ConflictException
 )
 from app.utils.security import create_access_token
 from core.constants import error_messages
@@ -105,7 +105,7 @@ def create_user(user_data: UserCreateRequest, db: Session = Depends(get_db)):
 @user_router.get("/user/me", response_model=UserResponse, tags=["users"])
 def get_current_user(
     platform: Platform = Depends(get_platform),
-    current_user_info: tuple[Union[UserPathways, UserCandid], str] = Depends(get_active_user),
+    current_user_info: tuple[Union[UserCareerforge, UserTalenthub], str] = Depends(get_active_user),
 ):
     try:
         current_user, provider = current_user_info
@@ -130,7 +130,7 @@ def get_current_user(
 def update_user(
     update_data: UserUpdateRequest,
     db: Session = Depends(get_db),
-    current_user_info: tuple[Union[UserPathways, UserCandid], str] = Depends(get_active_user),
+    current_user_info: tuple[Union[UserCareerforge, UserTalenthub], str] = Depends(get_active_user),
 ):
     try:
         current_user, provider = current_user_info
@@ -272,7 +272,7 @@ def update_password(
 def add_experience(
     job_exp: CreateExp,
     db: Session = Depends(get_db),
-    current_user_info: tuple[UserPathways, str] = Depends(get_active_user),
+    current_user_info: tuple[UserCareerforge, str] = Depends(get_active_user),
 ):
     current_user, _ = current_user_info
     try:
@@ -295,7 +295,7 @@ def add_experience(
 @user_router.get("/user/experience", tags=["users"], response_model=list[ExpResponse])
 def get_experiences(
     db: Session = Depends(get_db),
-    current_user_info: tuple[UserPathways, str] = Depends(get_active_user),
+    current_user_info: tuple[UserCareerforge, str] = Depends(get_active_user),
 ):
     try:
         current_user, _ = current_user_info

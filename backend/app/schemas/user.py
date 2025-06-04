@@ -5,8 +5,8 @@ from pydantic import UUID4, BaseModel, EmailStr
 
 
 class Platform(str, Enum):
-    pathways = "pathways"
-    candid = "candid"
+    careerforge = "careerforge"
+    talenthub = "talenthub"
 
 
 class UserCreate(BaseModel):
@@ -34,7 +34,7 @@ class UserCreate(BaseModel):
     interests: Optional[List[str]] = None
     career_summary: Optional[str] = None
     birthday: Optional[str] = None
-    platform: Platform = Platform.pathways
+    platform: Platform = Platform.careerforge
     current_job_title: Optional[str] = None
     profile_picture_url: Optional[str] = None
     background_image_url: Optional[str] = None
@@ -46,14 +46,14 @@ class UserCreateRequest(BaseModel):
     last_name: str
     password: str
     provider: str = "self"
-    platform: Platform = Platform.pathways
+    platform: Platform = Platform.careerforge
 
 
 class UserResponse(BaseModel):
     id: str
     email: str
     provider: str
-    platform: Platform = Platform.pathways
+    platform: Platform = Platform
     first_name: Optional[str] = None
     last_name: Optional[str] = None
     gender: Optional[str] = None
@@ -101,7 +101,7 @@ class PublicUserResponse(BaseModel):
 class LoginRequest(BaseModel):
     email: str
     password: str
-    platform: Optional[Platform] = Platform.pathways
+    platform: Optional[Platform] = Platform.careerforge
 
 
 class UserUpdateRequest(BaseModel):
@@ -116,7 +116,7 @@ class UserUpdateRequest(BaseModel):
     current_job_title: Optional[str] = None
     profile_picture_url: Optional[str] = None
 
-    # Pathways-specific fields
+    # careerforge-specific fields
     ethnicity: Optional[str] = None
     city: Optional[str] = None
     state: Optional[str] = None
@@ -135,7 +135,7 @@ class UserUpdateRequest(BaseModel):
 
 class GoogleLoginRequest(BaseModel):
     access_token: str
-    platform: Optional[Platform] = Platform.pathways
+    platform: Optional[Platform] = Platform.careerforge
 
 
 class GoogleUserCreate(BaseModel):
@@ -143,7 +143,7 @@ class GoogleUserCreate(BaseModel):
     first_name: Optional[str] = None
     last_name: Optional[str] = None
     provider: Optional[str] = "google"
-    platform: Platform = Platform.pathways
+    platform: Platform = Platform.careerforge
     email: EmailStr
 
 

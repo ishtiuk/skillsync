@@ -83,7 +83,7 @@ def mock_auth_middleware(monkeypatch):
 
 @pytest.fixture(scope="function")
 def test_user(db, mock_data):
-    from app.models.user import BaseUser, UserPathways
+    from app.models.user import BaseUser, UserCareerforge
 
     user_data = mock_data["user_data"]["valid_user"]
 
@@ -94,7 +94,7 @@ def test_user(db, mock_data):
     )
     save_to_db(db, base_user)
 
-    user = UserPathways(
+    user = UserCareerforge(
         base_user_id=base_user.id,
         email=user_data["email"],
         password_hash=get_password_hash(user_data["password"]),
@@ -130,20 +130,20 @@ def test_company(db, test_user, mock_data):
 
 
 @pytest.fixture(scope="function")
-def test_job_role(db, test_user, test_company, mock_data):
-    from app.models.job_role import JobRoles
+def test_position(db, test_user, test_company, mock_data):
+    from app.models.positions import Positions
 
-    job_role_data = mock_data["job_role_data"]["valid_job_role"]
-    job_role = JobRoles(user_id=test_user.id, company_id=test_company.id, **job_role_data)
-    return save_to_db(db, job_role)
+    position_data = mock_data["position_data"]["valid_position"]
+    position = Positions(user_id=test_user.id, company_id=test_company.id, **position_data)
+    return save_to_db(db, position)
 
 
 @pytest.fixture(scope="function")
-def test_job_experience(db, test_user, mock_data):
-    from app.models.job_experience import JobExperiences
+def test_experience(db, test_user, mock_data):
+    from app.models.experience import Experiences
 
     experience_data = mock_data["experience_data"]["valid_experience"]
-    job_experience = JobExperiences(
+    experience = Experiences(
         user_id=test_user.id,
         position_title=experience_data["position_title"],
         company_name=experience_data["company_name"],
@@ -152,30 +152,30 @@ def test_job_experience(db, test_user, mock_data):
         start_month=experience_data["start_month"],
         start_year=experience_data["start_year"],
     )
-    return save_to_db(db, job_experience)
+    return save_to_db(db, experience)
 
 
 @pytest.fixture(scope="function")
-def test_goal(db, test_user, mock_data):
-    from app.models.goals import Goals
+def test_milestone(db, test_user, mock_data):
+    from app.models.milestones import Milestones
 
-    goal_data = mock_data["goals_data"]["valid_goal"]
-    goal = Goals(
+    milestone_data = mock_data["milestones_data"]["valid_milestone"]
+    milestone = Milestones(
         user_id=test_user.id,
-        name=goal_data["name"],
-        type=goal_data["type"],
-        description=goal_data["description"],
-        tasks=goal_data["tasks"],
+        name=milestone_data["name"],
+        type=milestone_data["type"],
+        description=milestone_data["description"],
+        tasks=milestone_data["tasks"],
         is_completed=False,
     )
-    return save_to_db(db, goal)
+    return save_to_db(db, milestone)
 
 
 @pytest.fixture(scope="function")
 def test_token(test_user):
     from app.schemas.user import Platform
 
-    return create_access_token(subject=test_user.email, platform=Platform.pathways)
+    return create_access_token(subject=test_user.email, platform=Platform.careerforge)
 
 
 @pytest.fixture(scope="function")
@@ -187,7 +187,7 @@ def mock_request(test_user):
         request = Request(scope=scope)
         if not hasattr(app.state, "user"):
             app.state = type(
-                "State", (), {"user": test_user.email, "platform": Platform.pathways}
+                "State", (), {"user": test_user.email, "platform": Platform.careerforge}
             )()
         return request
 
@@ -199,7 +199,7 @@ def authorized_client(client, test_token, mock_request):
     from app.schemas.user import Platform
 
     original_state = getattr(app, "state", None)
-    app.state = type("State", (), {"user": "test@example.com", "platform": Platform.pathways})()
+    app.state = type("State", (), {"user": "test@example.com", "platform": Platform.careerforge})()
 
     app.dependency_overrides[Request] = mock_request
     client.headers = {**client.headers, "Authorization": f"Bearer {test_token}"}

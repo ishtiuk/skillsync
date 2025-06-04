@@ -13,7 +13,12 @@ from app.schemas.user import (
     UserUpdateRequest,
 )
 from app.services.user import UserService, get_active_user, get_platform
-from app.utils.exceptions import DatabaseException, InvalidUserException, ResourceNotFound, ConflictException
+from app.utils.exceptions import (
+    ConflictException,
+    DatabaseException,
+    InvalidUserException,
+    ResourceNotFound,
+)
 
 
 def test_get_user_by_id_success(db, test_user):
@@ -21,7 +26,7 @@ def test_get_user_by_id_success(db, test_user):
     user = user_service.get_user_by_id(db=db, user_id=test_user.id)
     assert user.email == test_user.email
     assert user.first_name == test_user.first_name
-    assert user.base_user.platform == Platform.pathways
+    assert user.base_user.platform == Platform.careerforge
 
 
 def test_get_user_by_id_not_found(db):
@@ -35,7 +40,7 @@ def test_validate_user_success(db, test_user):
     result = user_service.validate_user(
         email=test_user.email,
         password="Test@123",
-        platform=Platform.pathways,
+        platform=Platform.careerforge,
         db=db,
     )
     assert result is True
@@ -47,7 +52,7 @@ def test_validate_user_invalid_password(db, test_user):
         user_service.validate_user(
             email=test_user.email,
             password="wrong_password",
-            platform=Platform.pathways,
+            platform=Platform.careerforge,
             db=db,
         )
 
@@ -56,7 +61,10 @@ def test_validate_user_email_not_found(db):
     user_service = UserService()
     with pytest.raises(InvalidUserException):
         user_service.validate_user(
-            email="nonexistent@example.com", password="Test@123", platform=Platform.pathways, db=db
+            email="nonexistent@example.com",
+            password="Test@123",
+            platform=Platform.careerforge,
+            db=db,
         )
 
 
@@ -66,7 +74,7 @@ def test_create_user_success(db, mock_data):
     user = user_service.create_user_in_db(db=db, user=user_data)
     assert user.email == user_data.email
     assert user.first_name == user_data.first_name
-    assert user.base_user.platform == Platform.pathways
+    assert user.base_user.platform == Platform.careerforge
 
 
 def test_create_google_user_success(db):
@@ -76,12 +84,12 @@ def test_create_google_user_success(db):
         first_name="Google",
         last_name="User",
         access_token="fake_token",
-        platform=Platform.pathways,
+        platform=Platform.careerforge,
     )
     user = user_service.create_user_in_db_google(db=db, user=user_data)
     assert user.email == user_data.email
     assert user.base_user.provider == "google"
-    assert user.base_user.platform == Platform.pathways
+    assert user.base_user.platform == Platform.careerforge
 
 
 def test_create_user_duplicate_email(db, test_user):
@@ -92,7 +100,7 @@ def test_create_user_duplicate_email(db, test_user):
         first_name="New",
         last_name="User",
         provider="self",
-        platform=Platform.pathways,
+        platform=Platform.careerforge,
     )
     with pytest.raises(ConflictException):
         user_service.create_user_in_db(db=db, user=user_data)
@@ -184,7 +192,7 @@ def test_delete_nonexistent_experience(db):
 def test_password_reset_request(db, test_user):
     user_service = UserService()
     # This should not raise an exception
-    user_service.password_reset_request(db=db, email=test_user.email, platform=Platform.pathways)
+    user_service.password_reset_request(db=db, email=test_user.email, platform=Platform.careerforge)
 
 
 def test_password_reset_invalid_email(db):
@@ -193,7 +201,7 @@ def test_password_reset_invalid_email(db):
         user_service.password_reset_request(
             db=db,
             email="nonexistent@example.com",
-            platform=Platform.pathways,
+            platform=Platform.careerforge,
         )
 
 
@@ -204,13 +212,13 @@ def test_password_reset_request_google_user(db):
         first_name="Google",
         last_name="User",
         access_token="fake_token",
-        platform=Platform.pathways,
+        platform=Platform.careerforge,
         provider="google",
     )
     user_service.create_user_in_db_google(db=db, user=user_data)
 
     # This should not raise an exception for a Google user
-    user_service.password_reset_request(db=db, email=user_data.email, platform=Platform.pathways)
+    user_service.password_reset_request(db=db, email=user_data.email, platform=Platform.careerforge)
 
 
 def test_update_password(db, test_user):
@@ -221,14 +229,14 @@ def test_update_password(db, test_user):
         db=db,
         email=test_user.email,
         new_password=new_password,
-        platform=Platform.pathways,
+        platform=Platform.careerforge,
     )
 
     assert updated_user.id == test_user.id
     user = user_service.validate_user(
         email=test_user.email,
         password=new_password,
-        platform=Platform.pathways,
+        platform=Platform.careerforge,
         db=db,
     )
     assert user is not None
@@ -238,13 +246,13 @@ def test_get_platform():
     mock_request = MagicMock(spec=Request)
     mock_request.app.state.platform = "pathways"
     platform = get_platform(mock_request)
-    assert platform == Platform.pathways
+    assert platform == Platform.careerforge
 
 
 def test_get_active_user_pathways(db, test_user):
     mock_request = MagicMock(spec=Request)
     mock_request.app.state.user = test_user.email
-    mock_request.app.state.platform = Platform.pathways
+    mock_request.app.state.platform = Platform.careerforge
     platform_user, provider = get_active_user(request=mock_request, db=db)
     assert platform_user.id == test_user.id
     assert provider == "self"
@@ -253,7 +261,7 @@ def test_get_active_user_pathways(db, test_user):
 def test_get_active_user_not_found(db):
     mock_request = MagicMock(spec=Request)
     mock_request.app.state.user = "nonexistent@example.com"
-    mock_request.app.state.platform = Platform.pathways
+    mock_request.app.state.platform = Platform.careerforge
     with pytest.raises(ResourceNotFound):
         get_active_user(request=mock_request, db=db)
 
@@ -267,7 +275,7 @@ def test_get_active_user_base_user_only(db):
         first_name="Base",
         last_name="User",
         provider="self",
-        platform=Platform.pathways,
+        platform=Platform.careerforge,
     )
     user = user_service.create_user_in_db(db=db, user=user_data)
 
@@ -299,7 +307,7 @@ def test_get_user_by_platform_candid(db):
 def test_get_user_by_platform_not_found(db):
     user_service = UserService()
     user = user_service.get_user_by_platform(
-        db=db, email="nonexistent@example.com", platform=Platform.pathways
+        db=db, email="nonexistent@example.com", platform=Platform.careerforge
     )
     assert user is None
 
@@ -396,7 +404,7 @@ def test_update_password_invalid_email(db):
             db=db,
             email="nonexistent@example.com",
             new_password="NewPassword@123",
-            platform=Platform.pathways,
+            platform=Platform.careerforge,
         )
 
 

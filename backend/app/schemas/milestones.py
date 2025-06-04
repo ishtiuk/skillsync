@@ -1,18 +1,20 @@
 from datetime import datetime
-from typing import Dict, Optional
 from enum import Enum
+from typing import Dict, Optional
+
 from pydantic import UUID4, BaseModel, validator
 
 
-class GoalType(str, Enum):
-    interviewing = "interviewing" 
-    networking = "networking" 
-    compensation = "compensation" 
-    organization = "organization" 
+class MilestoneType(str, Enum):
+    interviewing = "interviewing"
+    networking = "networking"
+    compensation = "compensation"
+    organization = "organization"
 
-class GoalBase(BaseModel):
+
+class MilestoneBase(BaseModel):
     name: str
-    type : Optional[GoalType] = None
+    type: Optional[MilestoneType] = None
     description: Optional[str] = None
     tasks: Optional[Dict[str, bool]] = None
     is_completed: Optional[bool] = False
@@ -28,19 +30,19 @@ class GoalBase(BaseModel):
         return value
 
 
-class GoalCreate(GoalBase):
+class MilestoneCreate(MilestoneBase):
     pass
 
 
-class GoalUpdate(BaseModel):
+class MilestoneUpdate(BaseModel):
     name: Optional[str] = None
-    type: Optional[GoalType] = None
+    type: Optional[MilestoneType] = None
     description: Optional[str] = None
     tasks: Optional[Dict[str, bool]] = None
     is_completed: Optional[bool] = None
 
 
-class GoalResponse(GoalBase):
+class MilestoneResponse(MilestoneBase):
     id: UUID4
     user_id: UUID4
     created_at: datetime

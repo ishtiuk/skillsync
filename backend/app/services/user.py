@@ -2,13 +2,12 @@ from typing import Union
 
 from fastapi import Depends, Request
 from pydantic import UUID4
-from sqlalchemy.exc import IntegrityError
 from sqlalchemy.orm import Session
 
 from app.db.crud import CRUDBase
 from app.db.session import get_db
-from app.models.job_experience import JobExperiences
-from app.models.user import BaseUser, UserCandid, UserPathways
+from app.models.experience import Experiences
+from app.models.user import BaseUser, UserCareerforge, UserTalenthub
 from app.schemas.user import (
     CreateExp,
     GoogleUserCreate,
@@ -17,15 +16,20 @@ from app.schemas.user import (
     UserCreateRequest,
     UserUpdateRequest,
 )
-from app.utils.exceptions import DatabaseException, InvalidUserException, ConflictException, ResourceNotFound
+from app.utils.exceptions import (
+    ConflictException,
+    DatabaseException,
+    InvalidUserException,
+    ResourceNotFound,
+)
 from app.utils.security import get_password_hash, verify_password
 from core.constants import error_messages
 from core.logger import logger
 
 base_user_crud = CRUDBase(model=BaseUser)
-pathways_user_crud = CRUDBase(model=UserPathways)
-candid_user_crud = CRUDBase(model=UserCandid)
-job_exp_crud = CRUDBase(model=JobExperiences)
+careerforge_user_crud = CRUDBase(model=UserCareerforge)
+talent_user_crud = CRUDBase(model=UserTalenthub)
+exp_crud = CRUDBase(model=Experiences)
 
 
 def get_platform(request: Request) -> Platform:
@@ -35,14 +39,14 @@ def get_platform(request: Request) -> Platform:
 
 def get_active_user(
     request: Request, db: Session = Depends(get_db)
-) -> tuple[Union[UserPathways, UserCandid], str]:
+) -> tuple[Union[UserCareerforge, UserTalenthub], str]:
     email = request.app.state.user
     platform = request.app.state.platform
 
-    if platform == Platform.pathways:
-        platform_user = pathways_user_crud.get_by_field(db=db, field="email", value=email)
+    if platform == Platform.careerforge:
+        platform_user = careerforge_user_crud.get_by_field(db=db, field="email", value=email)
     else:
-        platform_user = candid_user_crud.get_by_field(db=db, field="email", value=email)
+        platform_user = talent_user_crud.get_by_field(db=db, field="email", value=email)
 
     if platform_user:
         base_user = base_user_crud.get_by_field(db=db, field="provider_id", value=email)
@@ -53,12 +57,12 @@ def get_active_user(
         logger.error(f"No user found with identifier {email}")
         raise ResourceNotFound(message=error_messages.RESOURCE_NOT_FOUND)
 
-    if platform == Platform.pathways:
-        platform_user = pathways_user_crud.get_by_field(
+    if platform == Platform.careerforge:
+        platform_user = careerforge_user_crud.get_by_field(
             db=db, field="base_user_id", value=base_user.id
         )
     else:
-        platform_user = candid_user_crud.get_by_field(
+        platform_user = talent_user_crud.get_by_field(
             db=db, field="base_user_id", value=base_user.id
         )
 
@@ -73,13 +77,13 @@ class UserService:
     def __init__(self):
         pass
 
-    def get_user_by_id(self, db: Session, user_id: UUID4) -> Union[UserPathways, UserCandid]:
+    def get_user_by_id(self, db: Session, user_id: UUID4) -> Union[UserCareerforge, UserTalenthub]:
         try:
-            user = pathways_user_crud.get(db=db, id=user_id)
+            user = careerforge_user_crud.get(db=db, id=user_id)
             if user:
                 return user
 
-            user = candid_user_crud.get(db=db, id=user_id)
+            user = talent_user_crud.get(db=db, id=user_id)
             if user:
                 return user
 
@@ -94,15 +98,17 @@ class UserService:
 
     def get_user_by_platform(
         self, db: Session, email: str, platform: str
-    ) -> Union[UserPathways, UserCandid]:
+    ) -> Union[UserCareerforge, UserTalenthub]:
         base_user = base_user_crud.get_by_field(db=db, field="provider_id", value=email)
         if not base_user:
             return None
 
-        if platform == Platform.pathways:
-            return pathways_user_crud.get_by_field(db=db, field="base_user_id", value=base_user.id)
+        if platform == Platform.careerforge:
+            return careerforge_user_crud.get_by_field(
+                db=db, field="base_user_id", value=base_user.id
+            )
         else:
-            return candid_user_crud.get_by_field(db=db, field="base_user_id", value=base_user.id)
+            return talent_user_crud.get_by_field(db=db, field="base_user_id", value=base_user.id)
 
     def validate_user(self, email: str, password: str, platform: str, db: Session) -> bool:
         user = self.get_user_by_platform(db, email, platform)
@@ -122,17 +128,21 @@ class UserService:
 
     def create_user_in_db(
         self, db: Session, user: UserCreateRequest
-    ) -> Union[UserPathways, UserCandid]:
+    ) -> Union[UserCareerforge, UserTalenthub]:
         try:
-            if user.platform == Platform.pathways:
-                existing_user = pathways_user_crud.get_by_field(db=db, field="email", value=user.email)
+            if user.platform == Platform.careerforge:
+                existing_user = careerforge_user_crud.get_by_field(
+                    db=db, field="email", value=user.email
+                )
             else:
-                existing_user = candid_user_crud.get_by_field(db=db, field="email", value=user.email)
+                existing_user = talent_user_crud.get_by_field(
+                    db=db, field="email", value=user.email
+                )
 
             if existing_user:
                 logger.error(f"User with email {user.email} already exists.")
                 raise ConflictException(message=error_messages.CONFLICT_ERROR)
-            
+
             # If email doesn't exist, proceed with user creation
             base_user_data = {
                 "provider": user.provider,
@@ -149,10 +159,10 @@ class UserService:
                 "last_name": user.last_name,
             }
 
-            if user.platform == Platform.pathways:
-                return pathways_user_crud.create(db=db, obj_in=user_data)
+            if user.platform == Platform.careerforge:
+                return careerforge_user_crud.create(db=db, obj_in=user_data)
             else:
-                return candid_user_crud.create(db=db, obj_in=user_data)
+                return talent_user_crud.create(db=db, obj_in=user_data)
         except ConflictException as e:
             raise e
         except Exception as e:
@@ -161,17 +171,21 @@ class UserService:
 
     def create_user_in_db_google(
         self, db: Session, user: GoogleUserCreate
-    ) -> Union[UserPathways, UserCandid]:
+    ) -> Union[UserCareerforge, UserTalenthub]:
         try:
-            if user.platform == Platform.pathways:
-                existing_user = pathways_user_crud.get_by_field(db=db, field="email", value=user.email)
+            if user.platform == Platform.careerforge:
+                existing_user = careerforge_user_crud.get_by_field(
+                    db=db, field="email", value=user.email
+                )
             else:
-                existing_user = candid_user_crud.get_by_field(db=db, field="email", value=user.email)
+                existing_user = talent_user_crud.get_by_field(
+                    db=db, field="email", value=user.email
+                )
 
             if existing_user:
                 logger.error(f"Google user with email {user.email} already exists.")
                 raise ConflictException(message=error_messages.CONFLICT_ERROR)
-            
+
             # If email doesn't exist, proceed with user creation
             base_user_data = {
                 "provider": user.provider,
@@ -188,10 +202,10 @@ class UserService:
                 "last_name": user.last_name,
             }
 
-            if user.platform == Platform.pathways:
-                return pathways_user_crud.create(db=db, obj_in=user_data)
+            if user.platform == Platform.careerforge:
+                return careerforge_user_crud.create(db=db, obj_in=user_data)
             else:
-                return candid_user_crud.create(db=db, obj_in=user_data)
+                return talent_user_crud.create(db=db, obj_in=user_data)
         except ConflictException as e:
             raise e
         except Exception as e:
@@ -199,8 +213,11 @@ class UserService:
             raise DatabaseException(message=error_messages.INTERNAL_SERVER_ERROR)
 
     def update_user_data(
-        self, db: Session, user: Union[UserPathways, UserCandid], update_data: UserUpdateRequest
-    ) -> Union[UserPathways, UserCandid]:
+        self,
+        db: Session,
+        user: Union[UserCareerforge, UserTalenthub],
+        update_data: UserUpdateRequest,
+    ) -> Union[UserCareerforge, UserTalenthub]:
         try:
             common_attributes = [
                 "first_name",
@@ -214,7 +231,7 @@ class UserService:
                 "profile_picture_url",
             ]
 
-            pathways_attributes = [
+            careerforge_attributes = [
                 "ethnicity",
                 "city",
                 "state",
@@ -236,14 +253,14 @@ class UserService:
                 if value is not None:
                     setattr(user, attr, value)
 
-            if isinstance(user, UserPathways):
-                crud_base = pathways_user_crud
-                for attr in pathways_attributes:
+            if isinstance(user, UserCareerforge):
+                crud_base = careerforge_user_crud
+                for attr in careerforge_attributes:
                     value = getattr(update_data, attr)
                     if value is not None:
                         setattr(user, attr, value)
             else:
-                crud_base = candid_user_crud
+                crud_base = talent_user_crud
 
             return crud_base.update(db=db, obj_in=user)
         except Exception as e:
@@ -251,33 +268,33 @@ class UserService:
             logger.error(f"Failed to update user data: {str(e)}")
             raise DatabaseException(message=error_messages.INTERNAL_SERVER_ERROR)
 
-    def add_experience(self, db: Session, user: UserPathways, job_exp: CreateExp) -> None:
+    def add_experience(self, db: Session, user: UserCareerforge, job_exp: CreateExp) -> None:
         try:
             job_exp.user_id = user.id
             if job_exp.is_current:
                 user.current_job_title = job_exp.position_title
-                pathways_user_crud.update(db=db, obj_in=user)
+                careerforge_user_crud.update(db=db, obj_in=user)
 
-            job_exp_crud.create(db=db, obj_in=job_exp)
+            exp_crud.create(db=db, obj_in=job_exp)
         except Exception as e:
             db.rollback()
             logger.error(f"Failed to add job experience: {e}")
             raise DatabaseException(message=error_messages.INTERNAL_SERVER_ERROR)
 
-    def get_experiences(self, db: Session, user: UserPathways) -> list[JobExperiences]:
+    def get_experiences(self, db: Session, user: UserCareerforge) -> list[Experiences]:
         try:
-            return job_exp_crud.get_multi_by_field(db=db, field="user_id", value=user.id)
+            return exp_crud.get_multi_by_field(db=db, field="user_id", value=user.id)
         except Exception as e:
             logger.error(f"Failed to retrieve job experiences: {e}")
             raise DatabaseException(message=error_messages.INTERNAL_SERVER_ERROR)
 
     def delete_experience(self, db: Session, exp_id: UUID4) -> None:
         try:
-            experience = job_exp_crud.get(db=db, id=exp_id)
+            experience = exp_crud.get(db=db, id=exp_id)
             if not experience:
                 logger.error(f"Job experience with ID {exp_id} not found.")
                 raise ResourceNotFound(message=error_messages.RESOURCE_NOT_FOUND)
-            job_exp_crud.remove(db=db, id=exp_id)
+            exp_crud.remove(db=db, id=exp_id)
         except ResourceNotFound as e:
             raise e
         except Exception as e:
@@ -285,11 +302,9 @@ class UserService:
             logger.error(f"Failed to delete job experience: {e}")
             raise DatabaseException(message=error_messages.INTERNAL_SERVER_ERROR)
 
-    def update_experience(
-        self, db: Session, exp_id: UUID4, update_data: UpdateExp
-    ) -> JobExperiences:
+    def update_experience(self, db: Session, exp_id: UUID4, update_data: UpdateExp) -> Experiences:
         try:
-            job_exp = job_exp_crud.get(db=db, id=exp_id)
+            job_exp = exp_crud.get(db=db, id=exp_id)
             if not job_exp:
                 logger.error(f"Job experience with ID {exp_id} not found.")
                 raise ResourceNotFound(message=error_messages.RESOURCE_NOT_FOUND)
@@ -310,7 +325,7 @@ class UserService:
                 if value is not None:
                     setattr(job_exp, attr, value)
 
-            return job_exp_crud.update(db=db, obj_in=job_exp)
+            return exp_crud.update(db=db, obj_in=job_exp)
         except ResourceNotFound as e:
             raise e
         except Exception as e:
@@ -320,20 +335,20 @@ class UserService:
 
     def password_reset_request(self, db: Session, email: str, platform: Platform) -> None:
         try:
-            if platform == Platform.pathways:
-                user = pathways_user_crud.get_by_field(db=db, field="email", value=email)
+            if platform == Platform.careerforge:
+                user = careerforge_user_crud.get_by_field(db=db, field="email", value=email)
             else:
-                user = candid_user_crud.get_by_field(db=db, field="email", value=email)
+                user = talent_user_crud.get_by_field(db=db, field="email", value=email)
 
             if not user:
                 base_user = base_user_crud.get_by_field(db=db, field="provider_id", value=email)
                 if base_user:
-                    if platform == Platform.pathways:
-                        user = pathways_user_crud.get_by_field(
+                    if platform == Platform.careerforge:
+                        user = careerforge_user_crud.get_by_field(
                             db=db, field="base_user_id", value=base_user.id
                         )
                     else:
-                        user = candid_user_crud.get_by_field(
+                        user = talent_user_crud.get_by_field(
                             db=db, field="base_user_id", value=base_user.id
                         )
 
@@ -355,24 +370,24 @@ class UserService:
 
     def update_password(
         self, db: Session, email: str, new_password: str, platform: Platform
-    ) -> Union[UserPathways, UserCandid]:
+    ) -> Union[UserCareerforge, UserTalenthub]:
         try:
-            if platform == Platform.pathways:
-                user = pathways_user_crud.get_by_field(db=db, field="email", value=email)
-                crud_base = pathways_user_crud
+            if platform == Platform.careerforge:
+                user = careerforge_user_crud.get_by_field(db=db, field="email", value=email)
+                crud_base = careerforge_user_crud
             else:
-                user = candid_user_crud.get_by_field(db=db, field="email", value=email)
-                crud_base = candid_user_crud
+                user = talent_user_crud.get_by_field(db=db, field="email", value=email)
+                crud_base = talent_user_crud
 
             if not user:
                 base_user = base_user_crud.get_by_field(db=db, field="provider_id", value=email)
                 if base_user:
-                    if platform == Platform.pathways:
-                        user = pathways_user_crud.get_by_field(
+                    if platform == Platform.careerforge:
+                        user = careerforge_user_crud.get_by_field(
                             db=db, field="base_user_id", value=base_user.id
                         )
                     else:
-                        user = candid_user_crud.get_by_field(
+                        user = talent_user_crud.get_by_field(
                             db=db, field="base_user_id", value=base_user.id
                         )
 

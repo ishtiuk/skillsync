@@ -6,12 +6,12 @@ from sqlalchemy.dialects.postgresql import UUID
 from app.db.base_class import Base, Timestamp
 
 
-class JobExperiences(Base, Timestamp):
-    __tablename__ = "job_experiences"
+class Experiences(Base, Timestamp):
+    __tablename__ = "experiences"
     __table_args__ = {"extend_existing": True}
 
     id = Column(UUID(as_uuid=True), primary_key=True, index=True, default=uuid.uuid4)
-    user_id = Column(UUID(as_uuid=True), ForeignKey("user_pathways.id"), nullable=False)
+    user_id = Column(UUID(as_uuid=True), ForeignKey("user_careerforge.id"), nullable=False)
     position_title = Column(String(128), nullable=False)
     company_name = Column(String(128), nullable=False)
     employment_type = Column(String(128), nullable=False)

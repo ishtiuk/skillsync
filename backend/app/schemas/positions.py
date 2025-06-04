@@ -51,7 +51,7 @@ class Category(str, Enum):
     science = "science"
 
 
-class JobRoleBase(BaseModel):
+class PositionBase(BaseModel):
     title: str
     job_category: Category
     position_type: PositionType
@@ -77,11 +77,11 @@ class JobRoleBase(BaseModel):
     compensation_benefits: Optional[str] = None
 
 
-class JobRoleCreate(JobRoleBase):
+class PositionCreate(PositionBase):
     show_recruiter: bool = False
 
 
-class JobRoleUpdate(BaseModel):
+class PositionUpdate(BaseModel):
     title: Optional[str] = None
     job_category: Optional[Category] = None
     position_type: Optional[PositionType] = None
@@ -108,7 +108,7 @@ class JobRoleUpdate(BaseModel):
     show_recruiter: Optional[bool] = None
 
 
-class JobRoleFilters(BaseModel):
+class PositionFilters(BaseModel):
     title: Optional[str] = None
     job_category: Optional[List[Category]] = None
     position_type: Optional[List[PositionType]] = None
@@ -126,7 +126,7 @@ class JobRoleFilters(BaseModel):
     is_bipoc_owned: Optional[bool] = None
 
 
-class JobRoleResponse(JobRoleBase):
+class PositionResponse(PositionBase):
     id: UUID4
     company_name: str
     company_logo_url: str

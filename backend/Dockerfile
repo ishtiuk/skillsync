@@ -6,14 +6,14 @@ RUN apt-get update && apt-get install -y \
     libglib2.0-0 \
     && rm -rf /var/lib/apt/lists/*
 
-WORKDIR /green_jobs_backend/app/
+WORKDIR /skillsync_backend/app/
 
 COPY ./requirements.txt requirements.txt
 RUN python -m pip install --upgrade pip
 RUN python -m pip install -r requirements.txt
 
-WORKDIR /green_jobs_backend/
+WORKDIR /skillsync_backend/
 COPY . .
 
-ENV PYTHONPATH=/green_jobs_backend
+ENV PYTHONPATH=/skillsync_backend
 CMD alembic upgrade head && python main.py
