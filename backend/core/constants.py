@@ -3,32 +3,24 @@ from pydantic_settings import BaseSettings
 
 class Constants(BaseSettings):
     API_DOC_NAME: str = "api_docs.json"
-    API_DOC_TITLE: str = "SkillSync API Documentation"
+    API_DOC_TITLE: str = "Green Jobs API Doc"
     API_VERSION: str = "/api/v1"
     APP_EXECUTION_ENV: dict = {"PRODUCTION": "prod"}
     MIDDLEWARE_FOLDER_PATH: str = "app/middlewares"
     OPENAPI_PATHS: list = [["GET", "/docs"], ["GET", "/openapi.json"], ["GET", "/favicon.ico"]]
 
     PUBLIC_API_PATHS: list = [
-        # Auth endpoints
-        ["POST", f"{API_VERSION}/auth/login"],
-        ["POST", f"{API_VERSION}/auth/login/google"],
-        ["POST", f"{API_VERSION}/users"],
-        ["POST", f"{API_VERSION}/users/google"],
-        # Password reset
+        ["POST", f"{API_VERSION}/auth/login/self"],
+        ["POST", f"{API_VERSION}/user/self"],
         ["POST", f"{API_VERSION}/password-reset-request"],
         ["PUT", f"{API_VERSION}/user/update-password"],
+        ["GET", f"{API_VERSION}/public-data"],
+        ["POST", f"{API_VERSION}/auth/login/google"],
+        ["POST", f"{API_VERSION}/user/google"],
         ["POST", f"{API_VERSION}/user/password-reset-request"],
         ["POST", f"{API_VERSION}/user/password-reset"],
-        # Public data endpoints
-        ["GET", f"{API_VERSION}/public-data"],
         ["GET", f"{API_VERSION}/user/public/{{id:uuid}}"],
-        # CareerForge public endpoints
-        ["GET", f"{API_VERSION}/careerforge/positions/public"],
-        ["GET", f"{API_VERSION}/careerforge/position/{{id:uuid}}"],
-        # TalentHub public endpoints
-        ["GET", f"{API_VERSION}/talenthub/organization/{{id:uuid}}"],
-        ["GET", f"{API_VERSION}/talenthub/positions/public"],
+        ["GET", f"{API_VERSION}/job-role/public/{{id:uuid}}"],
     ]
 
     BASE_JOB_STAGES: dict = {

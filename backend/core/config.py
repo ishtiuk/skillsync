@@ -18,11 +18,10 @@ boto3.setup_default_session(
 class Settings(BaseSettings):
     model_config = ConfigDict(case_sensitive=True)
 
-    PROJECT_NAME: str = "SkillSync API"
+    PROJECT_NAME: str = "Green Jobs Backend"
     APP_ENV: str = os.environ["APP_ENV"]
-    CAREERFORGE_HOST: str = os.environ.get("CAREERFORGE_HOST", "http://localhost:3000")
-    TALENTHUB_HOST: str = os.environ.get("TALENTHUB_HOST", "http://localhost:3001")
-    ALLOWED_PLATFORMS: list = ["careerforge", "talenthub"]
+    CANDID_HOST: str = os.environ["CANDID_HOST"]
+    PATHWAYS_HOST: str = os.environ["PATHWAYS_HOST"]
 
     ACCESS_TOKEN_EXPIRE_MINUTES: int = 60 * 24 * 7  # one week
     JWT_ALGORITHM: str = "HS256"

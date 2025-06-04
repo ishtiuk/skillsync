@@ -7,8 +7,8 @@ from app.schemas.job_role import JobRoleResponse
 from core.constants import constants
 
 
-class JobApplicationBase(BaseModel):
-    position_id: UUID4
+class AppliedJobBase(BaseModel):
+    job_id: UUID4
     activity: Optional[str] = None
     reaction: Optional[str] = None
     notes: Optional[str] = None
@@ -64,11 +64,11 @@ class JobApplicationBase(BaseModel):
         return self
 
 
-class JobApplicationCreate(JobApplicationBase):
+class AppliedJobCreate(AppliedJobBase):
     pass
 
 
-class JobApplicationUpdate(BaseModel):
+class AppliedJobUpdate(BaseModel):
     activity: Optional[str] = None
     reaction: Optional[str] = None
     notes: Optional[str] = None
@@ -136,7 +136,7 @@ class JobApplicationUpdate(BaseModel):
         return self
 
 
-class JobApplicationResponse(JobApplicationBase):
+class AppliedJobResponse(AppliedJobBase):
     id: UUID4
     user_id: UUID4
     created_at: datetime

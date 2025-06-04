@@ -1,8 +1,9 @@
+from .user import BaseUser, UserPathways, UserCandid, UserFiles
+from .applied_jobs import AppliedJobs
 from .cover_letters import CoverLetters
-from .experience import Experience
-from .milestone import Milestone
-from .organization import Organization
-from .portfolio import Portfolio
-from .position import Position
-from .user import UserCareerForge, UserTalentHub, BaseUser, UserFiles
-from .job_application import JobApplication
+from .feature_tracking import FeatureTracking
+from .job_experience import JobExperiences
+from .job_role import JobRoles
+from .payments import Payments
+from .goals import Goals
+from .company import Companies

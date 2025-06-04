@@ -1,8 +1,8 @@
 import uuid
 
-from sqlalchemy import ARRAY, JSON, Boolean, Column, DateTime, Float, ForeignKey, Integer, String
+from sqlalchemy import ARRAY, Column, ForeignKey, String
 from sqlalchemy.dialects.postgresql import UUID
-from sqlalchemy.orm import relationship
+from sqlalchemy.orm import relationship, backref
 
 from app.db.base_class import Base, Timestamp
 
@@ -13,115 +13,81 @@ class BaseUser(Base, Timestamp):
     id = Column(UUID(as_uuid=True), primary_key=True, index=True, default=uuid.uuid4)
     provider = Column(String(32), nullable=False)
     provider_id = Column(String, nullable=False)
-    platform = Column(String(32), nullable=False)  # 'careerforge' or 'talenthub'
-    account_tier = Column(String(32), server_default="free")
+    platform = Column(String(32), nullable=False)  # 'pathways' or 'candid'
 
-    careerforge_profile = relationship("UserCareerForge", backref="base_user")
-    talenthub_profile = relationship("UserTalentHub", backref="base_user")
-    # subscription = relationship("Subscription", backref="user")
-    # feature_usage = relationship("FeatureUsage", backref="user")
-
-
-class UserCareerForge(Base, Timestamp):
-    __tablename__ = "user_careerforge"
-
-    id = Column(UUID(as_uuid=True), primary_key=True, index=True, default=uuid.uuid4)
-    base_user_id = Column(UUID(as_uuid=True), ForeignKey("base_users.id"))
-
-    # Authentication & Security
-    email = Column(String, unique=True, index=True)
-    password_hash = Column(String)
-    is_active = Column(Boolean, default=True)
-    last_active = Column(DateTime(timezone=True))
-
-    # Basic Info
-    first_name = Column(String)
-    last_name = Column(String)
-    phone_number = Column(String)
-    profile_picture_url = Column(String)
-
-    # Profile Metrics
-    profile_strength = Column(Integer, server_default="0")  # 0-100%
-    achievement_score = Column(Integer, server_default="0")
-
-    # Career Data
-    parsed_resume = Column(JSON)
-    skill_vector = Column(ARRAY(Float))  # For ML matching
-    skills = Column(ARRAY(String))
-    career_stage = Column(String(64))  # entry, mid, senior, expert
-    industry_focus = Column(ARRAY(String))
-    interests = Column(ARRAY(String))
-    current_career = Column(String)
-    job_search_phase = Column(String)
-    current_job_title = Column(String)
-    career_summary = Column(String)
-
-    # Personal Info
-    gender = Column(String)
-    ethnicity = Column(String)
-    nationality = Column(String)
-    birthday = Column(String)
-    city = Column(String)
-    state = Column(String)
-    country = Column(String)
-
-    # Social & Professional Links
-    linkedin_url = Column(String)
-    instagram_url = Column(String)
-    facebook_url = Column(String)
-    x_twitter_url = Column(String)
-    personal_website_url = Column(String)
-    github_url = Column(String)
-
-    # UI Customization
-    background_image_url = Column(String)
-
-    # Relationships defined with backref
-    experiences = relationship("Experience", backref="user")
-    portfolios = relationship("Portfolio", backref="user")
-    milestones = relationship("Milestone", backref="user")
-    job_applications = relationship("JobApplication", backref="user")
-    user_files = relationship("UserFiles", backref="user")
+    user_pathways = relationship("UserPathways", backref="base_user", uselist=False)
+    user_candid = relationship("UserCandid", backref="base_user", uselist=False)
+    payments = relationship("Payments", backref="base_user")
+    feature_tracking = relationship("FeatureTracking", backref="user")
 
 
-class UserTalentHub(Base, Timestamp):
-    __tablename__ = "user_talenthub"
+class UserPathways(Base, Timestamp):
+    __tablename__ = "user_pathways"
+    __table_args__ = {"extend_existing": True}
 
     id = Column(UUID(as_uuid=True), primary_key=True, index=True, default=uuid.uuid4)
-    base_user_id = Column(UUID(as_uuid=True), ForeignKey("base_users.id"))
-    organization_id = Column(UUID(as_uuid=True), ForeignKey("organizations.id"))
+    base_user_id = Column(UUID(as_uuid=True), ForeignKey("base_users.id"), nullable=False)
+    email = Column(String, unique=True, index=True, nullable=False)
+    password_hash = Column(String, nullable=False)
+    first_name = Column(String(64), nullable=True)
+    last_name = Column(String(64), nullable=True)
+    gender = Column(String(32), nullable=True)
+    ethnicity = Column(String(32), nullable=True)
+    nationality = Column(String(64), nullable=True)
+    phone_number = Column(String(32), nullable=True)
+    city = Column(String(64), nullable=True)
+    state = Column(String(64), nullable=True)
+    country = Column(String(64), nullable=True)
+    linkedin_url = Column(String(512), nullable=True)
+    instagram_url = Column(String(512), nullable=True)
+    facebook_url = Column(String(512), nullable=True)
+    x_twitter_url = Column(String(512), nullable=True)
+    personal_website_url = Column(String(512), nullable=True)
+    current_career = Column(String(512), nullable=True)
+    job_search_phase = Column(String(512), nullable=True)
+    skills = Column(ARRAY(String), nullable=True)
+    interests = Column(ARRAY(String), nullable=True)
+    career_summary = Column(String(4096), nullable=True)
+    birthday = Column(String(32), nullable=True)
+    current_job_title = Column(String(512), nullable=True)
+    profile_picture_url = Column(String(512), nullable=True)
+    background_image_url = Column(String(512), nullable=True)
 
-    # Authentication & Security
-    email = Column(String, unique=True, index=True)
-    password_hash = Column(String)
-    is_active = Column(Boolean, default=True)
-    last_active = Column(DateTime(timezone=True))
+    user_files_fk = relationship("UserFiles", backref="user_pathways")
+    job_experiences_fk = relationship("JobExperiences", backref="user_pathways")
+    applied_jobs_fk = relationship("AppliedJobs", backref="user_pathways")
+    cover_letters_fk = relationship("CoverLetters", backref="user_pathways")
+    goals_fk = relationship("Goals", backref="user_pathways")
 
-    # Basic Info
-    first_name = Column(String)
-    last_name = Column(String)
-    phone_number = Column(String)
-    profile_picture_url = Column(String)
-    country = Column(String)
 
-    # Role Information
-    department = Column(String)
-    hiring_capacity = Column(Integer)
-    recruitment_focus = Column(ARRAY(String))
+class UserCandid(Base, Timestamp):
+    __tablename__ = "user_candid"
+    __table_args__ = {"extend_existing": True}
 
-    # Verification & Metrics
-    verified = Column(Boolean, server_default="false")
-    verification_date = Column(DateTime(timezone=True))
-    verification_method = Column(String)
-    talent_pipeline_size = Column(Integer, server_default="0")
-    success_metrics = Column(JSON)
+    id = Column(UUID(as_uuid=True), primary_key=True, index=True, default=uuid.uuid4)
+    base_user_id = Column(UUID(as_uuid=True), ForeignKey("base_users.id"), nullable=False)
+    email = Column(String, unique=True, index=True, nullable=False)
+    password_hash = Column(String, nullable=False)
+    first_name = Column(String(64), nullable=True)
+    last_name = Column(String(64), nullable=True)
+    gender = Column(String(32), nullable=True)
+    nationality = Column(String(64), nullable=True)
+    phone_number = Column(String(32), nullable=True)
+    country = Column(String(64), nullable=True)
+    personal_website_url = Column(String(512), nullable=True)
+    profile_picture_url = Column(String(512), nullable=True)
+    current_job_title = Column(String(64), nullable=True)
 
-    # Preferences & Settings
-    notification_preferences = Column(JSON)
-    candidate_scoring_weights = Column(JSON)  # Customized weights for candidate matching
-    interview_availability = Column(JSON)  # Recruiter's available time slots
-
-    organization = relationship("Organization", backref="members")
+    companies_fk = relationship(
+        "Companies", 
+        backref=backref("user_candid", overlaps="companies_fk"),
+        overlaps="user_candid"
+    )
+    job_roles_fk = relationship(
+        "JobRoles", 
+        backref=backref("user_candid", overlaps="job_roles_fk"),
+        overlaps="user_candid"
+    )
 
 
 class UserFiles(Base, Timestamp):
@@ -129,7 +95,7 @@ class UserFiles(Base, Timestamp):
     __table_args__ = {"extend_existing": True}
 
     id = Column(UUID(as_uuid=True), primary_key=True, index=True, default=uuid.uuid4)
-    user_id = Column(UUID(as_uuid=True), ForeignKey("user_careerforge.id"), nullable=False)
+    user_id = Column(UUID(as_uuid=True), ForeignKey("user_pathways.id"), nullable=False)
     file_name = Column(String(512), nullable=False)
     file_url = Column(String(512), nullable=False)
     file_type = Column(String(32), nullable=False)

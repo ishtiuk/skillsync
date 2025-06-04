@@ -1,43 +1,43 @@
-from datetime import datetime
 from enum import Enum
-from typing import Dict, List, Optional
+from typing import List, Optional
 
 from pydantic import UUID4, BaseModel, EmailStr
 
-from app.schemas.experience import ExperienceResponse
-from app.schemas.milestone import MilestoneResponse
-from app.schemas.organization import OrganizationResponse
-from app.schemas.portfolio import PortfolioResponse
-from app.schemas.position import PositionResponse
-
 
 class Platform(str, Enum):
-    careerforge = "careerforge"
-    talenthub = "talenthub"
+    pathways = "pathways"
+    candid = "candid"
 
 
-class BaseUserCreate(BaseModel):
+class UserCreate(BaseModel):
+    email: EmailStr
+    password_hash: str
     provider: str = "self"
     provider_id: str
-    platform: Platform
-    account_tier: str = "free"
-
-
-class UserBase(BaseModel):
-    email: EmailStr
-    password: str
-    first_name: str
-    last_name: str
-    is_active: bool = True
-
-
-class UserCareerForgeCreate(UserBase):
-    base_user_id: UUID4
-
-
-class UserTalentHubCreate(UserBase):
-    base_user_id: UUID4
-    organization_id: Optional[UUID4] = None
+    first_name: Optional[str] = None
+    last_name: Optional[str] = None
+    gender: Optional[str] = None
+    ethnicity: Optional[str] = None
+    nationality: Optional[str] = "American"
+    phone_number: Optional[str] = None
+    city: Optional[str] = None
+    state: Optional[str] = None
+    country: Optional[str] = None
+    linkedin_url: Optional[str] = None
+    instagram_url: Optional[str] = None
+    facebook_url: Optional[str] = None
+    x_twitter_url: Optional[str] = None
+    personal_website_url: Optional[str] = None
+    current_career: Optional[str] = None
+    job_search_phase: Optional[str] = None
+    skills: Optional[List[str]] = None
+    interests: Optional[List[str]] = None
+    career_summary: Optional[str] = None
+    birthday: Optional[str] = None
+    platform: Platform = Platform.pathways
+    current_job_title: Optional[str] = None
+    profile_picture_url: Optional[str] = None
+    background_image_url: Optional[str] = None
 
 
 class UserCreateRequest(BaseModel):
@@ -45,29 +45,21 @@ class UserCreateRequest(BaseModel):
     first_name: str
     last_name: str
     password: str
-    platform: Platform = Platform.careerforge
+    provider: str = "self"
+    platform: Platform = Platform.pathways
 
 
-class UserCareerForgeProfile(BaseModel):
-    # Basic Info
+class UserResponse(BaseModel):
+    id: str
     email: str
+    provider: str
+    platform: Platform = Platform.pathways
     first_name: Optional[str] = None
     last_name: Optional[str] = None
-    phone_number: Optional[str] = None
-    profile_picture_url: Optional[str] = None
-
-    # Profile Metrics
-    profile_strength: int = 0
-    parsed_resume: Optional[dict] = None
-    skill_vector: Optional[List[float]] = None
-    career_stage: Optional[str] = None  # entry, mid, senior, expert
-    industry_focus: Optional[List[str]] = None
-    achievement_score: int = 0
-
-    # Additional profile fields
     gender: Optional[str] = None
     ethnicity: Optional[str] = None
-    nationality: Optional[str] = None
+    nationality: Optional[str] = "American"
+    phone_number: Optional[str] = None
     city: Optional[str] = None
     state: Optional[str] = None
     country: Optional[str] = None
@@ -84,70 +76,7 @@ class UserCareerForgeProfile(BaseModel):
     birthday: Optional[str] = None
     current_job_title: Optional[str] = None
     background_image_url: Optional[str] = None
-    github_url: Optional[str] = None
-
-    class Config:
-        from_attributes = True
-
-
-class UserTalentHubProfile(BaseModel):
-    # Basic Info
-    email: str
-    first_name: Optional[str] = None
-    last_name: Optional[str] = None
-    phone_number: Optional[str] = None
     profile_picture_url: Optional[str] = None
-
-    # Organization Info
-    organization_id: Optional[UUID4] = None
-    department: Optional[str] = None
-    hiring_capacity: Optional[int] = None
-    recruitment_focus: Optional[List[str]] = None
-
-    # Additional profile fields
-    verified: bool = False
-    talent_pipeline_size: int = 0
-    success_metrics: Optional[dict] = None
-    verification_date: Optional[datetime] = None
-    verification_method: Optional[str] = None
-
-    # Preferences & Settings
-    notification_preferences: Optional[Dict] = None
-    candidate_scoring_weights: Optional[Dict] = None
-    interview_availability: Optional[Dict] = None
-
-    class Config:
-        from_attributes = True
-
-
-class UserResponse(BaseModel):
-    id: UUID4
-    provider: str
-    provider_id: str
-    platform: Platform
-    account_tier: str
-
-    class Config:
-        from_attributes = True
-
-
-class UserCareerForgeResponse(UserResponse):
-    careerforge_profile: UserCareerForgeProfile
-    experiences: Optional[List[ExperienceResponse]] = None
-    portfolios: Optional[List[PortfolioResponse]] = None
-    milestones: Optional[List[MilestoneResponse]] = None
-
-    class Config:
-        from_attributes = True
-
-
-class UserTalentHubResponse(UserResponse):
-    talenthub_profile: UserTalentHubProfile
-    organization: Optional[OrganizationResponse] = None
-    positions: Optional[List[PositionResponse]] = None
-
-    class Config:
-        from_attributes = True
 
 
 class PublicUserResponse(BaseModel):
@@ -163,7 +92,7 @@ class PublicUserResponse(BaseModel):
     x_twitter_url: Optional[str] = None
     personal_website_url: Optional[str] = None
     skills: Optional[List[str]] = None
-    career_summary: Optional[str] = None
+    career_summary: Optional[str] = (None,)
     profile_picture_url: Optional[str] = None
     current_career: Optional[str] = None
     background_image_url: Optional[str] = None
@@ -172,37 +101,7 @@ class PublicUserResponse(BaseModel):
 class LoginRequest(BaseModel):
     email: str
     password: str
-    platform: Platform = Platform.careerforge
-
-
-class GoogleLoginRequest(BaseModel):
-    access_token: str
-    platform: Platform = Platform.careerforge
-
-
-class GoogleUserCreate(BaseModel):
-    access_token: str
-    email: EmailStr
-    first_name: Optional[str] = None
-    last_name: Optional[str] = None
-    provider: str = "google"
-    platform: Platform = Platform.careerforge
-
-
-class PasswordResetRequest(BaseModel):
-    email: EmailStr
-
-
-class UpdatePasswordRequest(BaseModel):
-    password: str
-    token: str
-
-
-class CareerStage(str, Enum):
-    entry = "entry"
-    mid = "mid"
-    senior = "senior"
-    expert = "expert"
+    platform: Optional[Platform] = Platform.pathways
 
 
 class UserUpdateRequest(BaseModel):
@@ -210,28 +109,21 @@ class UserUpdateRequest(BaseModel):
     first_name: Optional[str] = None
     last_name: Optional[str] = None
     gender: Optional[str] = None
-    nationality: Optional[str] = None
+    nationality: Optional[str] = "American"
     phone_number: Optional[str] = None
-    city: Optional[str] = None
-    state: Optional[str] = None
     country: Optional[str] = None
-    profile_picture_url: Optional[str] = None
     personal_website_url: Optional[str] = None
     current_job_title: Optional[str] = None
+    profile_picture_url: Optional[str] = None
 
-    # Social media fields (common)
+    # Pathways-specific fields
+    ethnicity: Optional[str] = None
+    city: Optional[str] = None
+    state: Optional[str] = None
     linkedin_url: Optional[str] = None
     instagram_url: Optional[str] = None
     facebook_url: Optional[str] = None
     x_twitter_url: Optional[str] = None
-
-    # CareerForge-specific fields
-    profile_strength: Optional[int] = None
-    parsed_resume: Optional[Dict] = None
-    skill_vector: Optional[List[float]] = None
-    career_stage: Optional[str] = None  # entry, mid, senior, expert
-    industry_focus: Optional[List[str]] = None
-    ethnicity: Optional[str] = None
     current_career: Optional[str] = None
     job_search_phase: Optional[str] = None
     skills: Optional[List[str]] = None
@@ -239,17 +131,64 @@ class UserUpdateRequest(BaseModel):
     career_summary: Optional[str] = None
     birthday: Optional[str] = None
     background_image_url: Optional[str] = None
-    achievement_score: Optional[int] = None
 
-    # TalentHub-specific fields
-    department: Optional[str] = None
-    hiring_capacity: Optional[int] = None
-    recruitment_focus: Optional[List[str]] = None
-    notification_preferences: Optional[Dict] = None
-    candidate_scoring_weights: Optional[Dict] = None
-    interview_availability: Optional[Dict] = None
-    verified: Optional[bool] = None
-    verification_date: Optional[datetime] = None
-    verification_method: Optional[str] = None
-    talent_pipeline_size: Optional[int] = None
-    success_metrics: Optional[Dict] = None
+
+class GoogleLoginRequest(BaseModel):
+    access_token: str
+    platform: Optional[Platform] = Platform.pathways
+
+
+class GoogleUserCreate(BaseModel):
+    access_token: str
+    first_name: Optional[str] = None
+    last_name: Optional[str] = None
+    provider: Optional[str] = "google"
+    platform: Platform = Platform.pathways
+    email: EmailStr
+
+
+class PasswordResetRequest(BaseModel):
+    email: EmailStr
+    platform: Platform
+
+
+class UpdatePasswordRequest(BaseModel):
+    password: str
+    token: str
+
+
+class CreateExp(BaseModel):
+    user_id: Optional[UUID4] = None
+    position_title: str
+    company_name: str
+    employment_type: str
+    is_current: bool
+    start_month: int
+    start_year: int
+    end_month: Optional[int] = None
+    end_year: Optional[int] = None
+    logo_url: Optional[str] = None
+
+
+class ExpResponse(BaseModel):
+    id: UUID4
+    position_title: str
+    company_name: str
+    employment_type: str
+    is_current: bool
+    start_month: int
+    start_year: int
+    end_month: Optional[int] = None
+    end_year: Optional[int] = None
+
+
+class UpdateExp(BaseModel):
+    position_title: Optional[str] = None
+    company_name: Optional[str] = None
+    employment_type: Optional[str] = None
+    is_current: Optional[bool] = None
+    start_month: Optional[int] = None
+    start_year: Optional[int] = None
+    end_month: Optional[int] = None
+    end_year: Optional[int] = None
+    logo_url: Optional[str] = None

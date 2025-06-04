@@ -1,9 +1,11 @@
+from core.logger import logger
 import traceback
 
 from fastapi import status
 
 from core.constants import error_messages
-from core.logger import logger
+
+
 
 
 class BaseCustomException(Exception):
@@ -60,21 +62,13 @@ class S3Exception(BaseCustomException):
         super().__init__(message, status_code)
 
 
-class ValidationException(Exception):
-    def __init__(self, message: str = "Validation error", status_code: int = 400):
-        self.message = message
-        self.status_code = status_code
-        super().__init__(self.message)
-
-
-class InvalidFieldException(ValidationException):
-    def __init__(self, field: str, message: str):
-        super().__init__(f"Invalid {field}: {message}", status_code=400)
-
-
-class PlatformValidationException(ValidationException):
-    def __init__(self, message: str):
-        super().__init__(f"Platform validation error: {message}", status_code=400)
+class ValidationException(BaseCustomException):
+    def __init__(
+        self,
+        message=error_messages.VALIDATION_ERROR,
+        status_code=status.HTTP_422_UNPROCESSABLE_ENTITY,
+    ):
+        super().__init__(message, status_code)
 
 
 class PermissionDeniedException(BaseCustomException):
@@ -87,12 +81,6 @@ class PermissionDeniedException(BaseCustomException):
 class ConflictException(BaseCustomException):
     def __init__(self, message=error_messages.CONFLICT_ERROR, status_code=status.HTTP_409_CONFLICT):
         super().__init__(message, status_code)
-
-
-class PlatformException(Exception):
-    def __init__(self, message: str, status_code: int = 403):
-        self.message = message
-        self.status_code = status_code
 
 
 class CustomException(Exception):

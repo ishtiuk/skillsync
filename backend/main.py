@@ -16,7 +16,7 @@ environment = settings.APP_ENV
 
 app = FastAPI()
 
-origins = [settings.CAREERFORGE_HOST, settings.TALENTHUB_HOST]
+origins = [settings.CANDID_HOST, settings.PATHWAYS_HOST]
 
 
 def custom_openapi():
@@ -24,9 +24,9 @@ def custom_openapi():
         return app.openapi_schema
 
     openapi_schema = get_openapi(
-        title=settings.PROJECT_NAME,
+        title="Your API",
         version="1.0.0",
-        description="Multi-platform career ecosystem API with JWT authentication",
+        description="API documentation with JWT authentication",
         routes=app.routes,
     )
 
@@ -77,4 +77,4 @@ app.add_middleware(
 if __name__ == "__main__":
     cwd = pathlib.Path(__file__).parent.resolve()
     logger.info("Starting uvicorn server")
-    uvicorn.run("main:app", host="0.0.0.0", port=8000, reload=True)
+    uvicorn.run("main:app", host="0.0.0.0", port=5000, reload=True)

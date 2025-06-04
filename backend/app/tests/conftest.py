@@ -15,7 +15,7 @@ from main import app
 
 load_dotenv(".env.example")
 
-TEST_DATABASE_URL = os.getenv("TEST_DATABASE_URL")
+TEST_DATABASE_URL = os.getenv("SQLALCHEMY_DATABASE_URI")
 
 
 def save_to_db(db, obj):
@@ -42,6 +42,18 @@ def db(db_engine):
         yield db
     finally:
         db.close()
+
+
+def cleanup_database(db):
+    for table in reversed(Base.metadata.sorted_tables):
+        db.execute(table.delete())
+    db.commit()
+
+
+@pytest.fixture(autouse=True)
+def cleanup(db):
+    yield
+    cleanup_database(db)
 
 
 @pytest.fixture(scope="session")
@@ -71,19 +83,27 @@ def mock_auth_middleware(monkeypatch):
 
 @pytest.fixture(scope="function")
 def test_user(db, mock_data):
-    from app.models.user import Users
+    from app.models.user import BaseUser, UserPathways
 
     user_data = mock_data["user_data"]["valid_user"]
-    user = Users(
-        email=user_data["email"],
-        password_hash=get_password_hash(user_data["password"]),
-        first_name=user_data["first_name"],
-        last_name=user_data["last_name"],
+
+    base_user = BaseUser(
         provider=user_data["provider"],
         provider_id=user_data["provider_id"],
         platform=user_data["platform"],
     )
-    return save_to_db(db, user)
+    save_to_db(db, base_user)
+
+    user = UserPathways(
+        base_user_id=base_user.id,
+        email=user_data["email"],
+        password_hash=get_password_hash(user_data["password"]),
+        first_name=user_data["first_name"],
+        last_name=user_data["last_name"],
+    )
+
+    save_to_db(db, user)
+    return user
 
 
 @pytest.fixture(scope="function")
@@ -153,16 +173,22 @@ def test_goal(db, test_user, mock_data):
 
 @pytest.fixture(scope="function")
 def test_token(test_user):
-    return create_access_token(subject=test_user.email)
+    from app.schemas.user import Platform
+
+    return create_access_token(subject=test_user.email, platform=Platform.pathways)
 
 
 @pytest.fixture(scope="function")
 def mock_request(test_user):
+    from app.schemas.user import Platform
+
     def override_request():
         scope = {"type": "http", "headers": []}
         request = Request(scope=scope)
         if not hasattr(app.state, "user"):
-            app.state = type("State", (), {"user": test_user.email})()
+            app.state = type(
+                "State", (), {"user": test_user.email, "platform": Platform.pathways}
+            )()
         return request
 
     return override_request
@@ -170,8 +196,10 @@ def mock_request(test_user):
 
 @pytest.fixture(scope="function")
 def authorized_client(client, test_token, mock_request):
+    from app.schemas.user import Platform
+
     original_state = getattr(app, "state", None)
-    app.state = type("State", (), {"user": "test@example.com"})()
+    app.state = type("State", (), {"user": "test@example.com", "platform": Platform.pathways})()
 
     app.dependency_overrides[Request] = mock_request
     client.headers = {**client.headers, "Authorization": f"Bearer {test_token}"}
@@ -179,7 +207,6 @@ def authorized_client(client, test_token, mock_request):
     yield client
 
     app.dependency_overrides.clear()
-
     if original_state:
         app.state = original_state
     else:
