@@ -1,1 +1,0 @@
-export { BinocularsIcon } from './BinocularsIcon';
