@@ -21,8 +21,8 @@ class BaseUser(Base, Timestamp):
     user_talenthub = relationship(
         "UserTalenthub", backref=backref("base_user", uselist=False), uselist=False
     )
-    payments = relationship("Payments", backref="base_user")
-    feature_tracking = relationship("FeatureTracking", backref="user")
+    # payments = relationship("Payments", backref="base_user")
+    # feature_tracking = relationship("FeatureTracking", backref="user")
 
 
 class UserCareerforge(Base, Timestamp):
