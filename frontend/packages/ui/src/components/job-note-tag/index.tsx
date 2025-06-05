@@ -1,1 +1,0 @@
-export { JobNoteTag } from './JobNoteTag';

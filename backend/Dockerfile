@@ -1,36 +1,19 @@
-FROM python:3.11-slim
+FROM python:3.11.4
 
-# Set environment variables
-ENV PYTHONDONTWRITEBYTECODE=1 \
-    PYTHONUNBUFFERED=1 \
-    POETRY_VERSION=1.6.1 \
-    POETRY_HOME="/opt/poetry" \
-    POETRY_VIRTUALENVS_CREATE=false
-
-# Install system dependencies
-RUN apt-get update \
-    && apt-get install -y --no-install-recommends \
-        curl \
-        build-essential \
-        libpq-dev \
+# Install system dependencies for OpenCV
+RUN apt-get update && apt-get install -y \
+    libgl1-mesa-glx \
+    libglib2.0-0 \
     && rm -rf /var/lib/apt/lists/*
 
-# Install Poetry
-RUN curl -sSL https://install.python-poetry.org | python -
+WORKDIR /skillsync_backend/app/
 
-# Add Poetry to PATH
-ENV PATH="${POETRY_HOME}/bin:${PATH}"
+COPY ./requirements.txt requirements.txt
+RUN python -m pip install --upgrade pip
+RUN python -m pip install -r requirements.txt
 
-WORKDIR /skillsync_backend
-
-# Copy only requirements first to leverage Docker cache
-COPY pyproject.toml poetry.lock* ./
-
-# Install dependencies
-RUN poetry install --no-root --no-dev
-
-# Copy the rest of the application
+WORKDIR /skillsync_backend/
 COPY . .
 
-# Set the default command
-CMD ["poetry", "run", "python", "main.py"]
+ENV PYTHONPATH=/skillsync_backend
+CMD alembic upgrade head && python main.py

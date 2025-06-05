@@ -1,29 +1,29 @@
 import uuid
 
-from sqlalchemy import ARRAY, Column, ForeignKey, Integer, String
+from sqlalchemy import ARRAY, INTEGER, Boolean, Column, ForeignKey, String
 from sqlalchemy.dialects.postgresql import UUID
-from sqlalchemy.orm import relationship
 
-from app.db.base_class import Base
+from app.db.base_class import Base, Timestamp
 
 
-class Organization(Base):
+class Organizations(Base, Timestamp):
     __tablename__ = "organizations"
+    __table_args__ = {"extend_existing": True}
 
-    id = Column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
-    created_by = Column(UUID(as_uuid=True), ForeignKey("base_users.id"), nullable=False)
-    name = Column(String, nullable=False)
-    type = Column(String)
-    size = Column(String)
-    no_of_employees = Column(Integer, default=0)
-    location = Column(String)
-    city = Column(String)
-    state = Column(String)
-    country = Column(String)
-    overview = Column(String)
-    benefits = Column(ARRAY(String))
-    select_career_path = Column(String)
-    logo_url = Column(String)
-
-    members = relationship("UserTalentHub", backref="organization")
-    positions = relationship("Position", backref="organization")
+    id = Column(UUID(as_uuid=True), primary_key=True, index=True, default=uuid.uuid4)
+    created_by = Column(
+        UUID(as_uuid=True), ForeignKey("user_talenthub.id"), nullable=False
+    )  # adjusted FK
+    name = Column(String(128), nullable=False)
+    type = Column(String(128), nullable=False)
+    size = Column(String(32), nullable=False)
+    no_of_employees = Column(INTEGER, nullable=True)
+    is_bipoc_owned = Column(Boolean, default=False)
+    location = Column(String(128), nullable=False)
+    city = Column(String(64), nullable=True)
+    state = Column(String(64), nullable=True)
+    country = Column(String(64), nullable=True)
+    overview = Column(String(4096), nullable=True)
+    benefits = Column(ARRAY(String), nullable=True)
+    select_a_pathway = Column(String(512), nullable=True)
+    logo_url = Column(String(512), nullable=True)

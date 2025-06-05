@@ -4,28 +4,28 @@ from typing import List, Optional
 from pydantic import UUID4, BaseModel
 
 
-class CareerPath(str, Enum):
-    conservation = "Conservation"
-    energy = "Energy"
-    agriculture = "Agriculture"
-    education = "Education"
-    construction = "Construction"
-    finance = "Finance"
-    forestry = "Forestry"
-    manufacturing = "Manufacturing"
-    arts_culture = "Arts & Culture"
-    real_estate = "Real Estate"
-    medical = "Medical"
-    policy = "Policy"
-    research = "Research"
-    sports = "Sports"
-    technology = "Technology"
-    tourism = "Tourism"
-    transport = "Transport"
-    urban_planning = "Urban Planning"
-    waste_management = "Waste Management"
-    water = "Water"
-    media = "Media"
+class Sector(str, Enum):
+    wildlife_protection = "Wildlife Protection"
+    renewable_power = "Renewable Power"
+    eco_farming = "Eco-Farming"
+    green_education = "Green Education"
+    sustainable_building = "Sustainable Building"
+    ethical_fintech = "Ethical Fintech"
+    forest_ecology = "Forest Ecology"
+    clean_manufacturing = "Clean Manufacturing"
+    cultural_initiatives = "Cultural Initiatives"
+    smart_housing = "Smart Housing"
+    healthcare_innovation = "Healthcare Innovation"
+    public_governance = "Public Governance"
+    environmental_research = "Environmental Research"
+    wellness_sports = "Wellness & Sports"
+    clean_tech = "Clean Tech"
+    eco_travel = "Eco Travel"
+    mobility_solutions = "Mobility Solutions"
+    city_design = "City Design"
+    recycling_services = "Recycling Services"
+    aqua_stewardship = "Aqua Stewardship"
+    climate_communications = "Climate Communications"
 
 
 class OrganizationBase(BaseModel):
@@ -33,13 +33,14 @@ class OrganizationBase(BaseModel):
     type: str
     size: str
     no_of_employees: Optional[int] = 0
+    is_bipoc_owned: Optional[bool] = False
     location: str
     city: Optional[str] = None
     state: Optional[str] = None
     country: Optional[str] = None
     overview: Optional[str] = None
     benefits: Optional[List[str]] = None
-    select_career_path: Optional[CareerPath] = None
+    sector_focus: Optional[Sector] = None
     logo_url: Optional[str] = None
 
 
@@ -59,7 +60,7 @@ class OrganizationUpdate(OrganizationBase):
     country: Optional[str] = None
     overview: Optional[str] = None
     benefits: Optional[List[str]] = None
-    select_career_path: Optional[CareerPath] = None
+    sector_focus: Optional[Sector] = None
 
 
 class OrganizationResponse(OrganizationBase):

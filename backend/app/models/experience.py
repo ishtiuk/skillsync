@@ -1,26 +1,23 @@
 import uuid
 
-from sqlalchemy import ARRAY, Boolean, Column, DateTime, ForeignKey, String
+from sqlalchemy import INTEGER, Boolean, Column, ForeignKey, String
 from sqlalchemy.dialects.postgresql import UUID
-from sqlalchemy.orm import relationship
 
-from app.db.base_class import Base
+from app.db.base_class import Base, Timestamp
 
 
-class Experience(Base):
+class Experiences(Base, Timestamp):
     __tablename__ = "experiences"
+    __table_args__ = {"extend_existing": True}
 
-    id = Column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
-    user_id = Column(UUID(as_uuid=True), ForeignKey("user_careerforge.id"))
-    company_name = Column(String, nullable=False)
-    position_title = Column(String, nullable=False)
-    start_date = Column(DateTime)
-    end_date = Column(DateTime)
+    id = Column(UUID(as_uuid=True), primary_key=True, index=True, default=uuid.uuid4)
+    user_id = Column(UUID(as_uuid=True), ForeignKey("user_careerforge.id"), nullable=False)
+    position_title = Column(String(128), nullable=False)
+    company_name = Column(String(128), nullable=False)
+    employment_type = Column(String(128), nullable=False)
     is_current = Column(Boolean, default=False)
-    description = Column(String)
-    skills = Column(ARRAY(String))
-    achievements = Column(ARRAY(String))
-    location = Column(String)
-    employment_type = Column(String)
-
-    user = relationship("UserCareerForge", backref="experiences")
+    start_month = Column(INTEGER, nullable=True)
+    start_year = Column(INTEGER, nullable=True)
+    end_month = Column(INTEGER, nullable=True)
+    end_year = Column(INTEGER, nullable=True)
+    logo_url = Column(String(512), nullable=True)

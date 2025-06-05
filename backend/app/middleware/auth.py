@@ -25,9 +25,9 @@ class ValidationMiddleware:
                 auth_header = request.headers.get("Authorization")
                 if auth_header and auth_header.startswith("Bearer "):
                     token = auth_header.split(" ")[1]
-                    token_data = verify_token(token)
-                    request.app.state.user = token_data["email"]
-                    request.app.state.platform = token_data["platform"]  # Store platform info
+                    email, platform = verify_token(token)
+                    request.app.state.user = email
+                    request.app.state.platform = platform
                 else:
                     return JSONResponse(
                         status_code=status.HTTP_401_UNAUTHORIZED,
@@ -58,7 +58,7 @@ class ValidationMiddleware:
             # First escape the entire pattern except for our placeholder
             regex_pattern = re.escape(path_pattern)
 
-            # Replace the escaped version of our placeholder with the UUID pattern
+            # Replace the escaped version of our placeholder with UUID pattern
             regex_pattern = regex_pattern.replace(r"\{id:uuid\}", self.PARAM_PATTERNS["uuid"])
 
             # Add start and end anchors

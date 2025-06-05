@@ -1,1 +1,0 @@
-export { BriefcaseIcon } from './BriefcaseIcon';
