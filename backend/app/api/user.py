@@ -45,7 +45,8 @@ def login(request: LoginRequest, db: Session = Depends(get_db)):
         if user_service.validate_user(
             email=request.email, password=request.password, platform=request.platform, db=db
         ):
-            access_token = create_access_token(subject=request.email, platform=request.platform)
+            platform = Platform(request.platform)  # Convert string to Platform enum
+            access_token = create_access_token(subject=request.email, platform=platform)
             return JSONResponse(
                 content={"message": "Successfully Logged In", "access_token": access_token},
                 status_code=status.HTTP_200_OK,

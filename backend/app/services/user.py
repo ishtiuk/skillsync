@@ -48,26 +48,9 @@ def get_active_user(
     else:
         platform_user = talent_user_crud.get_by_field(db=db, field="email", value=email)
 
-    if platform_user:
-        base_user = base_user_crud.get_by_field(db=db, field="provider_id", value=email)
-        return platform_user, base_user.provider
-
-    base_user = base_user_crud.get_by_field(db=db, field="provider_id", value=email)
+    base_user = base_user_crud.get(db=db, id=platform_user.base_user_id) if platform_user else None
     if not base_user:
         logger.error(f"No user found with identifier {email}")
-        raise ResourceNotFound(message=error_messages.RESOURCE_NOT_FOUND)
-
-    if platform == Platform.careerforge:
-        platform_user = careerforge_user_crud.get_by_field(
-            db=db, field="base_user_id", value=base_user.id
-        )
-    else:
-        platform_user = talent_user_crud.get_by_field(
-            db=db, field="base_user_id", value=base_user.id
-        )
-
-    if not platform_user:
-        logger.error(f"Platform user for {platform} not found with base_user_id {base_user.id}")
         raise ResourceNotFound(message=error_messages.RESOURCE_NOT_FOUND)
 
     return platform_user, base_user.provider
@@ -99,16 +82,10 @@ class UserService:
     def get_user_by_platform(
         self, db: Session, email: str, platform: str
     ) -> Union[UserCareerforge, UserTalenthub]:
-        base_user = base_user_crud.get_by_field(db=db, field="provider_id", value=email)
-        if not base_user:
-            return None
-
         if platform == Platform.careerforge:
-            return careerforge_user_crud.get_by_field(
-                db=db, field="base_user_id", value=base_user.id
-            )
+            return careerforge_user_crud.get_by_field(db=db, field="email", value=email)
         else:
-            return talent_user_crud.get_by_field(db=db, field="base_user_id", value=base_user.id)
+            return talent_user_crud.get_by_field(db=db, field="email", value=email)
 
     def validate_user(self, email: str, password: str, platform: str, db: Session) -> bool:
         user = self.get_user_by_platform(db, email, platform)

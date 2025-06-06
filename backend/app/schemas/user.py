@@ -99,9 +99,9 @@ class PublicUserResponse(BaseModel):
 
 
 class LoginRequest(BaseModel):
-    email: str
+    email: EmailStr
     password: str
-    platform: Optional[Platform] = Platform.careerforge
+    platform: Platform = Platform.careerforge
 
 
 class UserUpdateRequest(BaseModel):

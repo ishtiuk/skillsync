@@ -15,6 +15,7 @@ boto3.setup_default_session(
     region_name=os.environ.get("AWS_DEFAULT_REGION"),
 )
 
+
 class Settings(BaseSettings):
     model_config = ConfigDict(case_sensitive=True)
 
@@ -22,6 +23,7 @@ class Settings(BaseSettings):
     APP_ENV: str = os.environ["APP_ENV"]
     CANDID_HOST: str = os.environ["CANDID_HOST"]
     PATHWAYS_HOST: str = os.environ["PATHWAYS_HOST"]
+    FRONTEND_HOST: str = "http://localhost:8080"
 
     ACCESS_TOKEN_EXPIRE_MINUTES: int = 60 * 24 * 7  # one week
     JWT_ALGORITHM: str = "HS256"
@@ -37,7 +39,7 @@ class Settings(BaseSettings):
     GOOGLE_CLIENT_ID: Optional[str] = os.environ["GOOGLE_CLIENT_ID"]
     GOOGLE_CLIENT_SECRET: Optional[str] = os.environ["GOOGLE_CLIENT_SECRET"]
 
-    #openai
+    # openai
     OPENAI_API_KEY: Optional[str] = os.environ["OPENAI_API_KEY"]
 
 
