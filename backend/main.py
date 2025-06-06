@@ -16,7 +16,7 @@ environment = settings.APP_ENV
 
 app = FastAPI()
 
-origins = [settings.CANDID_HOST, settings.PATHWAYS_HOST]
+origins = [settings.CANDID_HOST, settings.PATHWAYS_HOST, settings.FRONTEND_HOST]
 
 
 def custom_openapi():
