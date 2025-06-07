@@ -213,8 +213,7 @@ class UserService:
                 "city",
                 "state",
                 "linkedin_url",
-                "instagram_url",
-                "facebook_url",
+                "github_url",
                 "x_twitter_url",
                 "current_career",
                 "job_search_phase",
@@ -295,6 +294,7 @@ class UserService:
                 "start_year",
                 "end_month",
                 "end_year",
+                "logo_url",
             ]
 
             for attr in attributes:
