@@ -24,8 +24,7 @@ class UserCreate(BaseModel):
     state: Optional[str] = None
     country: Optional[str] = None
     linkedin_url: Optional[str] = None
-    instagram_url: Optional[str] = None
-    facebook_url: Optional[str] = None
+    github_url: Optional[str] = None
     x_twitter_url: Optional[str] = None
     personal_website_url: Optional[str] = None
     current_career: Optional[str] = None
@@ -64,8 +63,7 @@ class UserResponse(BaseModel):
     state: Optional[str] = None
     country: Optional[str] = None
     linkedin_url: Optional[str] = None
-    instagram_url: Optional[str] = None
-    facebook_url: Optional[str] = None
+    github_url: Optional[str] = None
     x_twitter_url: Optional[str] = None
     personal_website_url: Optional[str] = None
     current_career: Optional[str] = None
@@ -87,8 +85,7 @@ class PublicUserResponse(BaseModel):
     state: Optional[str] = None
     country: Optional[str] = None
     linkedin_url: Optional[str] = None
-    instagram_url: Optional[str] = None
-    facebook_url: Optional[str] = None
+    github_url: Optional[str] = None
     x_twitter_url: Optional[str] = None
     personal_website_url: Optional[str] = None
     skills: Optional[List[str]] = None
@@ -121,8 +118,7 @@ class UserUpdateRequest(BaseModel):
     city: Optional[str] = None
     state: Optional[str] = None
     linkedin_url: Optional[str] = None
-    instagram_url: Optional[str] = None
-    facebook_url: Optional[str] = None
+    github_url: Optional[str] = None
     x_twitter_url: Optional[str] = None
     current_career: Optional[str] = None
     job_search_phase: Optional[str] = None
