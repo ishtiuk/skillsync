@@ -295,6 +295,7 @@ class UserService:
                 "start_year",
                 "end_month",
                 "end_year",
+                "logo_url",
             ]
 
             for attr in attributes:

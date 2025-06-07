@@ -180,6 +180,7 @@ class ExpResponse(BaseModel):
     start_year: int
     end_month: Optional[int] = None
     end_year: Optional[int] = None
+    logo_url: Optional[str] = None
 
 
 class UpdateExp(BaseModel):
