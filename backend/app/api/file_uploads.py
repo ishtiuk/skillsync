@@ -60,8 +60,11 @@ async def upload_profile_picture(
             status_code=status.HTTP_200_OK,
             content={"message": "Profile picture uploaded successfully"},
         )
-    except ValueError as e:
-        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail=str(e))
+    except ValueError:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail=str("Invalid image file, Face not detected"),
+        )
     except S3Exception as e:
         raise HTTPException(status_code=e.status_code, detail=e.message)
     except Exception as e:
