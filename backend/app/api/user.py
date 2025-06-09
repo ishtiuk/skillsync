@@ -16,7 +16,6 @@ from app.schemas.user import (
     LoginRequest,
     PasswordResetRequest,
     Platform,
-    PublicUserResponse,
     UpdateExp,
     UpdatePasswordRequest,
     UserCreateRequest,
@@ -160,23 +159,40 @@ def update_user(
         )
 
 
-@user_router.get("/user/public/{id}", response_model=PublicUserResponse, tags=["users"])
-def get_public_user(id: UUID4, db: Session = Depends(get_db)):
-    try:
-        user = user_service.get_user_by_id(db=db, user_id=id)
-        return JSONResponse(
-            content=jsonable_encoder(PublicUserResponse(**jsonable_encoder(user))),
-            status_code=status.HTTP_200_OK,
-        )
-    except ResourceNotFound as e:
-        logger.error(f"Public user not found: {e.message}")
-        raise HTTPException(status_code=e.status_code, detail=e.message)
-    except Exception as e:
-        logger.error(f"Unexpected error while fetching public user: {e}")
-        raise HTTPException(
-            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-            detail=error_messages.INTERNAL_SERVER_ERROR,
-        )
+# @user_router.get("/user/public/{id}", response_model=PublicUserResponse, tags=["users"])
+# def get_public_user(id: UUID4, db: Session = Depends(get_db)):
+#     try:
+#         user = user_service.get_user_by_id(db=db, user_id=id)
+
+#         # Generate presigned URL for profile picture if it exists
+#         if user.profile_picture_url:
+#             try:
+#                 download_url = s3_services.generate_presigned_url(
+#                     bucket_name=settings.AWS_S3_BUCKET,
+#                     object_key=user.profile_picture_url,
+#                     content_type="image/png",
+#                     operation="get_object",
+#                     expiration=constants.PRESIGNED_URL_EXPIRATION,
+#                 )
+#                 user.profile_picture_url = download_url
+#             except Exception as e:
+#                 logger.error(f"Failed to generate presigned URL for profile picture: {e}")
+#                 # Don't fail the whole request if presigned URL generation fails
+#                 user.profile_picture_url = None
+
+#         return JSONResponse(
+#             content=jsonable_encoder(PublicUserResponse(**jsonable_encoder(user))),
+#             status_code=status.HTTP_200_OK,
+#         )
+#     except ResourceNotFound as e:
+#         logger.error(f"Public user not found: {e.message}")
+#         raise HTTPException(status_code=e.status_code, detail=e.message)
+#     except Exception as e:
+#         logger.error(f"Unexpected error while fetching public user: {e}")
+#         raise HTTPException(
+#             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+#             detail=error_messages.INTERNAL_SERVER_ERROR,
+#         )
 
 
 @user_router.post("/auth/login/google", tags=["auth"])
