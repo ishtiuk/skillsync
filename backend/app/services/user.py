@@ -1,5 +1,4 @@
 from typing import Union
-from uuid import UUID
 
 from fastapi import Depends, Request
 from pydantic import UUID4
@@ -17,7 +16,6 @@ from app.schemas.user import (
     UserCreateRequest,
     UserUpdateRequest,
 )
-from app.services import s3_services
 from app.utils.exceptions import (
     ConflictException,
     DatabaseException,
@@ -25,7 +23,6 @@ from app.utils.exceptions import (
     ResourceNotFound,
 )
 from app.utils.security import get_password_hash, verify_password
-from core.config import settings
 from core.constants import error_messages
 from core.logger import logger
 
@@ -60,39 +57,27 @@ def get_active_user(
 
 
 class UserService:
-    def __init__(self, db_session=None):
-        self.db = db_session
-        self.s3_service = s3_services.S3Services()
+    def __init__(self):
+        pass
 
-    def get_user_by_id(self, db, user_id: UUID):
+    def get_user_by_id(self, db: Session, user_id: UUID4) -> Union[UserCareerforge, UserTalenthub]:
         try:
-            user = self.db.query(UserCareerforge).filter(UserCareerforge.id == user_id).first()
+            user = careerforge_user_crud.get(db=db, id=user_id)
+            if user:
+                return user
 
-            if not user:
-                logger.error(f"User not found with ID: {user_id}")
-                raise ResourceNotFound(error_messages.RESOURCE_NOT_FOUND)
+            user = talent_user_crud.get(db=db, id=user_id)
+            if user:
+                return user
 
-            # Generate presigned URL for profile picture if it exists
-            if user.profile_picture_url:
-                try:
-                    download_url = self.s3_service.generate_presigned_url(
-                        bucket_name=settings.AWS_S3_BUCKET,
-                        object_key=user.profile_picture_url,
-                        content_type="image/png",
-                        operation="get_object",
-                        expiration=3600,  # 1 hour
-                    )
-                    user.profile_picture_url = download_url
-                except Exception as e:
-                    logger.error(f"Failed to generate presigned URL for profile picture: {e}")
-                    user.profile_picture_url = None
-
-            return user
+            logger.error(f"User with ID {user_id} not found in either platform.")
+            raise ResourceNotFound(message=error_messages.RESOURCE_NOT_FOUND)
         except ResourceNotFound as e:
+            logger.error(f"User with ID {user_id} not found: {str(e)}")
             raise e
         except Exception as e:
-            logger.error(f"Error getting user by ID: {e}")
-            raise ResourceNotFound(error_messages.RESOURCE_NOT_FOUND)
+            logger.error(f"Error fetching user with ID {user_id}: {str(e)}")
+            raise DatabaseException(message=error_messages.INTERNAL_SERVER_ERROR)
 
     def get_user_by_platform(
         self, db: Session, email: str, platform: str
@@ -220,7 +205,6 @@ class UserService:
                 "country",
                 "personal_website_url",
                 "current_job_title",
-                "profile_picture_url",
             ]
 
             careerforge_attributes = [
