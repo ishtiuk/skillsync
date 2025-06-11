@@ -6,10 +6,18 @@ from pydantic import UUID4, BaseModel, validator
 
 
 class MilestoneType(str, Enum):
-    interviewing = "interviewing"
-    networking = "networking"
-    compensation = "compensation"
-    organization = "organization"
+    skill_development = "skill_development"  # Learning new skills, certifications, courses
+    job_search = "job_search"  # Application targets, resume updates, interview prep
+    networking = "networking"  # Professional connections, events, meetups
+    career_advancement = "career_advancement"  # Promotions, role transitions, leadership goals
+    education = "education"  # Degrees, bootcamps, formal education
+    project_completion = "project_completion"  # Portfolio projects, side hustles
+    work_life_balance = "work_life_balance"  # Time management, stress reduction, boundaries
+    financial = "financial"  # Salary negotiations, savings goals, benefits
+    entrepreneurship = "entrepreneurship"  # Starting a business, freelancing
+    mentorship = "mentorship"  # Finding mentors or becoming a mentor
+    professional_brand = "professional_brand"  # Personal website, social media presence, speaking
+    remote_work = "remote_work"  # Remote job transition, workspace setup
 
 
 class MilestoneBase(BaseModel):
