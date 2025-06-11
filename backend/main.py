@@ -16,7 +16,7 @@ environment = settings.APP_ENV
 
 app = FastAPI()
 
-origins = [settings.CANDID_HOST, settings.PATHWAYS_HOST, settings.FRONTEND_HOST]
+origins = [settings.TALENTHUB_HOST, settings.CAREERFORGE_HOST, settings.FRONTEND_HOST]
 
 
 def custom_openapi():

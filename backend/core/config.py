@@ -21,8 +21,8 @@ class Settings(BaseSettings):
 
     PROJECT_NAME: str = "Green Jobs Backend"
     APP_ENV: str = os.environ["APP_ENV"]
-    CANDID_HOST: str = os.environ["CANDID_HOST"]
-    PATHWAYS_HOST: str = os.environ["PATHWAYS_HOST"]
+    TALENTHUB_HOST: str = os.environ["TALENTHUB_HOST"]
+    CAREERFORGE_HOST: str = os.environ["CAREERFORGE_HOST"]
     FRONTEND_HOST: str = "http://localhost:8080"
 
     ACCESS_TOKEN_EXPIRE_MINUTES: int = 60 * 24 * 7  # one week
