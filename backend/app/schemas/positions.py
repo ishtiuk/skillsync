@@ -123,14 +123,12 @@ class PositionFilters(BaseModel):
     pay_frequency: Optional[List[PayFrequency]] = None
     company_name: Optional[str] = None
     pathway: Optional[List[str]] = None
-    is_bipoc_owned: Optional[bool] = None
 
 
 class PositionResponse(PositionBase):
     id: UUID4
     company_name: str
     company_logo_url: str
-    is_bipoc_owned: bool
     created_at: datetime
     pathway: str
     recruiter_name: Optional[str] = None

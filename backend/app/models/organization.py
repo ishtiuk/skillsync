@@ -1,6 +1,6 @@
 import uuid
 
-from sqlalchemy import ARRAY, INTEGER, Boolean, Column, ForeignKey, String
+from sqlalchemy import ARRAY, INTEGER, Column, ForeignKey, String
 from sqlalchemy.dialects.postgresql import UUID
 
 from app.db.base_class import Base, Timestamp
@@ -18,7 +18,6 @@ class Organizations(Base, Timestamp):
     type = Column(String(128), nullable=False)
     size = Column(String(32), nullable=False)
     no_of_employees = Column(INTEGER, nullable=True)
-    is_bipoc_owned = Column(Boolean, default=False)
     location = Column(String(128), nullable=False)
     city = Column(String(64), nullable=True)
     state = Column(String(64), nullable=True)

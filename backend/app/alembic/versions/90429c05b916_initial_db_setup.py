@@ -1,8 +1,8 @@
 """initial_db_setup
 
-Revision ID: b676c8888301
+Revision ID: 90429c05b916
 Revises:
-Create Date: 2025-06-12 03:49:06.602426
+Create Date: 2025-06-14 00:20:37.752000
 
 """
 
@@ -10,7 +10,7 @@ import sqlalchemy as sa
 from alembic import op
 
 # revision identifiers, used by Alembic.
-revision = "b676c8888301"
+revision = "90429c05b916"
 down_revision = None
 branch_labels = None
 depends_on = None
@@ -166,7 +166,6 @@ def upgrade() -> None:
         sa.Column("type", sa.String(length=128), nullable=False),
         sa.Column("size", sa.String(length=32), nullable=False),
         sa.Column("no_of_employees", sa.INTEGER(), nullable=True),
-        sa.Column("is_bipoc_owned", sa.Boolean(), nullable=True),
         sa.Column("location", sa.String(length=128), nullable=False),
         sa.Column("city", sa.String(length=64), nullable=True),
         sa.Column("state", sa.String(length=64), nullable=True),

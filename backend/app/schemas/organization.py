@@ -33,7 +33,6 @@ class OrganizationBase(BaseModel):
     type: str
     size: str
     no_of_employees: Optional[int] = 0
-    is_bipoc_owned: Optional[bool] = False
     location: str
     city: Optional[str] = None
     state: Optional[str] = None
@@ -53,7 +52,6 @@ class OrganizationUpdate(OrganizationBase):
     type: Optional[str] = None
     size: Optional[str] = None
     no_of_employees: Optional[int] = None
-    is_bipoc_owned: Optional[bool] = False
     location: Optional[str] = None
     city: Optional[str] = None
     state: Optional[str] = None
