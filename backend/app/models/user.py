@@ -91,5 +91,3 @@ class UserFiles(Base, Timestamp):
     file_name = Column(String(512), nullable=False)
     file_url = Column(String(512), nullable=False)
     file_type = Column(String(32), nullable=False)
-
-    user = relationship("UserCareerforge", backref="files")

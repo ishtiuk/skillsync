@@ -33,7 +33,7 @@ class UserCreate(BaseModel):
     interests: Optional[List[str]] = None
     career_summary: Optional[str] = None
     birthday: Optional[str] = None
-    platform: Platform = Platform.careerforge
+    platform: Platform
     current_job_title: Optional[str] = None
     profile_picture_url: Optional[str] = None
     background_image_url: Optional[str] = None
@@ -45,14 +45,14 @@ class UserCreateRequest(BaseModel):
     last_name: str
     password: str
     provider: str = "self"
-    platform: Platform = Platform.careerforge
+    platform: Platform
 
 
 class UserResponse(BaseModel):
     id: str
     email: str
     provider: str
-    platform: Platform = Platform
+    platform: Platform
     first_name: Optional[str] = None
     last_name: Optional[str] = None
     gender: Optional[str] = None
@@ -98,7 +98,7 @@ class PublicUserResponse(BaseModel):
 class LoginRequest(BaseModel):
     email: EmailStr
     password: str
-    platform: Platform = Platform.careerforge
+    platform: Platform
 
 
 class UserUpdateRequest(BaseModel):
@@ -131,7 +131,7 @@ class UserUpdateRequest(BaseModel):
 
 class GoogleLoginRequest(BaseModel):
     access_token: str
-    platform: Optional[Platform] = Platform.careerforge
+    platform: Platform
 
 
 class GoogleUserCreate(BaseModel):
@@ -139,7 +139,7 @@ class GoogleUserCreate(BaseModel):
     first_name: Optional[str] = None
     last_name: Optional[str] = None
     provider: Optional[str] = "google"
-    platform: Platform = Platform.careerforge
+    platform: Platform
     email: EmailStr
 
 
