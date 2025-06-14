@@ -13,11 +13,11 @@ from app.utils.exceptions import DatabaseException, ResourceNotFound
 from core.constants import error_messages
 from core.logger import logger
 
-router = APIRouter(tags=["milestones"])
+milestone_router = APIRouter(tags=["milestones"])
 milestones_service = MilestonesService()
 
 
-@router.post("/milestones", response_model=MilestoneResponse)
+@milestone_router.post("/milestones", response_model=MilestoneResponse)
 def create_milestone(
     milestone_in: MilestoneCreate,
     db: Session = Depends(get_db),
@@ -43,7 +43,7 @@ def create_milestone(
         )
 
 
-@router.get("/milestones", response_model=list[MilestoneResponse])
+@milestone_router.get("/milestones", response_model=list[MilestoneResponse])
 def get_user_milestones(
     db: Session = Depends(get_db),
     current_user_info: tuple[UserCareerforge, str] = Depends(get_active_user),
@@ -66,7 +66,7 @@ def get_user_milestones(
         )
 
 
-@router.get("/milestones/{id}", response_model=MilestoneResponse)
+@milestone_router.get("/milestones/{id}", response_model=MilestoneResponse)
 def get_milestone(
     id: UUID4,
     db: Session = Depends(get_db),
@@ -94,7 +94,7 @@ def get_milestone(
         )
 
 
-@router.patch("/milestones/{id}", response_model=MilestoneResponse)
+@milestone_router.patch("/milestones/{id}", response_model=MilestoneResponse)
 def update_milestone(
     id: UUID4,
     milestone_in: MilestoneUpdate,
@@ -126,7 +126,7 @@ def update_milestone(
         )
 
 
-@router.patch("/milestones/{id}/complete", response_model=MilestoneResponse)
+@milestone_router.patch("/milestones/{id}/complete", response_model=MilestoneResponse)
 def mark_milestone_completed(
     id: UUID4,
     db: Session = Depends(get_db),
