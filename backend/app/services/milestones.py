@@ -1,76 +1,82 @@
-# from core.logger import logger
-# from typing import List
+from typing import List
 
-# from pydantic import UUID4
-# from sqlalchemy.orm import Session
+from pydantic import UUID4
+from sqlalchemy.orm import Session
 
-# from app.db.crud import CRUDBase
-# from app.models.goals import Goals
-# from app.schemas.goals import GoalCreate, GoalUpdate
-# from app.utils.exceptions import DatabaseException, ResourceNotFound
-# from core.constants import error_messages
-
-
-# class GoalsService:
-#     def __init__(self):
-#         self.goals_crud = CRUDBase(model=Goals)
-
-#     def create_goal(self, db: Session, user_id: UUID4, goal_in: GoalCreate) -> Goals:
-#         try:
-#             goal_data = Goals(
-#                 user_id=user_id,
-#                 name=goal_in.name,
-#                 type=goal_in.type,
-#                 description=goal_in.description,
-#                 tasks=goal_in.tasks,
-#                 is_completed=goal_in.is_completed,
-#             )
-#             goal = self.goals_crud.create(db=db, obj_in=goal_data)
-#             return goal
-#         except Exception as e:
-#             logger.error(f"Failed to create goal: {str(e)}")
-#             raise DatabaseException(message=error_messages.GOAL_EXCEPTIONS["GOAL_CREATE_FAILED"])
-
-#     def get_user_goals(self, db: Session, user_id: UUID4) -> List[Goals]:
-#         try:
-#             return self.goals_crud.get_multi_by_field(db=db, field="user_id", value=user_id)
-#         except Exception as e:
-#             logger.error(f"Failed to get user goals: {str(e)}")
-#             raise DatabaseException(message=error_messages.INTERNAL_SERVER_ERROR)
-
-#     def get_goal_by_id(self, db: Session, id: UUID4) -> Goals:
-#         goal = self.goals_crud.get(db=db, id=id)
-#         if not goal:
-#             logger.error(f"Goal with ID {id} not found")
-#             raise ResourceNotFound(message=error_messages.RESOURCE_NOT_FOUND)
-#         return goal
-
-#     def update_goal(self, db: Session, id: UUID4, goal_in: GoalUpdate) -> Goals:
-#         try:
-#             goal = self.get_goal_by_id(db=db, id=id)
-
-#             update_data = goal_in.model_dump(exclude_unset=True, exclude_none=True)
-#             for field, value in update_data.items():
-#                 setattr(goal, field, value)
-
-#             updated_goal = self.goals_crud.update(db=db, obj_in=goal)
-#             return updated_goal
-#         except ResourceNotFound as e:
-#             raise e
-#         except Exception as e:
-#             logger.error(f"Failed to update goal: {str(e)}")
-#             raise DatabaseException(message=error_messages.GOAL_EXCEPTIONS["GOAL_UPDATE_FAILED"])
-
-#     def mark_goal_completed(self, db: Session, id: UUID4) -> Goals:
-#         try:
-#             goal = self.get_goal_by_id(db=db, id=id)
-#             goal.is_completed = True
-#             return self.goals_crud.update(db=db, obj_in=goal)
-#         except ResourceNotFound as e:
-#             raise e
-#         except Exception as e:
-#             logger.error(f"Failed to mark goal as completed: {str(e)}")
-#             raise DatabaseException(message=error_messages.INTERNAL_SERVER_ERROR)
+from app.db.crud import CRUDBase
+from app.models.milestones import Milestones
+from app.schemas.milestones import MilestoneCreate, MilestoneUpdate
+from app.utils.exceptions import DatabaseException, ResourceNotFound
+from core.constants import error_messages
+from core.logger import logger
 
 
-# goals_service = GoalsService()
+class MilestonesService:
+    def __init__(self):
+        self.milestones_crud = CRUDBase(model=Milestones)
+
+    def create_milestone(
+        self, db: Session, user_id: UUID4, milestone_in: MilestoneCreate
+    ) -> Milestones:
+        try:
+            milestone_data = Milestones(
+                user_id=user_id,
+                name=milestone_in.name,
+                type=milestone_in.type,
+                description=milestone_in.description,
+                tasks=milestone_in.tasks,
+                is_completed=milestone_in.is_completed,
+            )
+            milestone = self.milestones_crud.create(db=db, obj_in=milestone_data)
+            return milestone
+        except Exception as e:
+            logger.error(f"Failed to create milestone: {str(e)}")
+            raise DatabaseException(
+                message=error_messages.MILESTONE_EXCEPTIONS["MILESTONE_CREATE_FAILED"]
+            )
+
+    def get_user_milestones(self, db: Session, user_id: UUID4) -> List[Milestones]:
+        try:
+            return self.milestones_crud.get_multi_by_field(db=db, field="user_id", value=user_id)
+        except Exception as e:
+            logger.error(f"Failed to get user milestones: {str(e)}")
+            raise DatabaseException(message=error_messages.INTERNAL_SERVER_ERROR)
+
+    def get_milestone_by_id(self, db: Session, id: UUID4) -> Milestones:
+        milestone = self.milestones_crud.get(db=db, id=id)
+        if not milestone:
+            logger.error(f"Milestone with ID {id} not found")
+            raise ResourceNotFound(message=error_messages.RESOURCE_NOT_FOUND)
+        return milestone
+
+    def update_milestone(self, db: Session, id: UUID4, milestone_in: MilestoneUpdate) -> Milestones:
+        try:
+            milestone = self.get_milestone_by_id(db=db, id=id)
+
+            update_data = milestone_in.model_dump(exclude_unset=True, exclude_none=True)
+            for field, value in update_data.items():
+                setattr(milestone, field, value)
+
+            updated_milestone = self.milestones_crud.update(db=db, obj_in=milestone)
+            return updated_milestone
+        except ResourceNotFound as e:
+            raise e
+        except Exception as e:
+            logger.error(f"Failed to update milestone: {str(e)}")
+            raise DatabaseException(
+                message=error_messages.MILESTONE_EXCEPTIONS["MILESTONE_UPDATE_FAILED"]
+            )
+
+    def mark_milestone_completed(self, db: Session, id: UUID4) -> Milestones:
+        try:
+            milestone = self.get_milestone_by_id(db=db, id=id)
+            milestone.is_completed = True
+            return self.milestones_crud.update(db=db, obj_in=milestone)
+        except ResourceNotFound as e:
+            raise e
+        except Exception as e:
+            logger.error(f"Failed to mark milestone as completed: {str(e)}")
+            raise DatabaseException(message=error_messages.INTERNAL_SERVER_ERROR)
+
+
+milestones_service = MilestonesService()

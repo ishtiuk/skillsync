@@ -67,10 +67,10 @@ class ERROR_MESSAGES(BaseSettings):
         "PASSWORD_RESET_REQUIRED": "Password reset required",
     }
 
-    GOAL_EXCEPTIONS: dict = {
+    MILESTONE_EXCEPTIONS: dict = {
         "INVALID_TASK_FORMAT": "Invalid task format - must be a dictionary of task name and status",
-        "GOAL_UPDATE_FAILED": "Failed to update goal",
-        "GOAL_CREATE_FAILED": "Failed to create goal",
+        "MILESTONE_UPDATE_FAILED": "Failed to update milestone",
+        "MILESTONE_CREATE_FAILED": "Failed to create milestone",
     }
 
     DATABASE_EXCEPTION: dict = {

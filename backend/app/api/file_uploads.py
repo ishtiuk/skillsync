@@ -72,7 +72,7 @@ async def upload_profile_picture(
         raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail=str(e))
 
 
-@file_router.post("/generate-download-url/user/profile", tags=["s3"])
+@file_router.get("/generate-download-url/user/profile", tags=["s3"])
 async def generate_profile_download_url(
     current_user_info: tuple[Union[UserCareerforge, UserTalenthub], str] = Depends(get_active_user),
 ):
