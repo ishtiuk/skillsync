@@ -37,7 +37,12 @@ class MilestonesService:
 
     def get_user_milestones(self, db: Session, user_id: UUID4) -> List[Milestones]:
         try:
-            return self.milestones_crud.get_multi_by_field(db=db, field="user_id", value=user_id)
+            return (
+                db.query(Milestones)
+                .filter(Milestones.user_id == user_id)
+                .order_by(Milestones.created_at.asc())
+                .all()
+            )
         except Exception as e:
             logger.error(f"Failed to get user milestones: {str(e)}")
             raise DatabaseException(message=error_messages.INTERNAL_SERVER_ERROR)
@@ -57,6 +62,8 @@ class MilestonesService:
             for field, value in update_data.items():
                 setattr(milestone, field, value)
 
+            milestone.is_completed = True if all(update_data.get("tasks").values()) else False
+
             updated_milestone = self.milestones_crud.update(db=db, obj_in=milestone)
             return updated_milestone
         except ResourceNotFound as e:
@@ -66,17 +73,6 @@ class MilestonesService:
             raise DatabaseException(
                 message=error_messages.MILESTONE_EXCEPTIONS["MILESTONE_UPDATE_FAILED"]
             )
-
-    def mark_milestone_completed(self, db: Session, id: UUID4) -> Milestones:
-        try:
-            milestone = self.get_milestone_by_id(db=db, id=id)
-            milestone.is_completed = True
-            return self.milestones_crud.update(db=db, obj_in=milestone)
-        except ResourceNotFound as e:
-            raise e
-        except Exception as e:
-            logger.error(f"Failed to mark milestone as completed: {str(e)}")
-            raise DatabaseException(message=error_messages.INTERNAL_SERVER_ERROR)
 
 
 milestones_service = MilestonesService()
