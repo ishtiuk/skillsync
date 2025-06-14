@@ -19,8 +19,12 @@ class ValidationMiddleware:
 
     async def __call__(self, request: Request, call_next):
         try:
+            # Always allow OPTIONS requests for CORS preflight
             if request.method == "OPTIONS":
-                return await call_next(request)
+                response = await call_next(request)
+                return response
+
+            # Check if the endpoint requires authentication
             if self.check_api_accessibility(request):
                 auth_header = request.headers.get("Authorization")
                 if auth_header and auth_header.startswith("Bearer "):
@@ -31,13 +35,18 @@ class ValidationMiddleware:
                 else:
                     return JSONResponse(
                         status_code=status.HTTP_401_UNAUTHORIZED,
-                        content="Authorization token missing",
+                        content={"detail": "Authorization token missing"},
                     )
-            return await call_next(request)
+
+            response = await call_next(request)
+            return response
+
         except HTTPException as e:
-            return JSONResponse(status_code=e.status_code, content=e.detail)
+            return JSONResponse(status_code=e.status_code, content={"detail": e.detail})
         except Exception as e:
-            return JSONResponse(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, content=str(e))
+            return JSONResponse(
+                status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, content={"detail": str(e)}
+            )
 
     def check_api_accessibility(self, request):
         api_path = request.url.path
