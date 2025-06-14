@@ -1,11 +1,12 @@
 from fastapi import APIRouter
 
 # from app.api import applied_jobs, company, file_uploads, goals, job_role, public_data, user, cover_letter
-from app.api import file_uploads, user
+from app.api import file_uploads, milestones, user
 
 router = APIRouter(prefix="/api/v1")
 router.include_router(user.user_router)
 router.include_router(file_uploads.file_router)
+router.include_router(milestones.milestone_router)
 # router.include_router(public_data.public_data_router)
 # router.include_router(company.company_router)
 # router.include_router(job_role.router)
