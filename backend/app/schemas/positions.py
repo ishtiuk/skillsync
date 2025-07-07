@@ -121,14 +121,14 @@ class PositionFilters(BaseModel):
     minimum_pay: Optional[List[float]] = None
     maximum_pay: Optional[List[float]] = None
     pay_frequency: Optional[List[PayFrequency]] = None
-    company_name: Optional[str] = None
+    organization_name: Optional[str] = None
     pathway: Optional[List[str]] = None
 
 
 class PositionResponse(PositionBase):
     id: UUID4
-    company_name: str
-    company_logo_url: str
+    organization_name: str
+    organization_logo_url: str
     created_at: datetime
     pathway: str
     recruiter_name: Optional[str] = None

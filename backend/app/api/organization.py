@@ -6,8 +6,8 @@
 
 # from app.db.session import get_db
 # from app.models.user import Users
-# from app.schemas.company import CompanyCreate, CompanyResponse, CompanyUpdate
-# from app.services.company import company_service
+# from app.schemas.organization import organizationCreate, organizationResponse, organizationUpdate
+# from app.services.organization import organization_service
 # from app.services.user import get_active_user
 # from app.utils.exceptions import (
 #     ConflictException,
@@ -18,21 +18,21 @@
 # from core.constants import error_messages
 # from core.logger import logger
 
-# company_router = APIRouter()
+# organization_router = APIRouter()
 
 
-# @company_router.post("/company", response_model=CompanyResponse, tags=["companies"])
-# def create_company(
-#     company: CompanyCreate,
+# @organization_router.post("/organization", response_model=organizationResponse, tags=["organizations"])
+# def create_organization(
+#     organization: organizationCreate,
 #     db: Session = Depends(get_db),
 #     current_user: Users = Depends(get_active_user),
 # ):
 #     try:
-#         company_data = company_service.create_company(db=db, company=company, user=current_user)
+#         organization_data = organization_service.create_organization(db=db, organization=organization, user=current_user)
 #         return JSONResponse(
 #             content={
-#                 "message": "Company created successfully",
-#                 "company": jsonable_encoder(CompanyResponse(**jsonable_encoder(company_data))),
+#                 "message": "organization created successfully",
+#                 "organization": jsonable_encoder(organizationResponse(**jsonable_encoder(organization_data))),
 #             },
 #             status_code=status.HTTP_201_CREATED,
 #         )
@@ -43,52 +43,52 @@
 #         logger.error(f"DatabaseException: {e.message}")
 #         raise HTTPException(status_code=e.status_code, detail=e.message)
 #     except Exception as e:
-#         logger.error(f"Unexpected error while creating company: {e}")
+#         logger.error(f"Unexpected error while creating organization: {e}")
 #         raise HTTPException(
 #             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
 #             detail=error_messages.INTERNAL_SERVER_ERROR,
 #         )
 
 
-# @company_router.get("/company", response_model=CompanyResponse, tags=["companies"])
-# def get_company(db: Session = Depends(get_db), current_user: Users = Depends(get_active_user)):
+# @organization_router.get("/organization", response_model=organizationResponse, tags=["organizations"])
+# def get_organization(db: Session = Depends(get_db), current_user: Users = Depends(get_active_user)):
 #     try:
-#         company_data = company_service.get_company(db=db, user=current_user)
+#         organization_data = organization_service.get_organization(db=db, user=current_user)
 #         return JSONResponse(
-#             content=jsonable_encoder(CompanyResponse(**jsonable_encoder(company_data))),
+#             content=jsonable_encoder(organizationResponse(**jsonable_encoder(organization_data))),
 #             status_code=status.HTTP_200_OK,
 #         )
 #     except (ResourceNotFound, DatabaseException, PermissionDeniedException) as e:
 #         logger.error(f"{e.__class__.__name__}: {e.message}")
 #         raise HTTPException(status_code=e.status_code, detail=e.message)
 #     except Exception as e:
-#         logger.error(f"Unexpected error while retrieving company: {e}")
+#         logger.error(f"Unexpected error while retrieving organization: {e}")
 #         raise HTTPException(
 #             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
 #             detail=error_messages.INTERNAL_SERVER_ERROR,
 #         )
 
 
-# @company_router.patch("/company/{id}", response_model=CompanyResponse, tags=["companies"])
-# def update_company(
+# @organization_router.patch("/organization/{id}", response_model=organizationResponse, tags=["organizations"])
+# def update_organization(
 #     id: UUID4,
-#     company_update: CompanyUpdate,
+#     organization_update: organizationUpdate,
 #     db: Session = Depends(get_db),
 #     current_user: Users = Depends(get_active_user),
 # ):
 #     try:
-#         updated_company = company_service.update_company(
-#             db=db, company_id=id, company_update=company_update, user=current_user
+#         updated_organization = organization_service.update_organization(
+#             db=db, organization_id=id, organization_update=organization_update, user=current_user
 #         )
 #         return JSONResponse(
-#             content=jsonable_encoder(CompanyResponse(**jsonable_encoder(updated_company))),
+#             content=jsonable_encoder(organizationResponse(**jsonable_encoder(updated_organization))),
 #             status_code=status.HTTP_200_OK,
 #         )
 #     except (ResourceNotFound, DatabaseException, PermissionDeniedException) as e:
 #         logger.error(f"{e.__class__.__name__}: {e.message}")
 #         raise HTTPException(status_code=e.status_code, detail=e.message)
 #     except Exception as e:
-#         logger.error(f"Unexpected error while updating company: {e}")
+#         logger.error(f"Unexpected error while updating organization: {e}")
 #         raise HTTPException(
 #             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
 #             detail=error_messages.INTERNAL_SERVER_ERROR,

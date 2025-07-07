@@ -13,7 +13,7 @@ class Experiences(Base, Timestamp):
     id = Column(UUID(as_uuid=True), primary_key=True, index=True, default=uuid.uuid4)
     user_id = Column(UUID(as_uuid=True), ForeignKey("user_careerforge.id"), nullable=False)
     position_title = Column(String(128), nullable=False)
-    company_name = Column(String(128), nullable=False)
+    organization_name = Column(String(128), nullable=False)
     employment_type = Column(String(128), nullable=False)
     is_current = Column(Boolean, default=False)
     start_month = Column(INTEGER, nullable=True)

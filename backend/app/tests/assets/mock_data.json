@@ -47,7 +47,7 @@
     "experience_data": {
         "valid_experience": {
             "position_title": "Software Engineer",
-            "company_name": "Tech Corp",
+            "organization_name": "Tech Corp",
             "employment_type": "Full-time",
             "is_current": true,
             "start_month": 1,
@@ -60,9 +60,9 @@
             "end_year": 2023
         }
     },
-    "company_data": {
-        "valid_company": {
-            "name": "Test Company",
+    "organization_data": {
+        "valid_organization": {
+            "name": "Test organization",
             "type": "Technology",
             "size": "50-100",
             "no_of_employees": 75,
@@ -71,25 +71,25 @@
             "city": "San Francisco",
             "state": "CA",
             "country": "USA",
-            "overview": "A test company description",
+            "overview": "A test organization description",
             "benefits": ["Health Insurance", "401k"],
             "select_a_pathway": "Technology"
         },
-        "invalid_company": {
+        "invalid_organization": {
             "name": "",
             "type": "",
             "location": "",
             "no_of_employees": ""
         },
-        "update_company": {
-            "name": "Updated Company",
+        "update_organization": {
+            "name": "Updated organization",
             "type": "Technology",
             "size": "100-200",
             "select_a_pathway": "Energy"
         }
     },
-    "job_role_data": {
-        "valid_job_role": {
+    "position_data": {
+        "valid_position": {
         "title": "Software Engineer",
         "job_category": "software-engineering",
         "position_type": "Full-Time",
@@ -107,13 +107,13 @@
         "status": "Open",
         "show_recruiter": true
         },
-        "update_job_role": {
+        "update_position": {
         "title": "Senior Software Engineer",
         "level_of_experience": "Senior",
         "minimum_pay": 130000,
         "maximum_pay": 180000
         },
-        "invalid_job_role": {
+        "invalid_position": {
         "title": "",
         "job_category": "invalid-category",
         "position_type": "Invalid",

@@ -61,7 +61,7 @@
 # ]
 
 # public_job_exp_columns = [
-#     "company_name",
+#     "organization_name",
 #     "start_year",
 #     "end_year",
 #     "position_title",

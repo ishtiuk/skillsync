@@ -21,10 +21,10 @@
 #     }
 
 
-# def test_create_job_application_success(db, test_user, test_job_role):
+# def test_create_job_application_success(db, test_user, test_position):
 #     service = AppliedJobsService()
 #     job_data = AppliedJobCreate(
-#         job_id=test_job_role.id,
+#         job_id=test_position.id,
 #         activity="Applied through website",
 #         reaction="Excited",
 #         notes="Great opportunity",
@@ -33,14 +33,14 @@
 #     )
 
 #     applied_job = service.create_job_application(db=db, user=test_user, job_data=job_data)
-#     assert applied_job.job_id == test_job_role.id
+#     assert applied_job.job_id == test_position.id
 #     assert applied_job.user_id == test_user.id
 #     assert applied_job.activity == job_data.activity
 
 
-# def test_create_duplicate_application(db, test_user, test_job_role):
+# def test_create_duplicate_application(db, test_user, test_position):
 #     service = AppliedJobsService()
-#     job_data = AppliedJobCreate(job_id=test_job_role.id, stage=get_default_stage_dict(applied=True))
+#     job_data = AppliedJobCreate(job_id=test_position.id, stage=get_default_stage_dict(applied=True))
 
 #     service.create_job_application(db=db, user=test_user, job_data=job_data)
 
@@ -48,9 +48,9 @@
 #         service.create_job_application(db=db, user=test_user, job_data=job_data)
 
 
-# def test_update_job_application_success(db, test_user, test_job_role):
+# def test_update_job_application_success(db, test_user, test_position):
 #     service = AppliedJobsService()
-#     job_data = AppliedJobCreate(job_id=test_job_role.id, stage=get_default_stage_dict(applied=True))
+#     job_data = AppliedJobCreate(job_id=test_position.id, stage=get_default_stage_dict(applied=True))
 #     applied_job = service.create_job_application(db=db, user=test_user, job_data=job_data)
 
 #     update_data = AppliedJobUpdate(
@@ -88,23 +88,23 @@
 #         )
 
 
-# def test_get_tracked_jobs(db, test_user, test_job_role):
+# def test_get_tracked_jobs(db, test_user, test_position):
 #     service = AppliedJobsService()
 #     # Create application
-#     job_data = AppliedJobCreate(job_id=test_job_role.id, stage=get_default_stage_dict(applied=True))
+#     job_data = AppliedJobCreate(job_id=test_position.id, stage=get_default_stage_dict(applied=True))
 #     service.create_job_application(db=db, user=test_user, job_data=job_data)
 
 #     jobs = service.get_tracked_jobs(db=db, user=test_user)
 #     assert len(jobs) > 0
-#     assert jobs[0].job_id == test_job_role.id
+#     assert jobs[0].job_id == test_position.id
 
 
-# def test_get_job_by_id(db, test_user, test_job_role):
+# def test_get_job_by_id(db, test_user, test_position):
 #     service = AppliedJobsService()
-#     job_data = AppliedJobCreate(job_id=test_job_role.id, stage=get_default_stage_dict(applied=True))
+#     job_data = AppliedJobCreate(job_id=test_position.id, stage=get_default_stage_dict(applied=True))
 #     created_job = service.create_job_application(db=db, user=test_user, job_data=job_data)
 
-#     job = service.get_job_by_id(db=db, user=test_user, job_id=test_job_role.id)
+#     job = service.get_job_by_id(db=db, user=test_user, job_id=test_position.id)
 #     assert job.id == created_job.id
 
 
@@ -114,15 +114,15 @@
 #         service.get_job_by_id(db=db, user=test_user, job_id=uuid4())
 
 
-# def test_delete_job_application(db, test_user, test_job_role):
+# def test_delete_job_application(db, test_user, test_position):
 #     service = AppliedJobsService()
-#     job_data = AppliedJobCreate(job_id=test_job_role.id, stage=get_default_stage_dict(applied=True))
+#     job_data = AppliedJobCreate(job_id=test_position.id, stage=get_default_stage_dict(applied=True))
 #     service.create_job_application(db=db, user=test_user, job_data=job_data)
 
-#     service.delete_job_application(db=db, user=test_user, job_id=test_job_role.id)
+#     service.delete_job_application(db=db, user=test_user, job_id=test_position.id)
 
 #     with pytest.raises(ResourceNotFound):
-#         service.get_job_by_id(db=db, user=test_user, job_id=test_job_role.id)
+#         service.get_job_by_id(db=db, user=test_user, job_id=test_position.id)
 
 
 # def test_delete_nonexistent_application(db, test_user):

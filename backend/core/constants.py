@@ -20,7 +20,7 @@ class Constants(BaseSettings):
         ["POST", f"{API_VERSION}/user/password-reset-request"],
         ["POST", f"{API_VERSION}/user/password-reset"],
         ["GET", f"{API_VERSION}/user/public/{{id:uuid}}"],
-        ["GET", f"{API_VERSION}/job-role/public/{{id:uuid}}"],
+        ["GET", f"{API_VERSION}/positions/public/{{id:uuid}}"],
     ]
 
     BASE_JOB_STAGES: dict = {

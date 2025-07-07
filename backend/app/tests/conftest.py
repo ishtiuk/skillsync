@@ -107,34 +107,36 @@ def test_user(db, mock_data):
 
 
 @pytest.fixture(scope="function")
-def test_company(db, test_user, mock_data):
-    from app.models.company import Companies
+def test_organization(db, test_user, mock_data):
+    from app.models.organization import organizations
 
-    company_data = mock_data["company_data"]["valid_company"]
-    company = Companies(
+    organization_data = mock_data["organization_data"]["valid_organization"]
+    organization = organizations(
         created_by=test_user.id,
-        name=company_data["name"],
-        type=company_data["type"],
-        size=company_data["size"],
-        no_of_employees=company_data["no_of_employees"],
-        is_bipoc_owned=company_data["is_bipoc_owned"],
-        location=company_data["location"],
-        city=company_data["city"],
-        state=company_data["state"],
-        country=company_data["country"],
-        overview=company_data["overview"],
-        benefits=company_data["benefits"],
-        select_a_pathway=company_data["select_a_pathway"],
+        name=organization_data["name"],
+        type=organization_data["type"],
+        size=organization_data["size"],
+        no_of_employees=organization_data["no_of_employees"],
+        is_bipoc_owned=organization_data["is_bipoc_owned"],
+        location=organization_data["location"],
+        city=organization_data["city"],
+        state=organization_data["state"],
+        country=organization_data["country"],
+        overview=organization_data["overview"],
+        benefits=organization_data["benefits"],
+        select_a_pathway=organization_data["select_a_pathway"],
     )
-    return save_to_db(db, company)
+    return save_to_db(db, organization)
 
 
 @pytest.fixture(scope="function")
-def test_position(db, test_user, test_company, mock_data):
+def test_position(db, test_user, test_organization, mock_data):
     from app.models.positions import Positions
 
     position_data = mock_data["position_data"]["valid_position"]
-    position = Positions(user_id=test_user.id, company_id=test_company.id, **position_data)
+    position = Positions(
+        user_id=test_user.id, organization_id=test_organization.id, **position_data
+    )
     return save_to_db(db, position)
 
 
@@ -146,7 +148,7 @@ def test_experience(db, test_user, mock_data):
     experience = Experiences(
         user_id=test_user.id,
         position_title=experience_data["position_title"],
-        company_name=experience_data["company_name"],
+        organization_name=experience_data["organization_name"],
         employment_type=experience_data["employment_type"],
         is_current=experience_data["is_current"],
         start_month=experience_data["start_month"],

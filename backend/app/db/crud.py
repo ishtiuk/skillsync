@@ -117,11 +117,11 @@ class CRUDBase(Generic[ModelType, CreateSchemaType, UpdateSchemaType]):
         db.commit()
         return obj
 
-    def get_filtered_job_roles(
+    def get_filtered_positions(
         self,
         db: Session,
         filters: dict = {},
-        company_model: Optional[Type[ModelType]] = None,
+        organization_model: Optional[Type[ModelType]] = None,
         min_pays: Optional[List[float]] = None,
         max_pays: Optional[List[float]] = None,
         limit: int = 100,
@@ -131,13 +131,15 @@ class CRUDBase(Generic[ModelType, CreateSchemaType, UpdateSchemaType]):
     ) -> List[ModelType]:
         query = db.query(self.model)
 
-        if company_model:
-            query = query.join(company_model, self.model.company_id == company_model.id)
+        if organization_model:
+            query = query.join(
+                organization_model, self.model.organization_id == organization_model.id
+            )
 
         for attr, value in filters.items():
-            if attr == "pathways" and company_model:
+            if attr == "pathways" and organization_model:
                 if value:
-                    query = query.filter(company_model.select_a_pathway.in_(value))
+                    query = query.filter(organization_model.select_a_pathway.in_(value))
             elif attr not in ("minimum_pay", "maximum_pay"):
                 if hasattr(self.model, attr):
                     if isinstance(value, list):
@@ -167,13 +169,15 @@ class CRUDBase(Generic[ModelType, CreateSchemaType, UpdateSchemaType]):
         )
 
     def get_pathway_counts(
-        self, db: Session, company_model: Type[ModelType], job_role_model: Type[ModelType]
+        self, db: Session, organization_model: Type[ModelType], position_model: Type[ModelType]
     ) -> Dict[str, int]:
         counts = (
-            db.query(company_model.select_a_pathway, func.count(job_role_model.id).label("count"))
-            .join(job_role_model, company_model.id == job_role_model.company_id)
-            .filter(company_model.select_a_pathway.isnot(None))
-            .group_by(company_model.select_a_pathway)
+            db.query(
+                organization_model.select_a_pathway, func.count(position_model.id).label("count")
+            )
+            .join(position_model, organization_model.id == position_model.organization_id)
+            .filter(organization_model.select_a_pathway.isnot(None))
+            .group_by(organization_model.select_a_pathway)
             .all()
         )
         return dict(counts)

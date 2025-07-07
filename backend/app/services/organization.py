@@ -3,9 +3,9 @@
 # from sqlalchemy.orm import Session
 
 # from app.db.crud import CRUDBase
-# from app.models.company import Companies
+# from app.models.organization import organizations
 # from app.models.user import Users
-# from app.schemas.company import CompanyCreate, CompanyUpdate
+# from app.schemas.organization import organizationCreate, organizationUpdate
 # from app.utils.exceptions import (
 #     ConflictException,
 #     DatabaseException,
@@ -16,61 +16,61 @@
 # from core.logger import logger
 
 
-# class CompanyService:
+# class organizationService:
 #     def __init__(self):
-#         self.company_crud = CRUDBase(model=Companies)
+#         self.organization_crud = CRUDBase(model=organizations)
 
-#     def create_company(self, db: Session, company: CompanyCreate, user: Users) -> Companies:
+#     def create_organization(self, db: Session, organization: organizationCreate, user: Users) -> organizations:
 #         try:
-#             company_data = Companies(
+#             organization_data = organizations(
 #                 created_by=user.id,
-#                 name=company.name,
-#                 type=company.type,
-#                 size=company.size,
-#                 no_of_employees=company.no_of_employees,
-#                 is_bipoc_owned=company.is_bipoc_owned,
-#                 location=company.location,
-#                 city=company.city,
-#                 state=company.state,
-#                 country=company.country,
-#                 overview=company.overview,
-#                 benefits=company.benefits,
-#                 select_a_pathway=company.select_a_pathway,
-#                 logo_url=company.logo_url,
+#                 name=organization.name,
+#                 type=organization.type,
+#                 size=organization.size,
+#                 no_of_employees=organization.no_of_employees,
+#                 is_bipoc_owned=organization.is_bipoc_owned,
+#                 location=organization.location,
+#                 city=organization.city,
+#                 state=organization.state,
+#                 country=organization.country,
+#                 overview=organization.overview,
+#                 benefits=organization.benefits,
+#                 select_a_pathway=organization.select_a_pathway,
+#                 logo_url=organization.logo_url,
 #             )
-#             company = self.company_crud.create(db=db, obj_in=company_data)
-#             return company
+#             organization = self.organization_crud.create(db=db, obj_in=organization_data)
+#             return organization
 #         except IntegrityError:
 #             db.rollback()
-#             logger.error("Failed to create company: IntegrityError - Company already exists")
+#             logger.error("Failed to create organization: IntegrityError - organization already exists")
 #             raise ConflictException(message=error_messages.CONFLICT_ERROR)
 #         except Exception as e:
 #             db.rollback()
-#             logger.error(f"Failed to create company: {e}")
+#             logger.error(f"Failed to create organization: {e}")
 #             raise DatabaseException(message=error_messages.INTERNAL_SERVER_ERROR)
 
-#     def get_company(self, db: Session, user: Users) -> Companies:
+#     def get_organization(self, db: Session, user: Users) -> organizations:
 #         try:
-#             company = self.company_crud.get_by_field(db=db, field="created_by", value=user.id)
-#             if not company:
+#             organization = self.organization_crud.get_by_field(db=db, field="created_by", value=user.id)
+#             if not organization:
 #                 raise ResourceNotFound(message=error_messages.RESOURCE_NOT_FOUND)
-#             return company
+#             return organization
 #         except ResourceNotFound as e:
-#             logger.error(f"Failed to retrieve company: {e}")
+#             logger.error(f"Failed to retrieve organization: {e}")
 #             raise e
 #         except Exception as e:
-#             logger.error(f"Failed to retrieve company: {e}")
+#             logger.error(f"Failed to retrieve organization: {e}")
 #             raise DatabaseException(message=error_messages.INTERNAL_SERVER_ERROR)
 
-#     def update_company(
-#         self, db: Session, company_id: UUID4, company_update: CompanyUpdate, user: Users
-#     ) -> Companies:
+#     def update_organization(
+#         self, db: Session, organization_id: UUID4, organization_update: organizationUpdate, user: Users
+#     ) -> organizations:
 #         try:
-#             company = self.company_crud.get(db=db, id=company_id)
-#             if not company:
+#             organization = self.organization_crud.get(db=db, id=organization_id)
+#             if not organization:
 #                 raise ResourceNotFound(message=error_messages.RESOURCE_NOT_FOUND)
 
-#             if company.created_by != user.id:
+#             if organization.created_by != user.id:
 #                 raise PermissionDeniedException(message=error_messages.PERMISSION_DENIED)
 
 #             attributes = [
@@ -89,18 +89,18 @@
 #             ]
 
 #             for attr in attributes:
-#                 value = getattr(company_update, attr, None)
+#                 value = getattr(organization_update, attr, None)
 #                 if value is not None:
-#                     setattr(company, attr, value)
+#                     setattr(organization, attr, value)
 
-#             updated_company = self.company_crud.update(db=db, obj_in=company)
-#             return updated_company
+#             updated_organization = self.organization_crud.update(db=db, obj_in=organization)
+#             return updated_organization
 #         except (ResourceNotFound, PermissionDeniedException) as e:
 #             raise e
 #         except Exception as e:
 #             db.rollback()
-#             logger.error(f"Failed to update company: {e}")
+#             logger.error(f"Failed to update organization: {e}")
 #             raise DatabaseException(message=error_messages.INTERNAL_SERVER_ERROR)
 
 
-# company_service = CompanyService()
+# organization_service = organizationService()

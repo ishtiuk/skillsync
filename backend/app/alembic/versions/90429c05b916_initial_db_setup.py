@@ -119,7 +119,7 @@ def upgrade() -> None:
         sa.Column("id", sa.UUID(), nullable=False),
         sa.Column("user_id", sa.UUID(), nullable=False),
         sa.Column("position_title", sa.String(length=128), nullable=False),
-        sa.Column("company_name", sa.String(length=128), nullable=False),
+        sa.Column("organization_name", sa.String(length=128), nullable=False),
         sa.Column("employment_type", sa.String(length=128), nullable=False),
         sa.Column("is_current", sa.Boolean(), nullable=True),
         sa.Column("start_month", sa.INTEGER(), nullable=True),

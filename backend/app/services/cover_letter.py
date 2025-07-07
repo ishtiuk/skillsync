@@ -6,13 +6,13 @@
 
 # from app.db.crud import CRUDBase
 # from app.models.job_experience import Experiences
-# from app.models.job_role import JobRoles
+# from app.models.position import JobRoles
 # from app.models.user import Users
 # from app.schemas.cover_letter import CoverLetterRequest, CoverLetterResponse
 # from core.config import settings
 # from core.logger import logger
 
-# job_role_crud = CRUDBase(model=JobRoles)
+# position_crud = CRUDBase(model=JobRoles)
 # job_experience_crud = CRUDBase(model=Experiences)
 
 
@@ -23,18 +23,18 @@
 #     def get_cover_letter(
 #         self, cover_letter_request: CoverLetterRequest, db: Session, user: Users
 #     ) -> CoverLetterResponse:
-#         job_role = job_role_crud.get_by_field(
-#             db=db, field="id", value=cover_letter_request.job_role_id
+#         position = position_crud.get_by_field(
+#             db=db, field="id", value=cover_letter_request.position_id
 #         )
-#         if not job_role:
-#             raise ValueError("Job role not found")
+#         if not position:
+#             raise ValueError("position not found")
 
 #         user_job_experience = self._format_job_experience(db=db, user_id=user.id)
 #         user_info = self._format_user_info(user=user)
-#         job_description = self._build_job_description(job_role)
+#         job_description = self._build_job_description(position)
 
 #         messages = self._build_prompt_messages(
-#             job_title=job_role.title,
+#             job_title=position.title,
 #             job_description=job_description,
 #             props=cover_letter_request.props,
 #             user_job_experience=user_job_experience,
@@ -57,7 +57,7 @@
 #             db=db, field="user_id", value=user_id
 #         )
 #         formatted_experiences = [
-#             f"{job.position_title} at {job.company_name} ({job.start_month}/{job.start_year} - {'Present' if job.is_current else f'{job.end_month}/{job.end_year}'})"
+#             f"{job.position_title} at {job.organization_name} ({job.start_month}/{job.start_year} - {'Present' if job.is_current else f'{job.end_month}/{job.end_year}'})"
 #             for job in job_experiences
 #         ]
 #         return (

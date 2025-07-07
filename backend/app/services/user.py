@@ -286,7 +286,7 @@ class UserService:
 
             attributes = [
                 "position_title",
-                "company_name",
+                "organization_name",
                 "employment_type",
                 "is_current",
                 "start_month",
