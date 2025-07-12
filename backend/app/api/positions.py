@@ -5,17 +5,18 @@ from pydantic import UUID4
 from sqlalchemy.orm import Session
 
 from app.db.session import get_db
-from app.models.user import Users
+from app.models.user import UserCareerforge, UserTalenthub
 from app.schemas.common import PaginationParams
 from app.schemas.positions import (
-    JobRoleCreate,
-    JobRoleFilters,
-    JobRoleResponse,
-    JobRoleUpdate,
     PathwayCountResponse,
+    PositionCreate,
+    PositionFilters,
+    PositionResponse,
+    PositionUpdate,
 )
+from app.schemas.user import Platform
 from app.services.positions import position_service
-from app.services.user import get_active_user
+from app.services.user import get_active_user, get_platform
 from app.utils.exceptions import DatabaseException, PermissionDeniedException, ResourceNotFound
 from core.constants import error_messages
 from core.logger import logger
@@ -23,15 +24,17 @@ from core.logger import logger
 router = APIRouter()
 
 
-@router.post("/positions", response_model=JobRoleResponse, tags=["job-roles"])
+@router.post("/positions", response_model=PositionResponse, tags=["positions"])
 def create_position(
-    position_in: JobRoleCreate,
+    position_in: PositionCreate,
     db: Session = Depends(get_db),
-    current_user: Users = Depends(get_active_user),
+    current_user_info: tuple[Union[UserCareerforge, UserTalenthub], str] = Depends(get_active_user),
+    platform: Platform = Depends(get_platform),
 ):
     try:
+        current_user, _ = current_user_info
         position = position_service.create_position(
-            db=db, position_in=position_in, user=current_user
+            db=db, position_in=position_in, user=current_user, platform=platform
         )
         response_data = position_service.format_position_response(position=position, db=db)
         return JSONResponse(
@@ -49,16 +52,18 @@ def create_position(
         )
 
 
-@router.patch("/positions/{id}", response_model=JobRoleResponse, tags=["job-roles"])
+@router.patch("/positions/{id}", response_model=PositionResponse, tags=["positions"])
 def update_position(
     id: UUID4,
-    position_in: JobRoleUpdate,
+    position_in: PositionUpdate,
     db: Session = Depends(get_db),
-    current_user: Users = Depends(get_active_user),
+    current_user_info: tuple[Union[UserCareerforge, UserTalenthub], str] = Depends(get_active_user),
+    platform: Platform = Depends(get_platform),
 ):
     try:
+        current_user, _ = current_user_info
         position = position_service.update_position(
-            db=db, position_id=id, position_in=position_in, user=current_user
+            db=db, position_id=id, position_in=position_in, user=current_user, platform=platform
         )
         response_data = position_service.format_position_response(position=position, db=db)
         return JSONResponse(
@@ -76,17 +81,20 @@ def update_position(
         )
 
 
-@router.post("/positionss/pathways", response_model=list[JobRoleResponse], tags=["job-roles"])
-def get_positions_for_pathways(
-    filters: JobRoleFilters,
+@router.post("/positions/careerforge", response_model=list[PositionResponse], tags=["positions"])
+def get_positions_for_careerforge(
+    filters: PositionFilters,
     db: Session = Depends(get_db),
-    current_user: Users = Depends(get_active_user),
+    current_user_info: tuple[Union[UserCareerforge, UserTalenthub], str] = Depends(get_active_user),
+    platform: Platform = Depends(get_platform),
     pagination: PaginationParams = Depends(),
 ):
     try:
+        current_user, _ = current_user_info
         positions = position_service.get_positions_for_pathways(
             db=db,
             user=current_user,
+            platform=platform,
             filters=filters.model_dump(exclude_none=True, exclude_unset=True),
             page=pagination.page,
             limit=pagination.limit,
@@ -112,15 +120,21 @@ def get_positions_for_pathways(
         )
 
 
-@router.get("/positionss/candid", response_model=list[JobRoleResponse], tags=["job-roles"])
-def get_positions_for_candid(
+@router.get("/positions/talenthub", response_model=list[PositionResponse], tags=["positions"])
+def get_positions_for_talenthub(
     db: Session = Depends(get_db),
-    current_user: Users = Depends(get_active_user),
+    current_user_info: tuple[Union[UserCareerforge, UserTalenthub], str] = Depends(get_active_user),
+    platform: Platform = Depends(get_platform),
     pagination: PaginationParams = Depends(),
 ):
     try:
+        current_user, _ = current_user_info
         positions = position_service.get_positions_for_candid(
-            db=db, user=current_user, page=pagination.page, limit=pagination.limit
+            db=db,
+            user=current_user,
+            platform=platform,
+            page=pagination.page,
+            limit=pagination.limit,
         )
         response_data = [
             position_service.format_position_response(position=position, db=db)
@@ -141,7 +155,7 @@ def get_positions_for_candid(
         )
 
 
-@router.get("/positions/public/{id}", response_model=JobRoleResponse, tags=["job-roles"])
+@router.get("/positions/public/{id}", response_model=PositionResponse, tags=["positions"])
 def get_single_position(
     id: UUID4,
     db: Session = Depends(get_db),
@@ -168,10 +182,12 @@ def get_single_position(
 @router.get("/positions/careerforge/count", response_model=PathwayCountResponse, tags=["job-roles"])
 def get_pathway_job_counts(
     db: Session = Depends(get_db),
-    current_user: Users = Depends(get_active_user),
+    current_user_info: tuple[Union[UserCareerforge, UserTalenthub], str] = Depends(get_active_user),
+    platform: Platform = Depends(get_platform),
 ):
     try:
-        counts = position_service.get_pathway_job_counts(db=db)
+        current_user, _ = current_user_info
+        counts = position_service.get_pathway_job_counts(db=db, platform=platform)
         return JSONResponse(
             content=jsonable_encoder(counts),
             status_code=status.HTTP_200_OK,

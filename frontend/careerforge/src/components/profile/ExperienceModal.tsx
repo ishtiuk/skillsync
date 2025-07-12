@@ -19,7 +19,7 @@ interface ExperienceModalProps {
   experience?: {
     id: string;
     position_title: string;
-    company_name: string;
+    organization_name: string;
     employment_type: string;
     is_current: boolean;
     start_month: number;
@@ -42,7 +42,7 @@ export const ExperienceModal: React.FC<ExperienceModalProps> = ({
   const [isLoading, setIsLoading] = useState(false);
   const [formData, setFormData] = useState({
     position_title: experience?.position_title || '',
-    company_name: experience?.company_name || '',
+    organization_name: experience?.organization_name || '',
     employment_type: experience?.employment_type || 'Full-time',
     is_current: experience?.is_current || false,
     start_month: experience?.start_month || 1,
@@ -110,13 +110,13 @@ export const ExperienceModal: React.FC<ExperienceModalProps> = ({
             </div>
 
             <div className="space-y-2">
-              <Label htmlFor="company_name">Company Name</Label>
+              <Label htmlFor="organization_name">organization Name</Label>
               <Input
-                id="company_name"
-                value={formData.company_name}
+                id="organization_name"
+                value={formData.organization_name}
                 onChange={(e) => setFormData(prev => ({
                   ...prev,
-                  company_name: e.target.value
+                  organization_name: e.target.value
                 }))}
                 placeholder="e.g. TechCorp Inc."
               />

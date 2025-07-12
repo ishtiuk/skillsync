@@ -15,7 +15,7 @@ interface JobFiltersProps {
 export const JobFilters: React.FC<JobFiltersProps> = ({ onFiltersChange }) => {
   const [filters, setFilters] = useState({
     title: '',
-    company: '',
+    organization: '',
     categories: [] as string[],
     positionTypes: [] as string[],
     experienceLevels: [] as string[],
@@ -68,7 +68,7 @@ export const JobFilters: React.FC<JobFiltersProps> = ({ onFiltersChange }) => {
   const clearAllFilters = () => {
     const clearedFilters = {
       title: '',
-      company: '',
+      organization: '',
       categories: [],
       positionTypes: [],
       experienceLevels: [],
@@ -89,7 +89,7 @@ export const JobFilters: React.FC<JobFiltersProps> = ({ onFiltersChange }) => {
   const getActiveFiltersCount = () => {
     let count = 0;
     if (filters.title) count++;
-    if (filters.company) count++;
+    if (filters.organization) count++;
     count += filters.categories.length;
     count += filters.positionTypes.length;
     count += filters.experienceLevels.length;
@@ -136,12 +136,12 @@ export const JobFilters: React.FC<JobFiltersProps> = ({ onFiltersChange }) => {
             />
           </div>
           <div>
-            <Label htmlFor="company">Company</Label>
+            <Label htmlFor="organization">organization</Label>
             <Input
-              id="company"
+              id="organization"
               placeholder="e.g. Google"
-              value={filters.company}
-              onChange={(e) => handleInputChange('company', e.target.value)}
+              value={filters.organization}
+              onChange={(e) => handleInputChange('organization', e.target.value)}
             />
           </div>
         </div>

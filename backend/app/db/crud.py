@@ -169,14 +169,20 @@ class CRUDBase(Generic[ModelType, CreateSchemaType, UpdateSchemaType]):
         )
 
     def get_pathway_counts(
-        self, db: Session, organization_model: Type[ModelType], position_model: Type[ModelType]
+        self,
+        db: Session,
+        platform: str,
+        organization_model: Type[ModelType],
+        position_model: Type[ModelType],
     ) -> Dict[str, int]:
         counts = (
             db.query(
                 organization_model.select_a_pathway, func.count(position_model.id).label("count")
             )
             .join(position_model, organization_model.id == position_model.organization_id)
-            .filter(organization_model.select_a_pathway.isnot(None))
+            .filter(
+                organization_model.select_a_pathway.isnot(None), position_model.platform == platform
+            )
             .group_by(organization_model.select_a_pathway)
             .all()
         )

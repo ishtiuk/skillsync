@@ -46,7 +46,7 @@ const ProfileTalentHub: React.FC = () => {
                 <CardContent>
                   <p className="text-[hsl(var(--talenthub-muted-foreground))] leading-relaxed">
                     {user.career_summary ||
-                      "Experienced talent acquisition professional with a proven track record of identifying and recruiting top-tier candidates across various industries. Passionate about connecting exceptional talent with innovative companies to drive mutual success."
+                      "Experienced talent acquisition professional with a proven track record of identifying and recruiting top-tier candidates across various industries. Passionate about connecting exceptional talent with innovative organizations to drive mutual success."
                     }
                   </p>
                 </CardContent>

@@ -55,7 +55,6 @@ class UserCareerforge(Base, Timestamp):
     profile_picture_url = Column(String(512), nullable=True)
     background_image_url = Column(String(512), nullable=True)
 
-    user_files_fk = relationship("UserFiles", backref="user_careerforge")
     experiences_fk = relationship("Experiences", backref="user_careerforge")
     tracked_jobs_fk = relationship("TrackedJobs", backref="user_careerforge")
     cover_letters_fk = relationship("CoverLetters", backref="user_careerforge")

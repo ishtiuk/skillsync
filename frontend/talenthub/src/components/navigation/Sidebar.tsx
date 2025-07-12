@@ -51,7 +51,7 @@ const navigationItems = [
     label: 'Organization',
     icon: Building2,
     path: '/organization',
-    description: 'Company Setup'
+    description: 'organization Setup'
   },
   {
     id: 'insights',

@@ -2,7 +2,7 @@
 export interface Experience {
   id: string;
   position_title: string;
-  company_name: string;
+  organization_name: string;
   employment_type: string;
   is_current: boolean;
   start_month: number;
@@ -14,7 +14,7 @@ export interface Experience {
 
 export interface CreateExperienceRequest {
   position_title: string;
-  company_name: string;
+  organization_name: string;
   employment_type: string;
   is_current: boolean;
   start_month: number;

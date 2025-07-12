@@ -30,8 +30,8 @@ export interface Position {
   desired_qualifications?: string;
 
   // Organization Info
-  company_name: string;
-  company_logo_url?: string;
+  organization_name: string;
+  organization_logo_url?: string;
   is_bipoc_owned?: boolean;
 
   // Recruiter Info

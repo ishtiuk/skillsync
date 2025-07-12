@@ -29,7 +29,7 @@ const Jobs: React.FC = () => {
     {
       id: 1,
       title: 'Senior Software Engineer',
-      company: 'TechFlow Solutions',
+      organization: 'TechFlow Solutions',
       location: 'San Francisco, CA',
       type: 'Full-time',
       salary: '$150K - $200K',
@@ -39,13 +39,13 @@ const Jobs: React.FC = () => {
       logo: '💻',
       description: 'Join our growing team to build the next generation of our B2B platform. You\'ll work with cutting-edge technologies and solve complex problems.',
       skills: ['React', 'TypeScript', 'AWS', 'GraphQL'],
-      companySize: '201-500 employees',
+      organizationSize: '201-500 employees',
       bipocOwned: true
     },
     {
       id: 2,
       title: 'Product Manager - AI/ML',
-      company: 'Innovation Labs',
+      organization: 'Innovation Labs',
       location: 'New York, NY',
       type: 'Full-time',
       salary: '$110k - $140k',
@@ -55,13 +55,13 @@ const Jobs: React.FC = () => {
       logo: '🚀',
       description: 'Lead product strategy for our AI/ML initiatives and drive innovation in our core platform.',
       skills: ['Product Management', 'AI/ML', 'Strategy', 'Analytics'],
-      companySize: '51-200 employees',
+      organizationSize: '51-200 employees',
       bipocOwned: false
     },
     {
       id: 3,
       title: 'UX Designer',
-      company: 'Design Studio',
+      organization: 'Design Studio',
       location: 'Remote',
       type: 'Contract',
       salary: '$80k - $100k',
@@ -71,13 +71,13 @@ const Jobs: React.FC = () => {
       logo: '🎨',
       description: 'Create beautiful and intuitive user experiences for our digital products.',
       skills: ['Figma', 'UI/UX', 'Prototyping', 'User Research'],
-      companySize: '11-50 employees',
+      organizationSize: '11-50 employees',
       bipocOwned: true
     },
     {
       id: 4,
       title: 'Data Scientist',
-      company: 'Analytics Corp',
+      organization: 'Analytics Corp',
       location: 'Austin, TX',
       type: 'Full-time',
       salary: '$95k - $130k',
@@ -87,13 +87,13 @@ const Jobs: React.FC = () => {
       logo: '📊',
       description: 'Analyze complex datasets and build predictive models to drive business insights.',
       skills: ['Python', 'SQL', 'Machine Learning', 'Statistics'],
-      companySize: '501-1000 employees',
+      organizationSize: '501-1000 employees',
       bipocOwned: false
     },
     {
       id: 5,
       title: 'DevOps Engineer',
-      company: 'Cloud Systems',
+      organization: 'Cloud Systems',
       location: 'Seattle, WA',
       type: 'Full-time',
       salary: '$120k - $155k',
@@ -103,13 +103,13 @@ const Jobs: React.FC = () => {
       logo: '⚙️',
       description: 'Build and maintain scalable infrastructure and deployment pipelines.',
       skills: ['AWS', 'Docker', 'Kubernetes', 'CI/CD'],
-      companySize: '201-500 employees',
+      organizationSize: '201-500 employees',
       bipocOwned: false
     },
     {
       id: 6,
       title: 'Frontend Developer',
-      company: 'StartupHub',
+      organization: 'StartupHub',
       location: 'Los Angeles, CA',
       type: 'Full-time',
       salary: '$85k - $115k',
@@ -119,7 +119,7 @@ const Jobs: React.FC = () => {
       logo: '🌟',
       description: 'Build responsive and interactive web applications using modern frameworks.',
       skills: ['React', 'JavaScript', 'CSS', 'HTML'],
-      companySize: '11-50 employees',
+      organizationSize: '11-50 employees',
       bipocOwned: true
     }
   ];
@@ -145,7 +145,7 @@ const Jobs: React.FC = () => {
               Find Your Next Opportunity
             </h1>
             <p className="text-lg text-muted-foreground max-w-2xl mx-auto">
-              Discover jobs that match your skills and career milestones from top companies
+              Discover jobs that match your skills and career milestones from top organizations
             </p>
           </div>
 
@@ -276,7 +276,7 @@ const Jobs: React.FC = () => {
                               <h3 className="font-bold text-xl text-foreground mb-1 hover:text-primary transition-colors">
                                 {job.title}
                               </h3>
-                              <p className="text-foreground font-semibold mb-2">{job.company}</p>
+                              <p className="text-foreground font-semibold mb-2">{job.organization}</p>
                             </div>
                             <Button variant="outline" size="sm" className="hover:bg-primary/10">
                               <Bookmark className="w-4 h-4" />
@@ -294,7 +294,7 @@ const Jobs: React.FC = () => {
                             </div>
                             <div className="flex items-center">
                               <Building2 className="w-4 h-4 mr-1" />
-                              {job.companySize}
+                              {job.organizationSize}
                             </div>
                           </div>
 

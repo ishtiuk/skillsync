@@ -25,7 +25,7 @@ import { Experience } from '@/types/experience';
 
 const experienceSchema = z.object({
   position_title: z.string().min(1, 'Position title is required'),
-  company_name: z.string().min(1, 'Company name is required'),
+  organization_name: z.string().min(1, 'organization name is required'),
   employment_type: z.string().min(1, 'Employment type is required'),
   is_current: z.boolean(),
   start_month: z.number().min(1).max(12),
@@ -70,7 +70,7 @@ export function ExperienceDialog({ isOpen, onClose, experience, onSave }: Experi
     resolver: zodResolver(experienceSchema),
     defaultValues: {
       position_title: '',
-      company_name: '',
+      organization_name: '',
       employment_type: 'Full-time',
       is_current: false,
       start_month: new Date().getMonth() + 1,
@@ -90,7 +90,7 @@ export function ExperienceDialog({ isOpen, onClose, experience, onSave }: Experi
         // Edit mode - set form values from experience
         reset({
           position_title: experience.position_title,
-          company_name: experience.company_name,
+          organization_name: experience.organization_name,
           employment_type: experience.employment_type,
           is_current: experience.is_current,
           start_month: experience.start_month,
@@ -103,7 +103,7 @@ export function ExperienceDialog({ isOpen, onClose, experience, onSave }: Experi
         // Add mode - reset to defaults
         reset({
           position_title: '',
-          company_name: '',
+          organization_name: '',
           employment_type: 'Full-time',
           is_current: false,
           start_month: new Date().getMonth() + 1,
@@ -165,15 +165,15 @@ export function ExperienceDialog({ isOpen, onClose, experience, onSave }: Experi
           </div>
 
           <div className="space-y-2">
-            <Label htmlFor="company_name">Company Name</Label>
+            <Label htmlFor="organization_name">organization Name</Label>
             <Input
-              id="company_name"
+              id="organization_name"
               placeholder="e.g., Tech Corp"
-              {...register('company_name')}
-              className={errors.company_name ? 'border-red-500' : ''}
+              {...register('organization_name')}
+              className={errors.organization_name ? 'border-red-500' : ''}
             />
-            {errors.company_name && (
-              <p className="text-sm text-red-500">{errors.company_name.message}</p>
+            {errors.organization_name && (
+              <p className="text-sm text-red-500">{errors.organization_name.message}</p>
             )}
           </div>
 
@@ -285,10 +285,10 @@ export function ExperienceDialog({ isOpen, onClose, experience, onSave }: Experi
           </div>
 
           <div className="space-y-2">
-            <Label htmlFor="logo_url">Company Logo URL (optional)</Label>
+            <Label htmlFor="logo_url">organization Logo URL (optional)</Label>
             <Input
               id="logo_url"
-              placeholder="https://company.com/logo.png"
+              placeholder="https://organization.com/logo.png"
               {...register('logo_url')}
               className={errors.logo_url ? 'border-red-500' : ''}
             />

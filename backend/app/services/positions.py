@@ -1,3 +1,5 @@
+from typing import Union
+
 from pydantic import UUID4
 from sqlalchemy.orm import Session
 
@@ -5,14 +7,15 @@ from app.db.crud import CRUDBase
 from app.models.organization import Organizations
 from app.models.positions import Positions
 from app.models.tracked_jobs import TrackedJobs
-from app.models.user import Users
-from app.schemas.positions import JobRoleUpdate, PathwayCountResponse, PositionCreate
+from app.models.user import UserCareerforge, Users, UserTalenthub
+from app.schemas.positions import PathwayCountResponse, PositionCreate, PositionUpdate
+from app.schemas.user import Platform
 from app.utils.exceptions import DatabaseException, PermissionDeniedException, ResourceNotFound
 from core.constants import error_messages
 from core.logger import logger
 
 
-class JobRoleService:
+class PositionService:
     def __init__(self):
         self.positions_crud = CRUDBase(model=Positions)
         self.organization_crud = CRUDBase(model=Organizations)
@@ -64,7 +67,7 @@ class JobRoleService:
             raise DatabaseException(message=error_messages.INTERNAL_SERVER_ERROR)
 
     def update_position(
-        self, db: Session, position_id: UUID4, position_in: JobRoleUpdate, user: Users
+        self, db: Session, position_id: UUID4, position_in: PositionUpdate, user: Users
     ) -> Positions:
         try:
             position = self.positions_crud.get(db=db, id=position_id)
@@ -115,7 +118,13 @@ class JobRoleService:
             raise DatabaseException(message=error_messages.INTERNAL_SERVER_ERROR)
 
     def get_positions_for_pathways(
-        self, db: Session, user: Users, filters: dict, page: int, limit: int = 5000
+        self,
+        db: Session,
+        user: Union[UserCareerforge, UserTalenthub],
+        platform: Platform,
+        filters: dict,
+        page: int,
+        limit: int = 5000,
     ) -> list[Positions]:
         try:
             offset = page * limit
@@ -180,7 +189,12 @@ class JobRoleService:
             raise DatabaseException(message=error_messages.INTERNAL_SERVER_ERROR)
 
     def get_positions_for_candid(
-        self, db: Session, user: Users, page: int, limit: int
+        self,
+        db: Session,
+        user: Union[UserCareerforge, UserTalenthub],
+        platform: Platform,
+        page: int,
+        limit: int,
     ) -> list[Positions]:
         try:
             offset = page * limit
@@ -282,10 +296,13 @@ class JobRoleService:
 
         return response_data
 
-    def get_pathway_job_counts(self, db: Session) -> PathwayCountResponse:
+    def get_pathway_job_counts(self, db: Session, platform: Platform) -> PathwayCountResponse:
         try:
             pathway_counts = self.positions_crud.get_pathway_counts(
-                db=db, organization_model=Organizations, position_model=Positions
+                db=db,
+                platform=platform.value.lower(),
+                organization_model=Organizations,
+                position_model=Positions,
             )
             return PathwayCountResponse(pathways_count=pathway_counts)
         except Exception as e:
@@ -293,4 +310,4 @@ class JobRoleService:
             raise DatabaseException(message=error_messages.INTERNAL_SERVER_ERROR)
 
 
-position_service = JobRoleService()
+position_service = PositionService()

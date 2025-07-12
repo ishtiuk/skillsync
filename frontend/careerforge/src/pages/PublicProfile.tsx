@@ -33,7 +33,7 @@ interface PublicUser {
 }
 
 interface Experience {
-  company_name: string;
+  organization_name: string;
   start_year: number;
   end_year?: number;
   position_title: string;
@@ -248,7 +248,7 @@ const PublicProfile = () => {
                           {exp.logo_url ? (
                             <img
                               src={exp.logo_url}
-                              alt={exp.company_name}
+                              alt={exp.organization_name}
                               className="w-full h-full object-contain p-1"
                             />
                           ) : (
@@ -258,7 +258,7 @@ const PublicProfile = () => {
                         <div>
                           <h3 className="font-medium">{exp.position_title}</h3>
                           <div className="text-sm text-gray-600">
-                            <span className="font-medium text-gray-700">{exp.company_name}</span>
+                            <span className="font-medium text-gray-700">{exp.organization_name}</span>
                             <span className="text-gray-400 mx-2">•</span>
                             <span>{exp.employment_type}</span>
                           </div>

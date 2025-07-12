@@ -153,7 +153,7 @@ export const experiences = {
 
   create: async (data: {
     position_title: string;
-    company_name: string;
+    organization_name: string;
     employment_type: string;
     is_current: boolean;
     start_month: number;
@@ -173,7 +173,7 @@ export const experiences = {
 
   update: async (id: string, data: Partial<{
     position_title: string;
-    company_name: string;
+    organization_name: string;
     employment_type: string;
     is_current: boolean;
     start_month: number;
