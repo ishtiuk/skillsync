@@ -8,11 +8,11 @@ from app.db.session import get_db
 from app.models.user import UserCareerforge, UserTalenthub
 from app.schemas.common import PaginationParams
 from app.schemas.positions import (
-    PathwayCountResponse,
     PositionCreate,
     PositionFilters,
     PositionResponse,
     PositionUpdate,
+    SectorCountResponse,
 )
 from app.schemas.user import Platform
 from app.services.positions import position_service
@@ -113,7 +113,7 @@ def get_positions_for_careerforge(
         logger.error(f"{e.__class__.__name__}: {e.message}")
         raise HTTPException(status_code=e.status_code, detail=e.message)
     except Exception as e:
-        logger.error(f"Failed to get positions for pathways: {e}")
+        logger.error(f"Failed to get positions for careerforge: {e}")
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
             detail=error_messages.INTERNAL_SERVER_ERROR,
@@ -179,17 +179,15 @@ def get_single_position(
         )
 
 
-@router.get("/positions/careerforge/count", response_model=PathwayCountResponse, tags=["job-roles"])
-def get_pathway_job_counts(
+@router.get("/positions/careerforge/count", response_model=SectorCountResponse, tags=["job-roles"])
+def get_sector_job_counts(
     db: Session = Depends(get_db),
     current_user_info: tuple[UserCareerforge, str] = Depends(get_active_user),
     platform: Platform = Depends(get_platform),
 ):
     try:
         current_user, _ = current_user_info
-        counts = position_service.get_pathway_job_counts(
-            db=db, user=current_user, platform=platform
-        )
+        counts = position_service.get_sector_job_counts(db=db, user=current_user, platform=platform)
         return JSONResponse(
             content=jsonable_encoder(counts),
             status_code=status.HTTP_200_OK,

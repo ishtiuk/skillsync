@@ -1,8 +1,8 @@
 """initial_db_setup
 
-Revision ID: 90429c05b916
+Revision ID: 9bbfcb7bea25
 Revises:
-Create Date: 2025-06-14 00:20:37.752000
+Create Date: 2025-07-13 23:18:19.044052
 
 """
 
@@ -10,7 +10,7 @@ import sqlalchemy as sa
 from alembic import op
 
 # revision identifiers, used by Alembic.
-revision = "90429c05b916"
+revision = "9bbfcb7bea25"
 down_revision = None
 branch_labels = None
 depends_on = None
@@ -172,7 +172,34 @@ def upgrade() -> None:
         sa.Column("country", sa.String(length=64), nullable=True),
         sa.Column("overview", sa.String(length=4096), nullable=True),
         sa.Column("benefits", sa.ARRAY(sa.String()), nullable=True),
-        sa.Column("select_a_pathway", sa.String(length=512), nullable=True),
+        sa.Column(
+            "sector_focus",
+            sa.Enum(
+                "wildlife_protection",
+                "renewable_power",
+                "eco_farming",
+                "green_education",
+                "sustainable_building",
+                "ethical_fintech",
+                "forest_ecology",
+                "clean_manufacturing",
+                "cultural_initiatives",
+                "smart_housing",
+                "healthcare_innovation",
+                "public_governance",
+                "environmental_research",
+                "wellness_sports",
+                "clean_tech",
+                "eco_travel",
+                "mobility_solutions",
+                "city_design",
+                "recycling_services",
+                "aqua_stewardship",
+                "climate_communications",
+                name="sector",
+            ),
+            nullable=True,
+        ),
         sa.Column("logo_url", sa.String(length=512), nullable=True),
         sa.Column(
             "created_at", sa.DateTime(timezone=True), server_default=sa.text("now()"), nullable=True
@@ -210,7 +237,7 @@ def upgrade() -> None:
         sa.Column("title", sa.String(length=128), nullable=False),
         sa.Column("job_category", sa.String(length=128), nullable=False),
         sa.Column("position_type", sa.String(length=128), nullable=False),
-        sa.Column("level_of_experience", sa.String(length=512), nullable=False),
+        sa.Column("level_of_experience", sa.String(length=64), nullable=False),
         sa.Column("role_description", sa.String(length=4096), nullable=True),
         sa.Column("education_level", sa.String(length=512), nullable=True),
         sa.Column("special_educational_requirements", sa.String(length=2048), nullable=True),

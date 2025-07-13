@@ -4,6 +4,8 @@ from typing import Dict, List, Optional
 
 from pydantic import UUID4, BaseModel
 
+from app.schemas.organization import Sector
+
 
 class WorkplaceType(str, Enum):
     onsite = "Onsite"
@@ -122,7 +124,7 @@ class PositionFilters(BaseModel):
     maximum_pay: Optional[List[float]] = None
     pay_frequency: Optional[List[PayFrequency]] = None
     organization_name: Optional[str] = None
-    pathway: Optional[List[str]] = None
+    sector_focus: Optional[List[Sector]] = None
 
 
 class PositionResponse(PositionBase):
@@ -130,7 +132,7 @@ class PositionResponse(PositionBase):
     organization_name: str
     organization_logo_url: str
     created_at: datetime
-    pathway: str
+    sector_focus: Sector
     recruiter_name: Optional[str] = None
     recruiter_job_title: Optional[str] = None
     recruiter_email: Optional[str] = None
@@ -141,5 +143,5 @@ class PositionResponse(PositionBase):
         from_attributes = True
 
 
-class PathwayCountResponse(BaseModel):
-    pathways_count: Dict[str, int]
+class SectorCountResponse(BaseModel):
+    sectors_count: Dict[str, int]

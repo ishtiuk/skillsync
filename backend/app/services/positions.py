@@ -1,14 +1,22 @@
+from datetime import datetime
+
 from pydantic import UUID4
+from sqlalchemy.exc import IntegrityError, SQLAlchemyError
 from sqlalchemy.orm import Session
 
 from app.db.crud import CRUDBase
 from app.models.organization import Organizations
 from app.models.positions import Positions
 from app.models.tracked_jobs import TrackedJobs
-from app.models.user import UserCareerforge, Users, UserTalenthub
-from app.schemas.positions import PathwayCountResponse, PositionCreate, PositionUpdate
+from app.models.user import UserCareerforge, UserTalenthub
+from app.schemas.positions import PositionCreate, PositionUpdate, SectorCountResponse
 from app.schemas.user import Platform
-from app.utils.exceptions import DatabaseException, PermissionDeniedException, ResourceNotFound
+from app.utils.exceptions import (
+    DatabaseException,
+    PermissionDeniedException,
+    ResourceNotFound,
+    ValidationException,
+)
 from core.constants import error_messages
 from core.logger import logger
 
@@ -17,7 +25,8 @@ class PositionService:
     def __init__(self):
         self.positions_crud = CRUDBase(model=Positions)
         self.organization_crud = CRUDBase(model=Organizations)
-        self.user_crud = CRUDBase(model=Users)
+        self.careerforge_user_crud = CRUDBase(model=UserCareerforge)
+        self.talent_user_crud = CRUDBase(model=UserTalenthub)
 
     def create_position(
         self, db: Session, position_in: PositionCreate, user: UserTalenthub, platform: Platform
@@ -31,6 +40,13 @@ class PositionService:
             )
             if not organization:
                 raise ResourceNotFound(message=error_messages.RESOURCE_NOT_FOUND)
+
+            # Validate closing_date format
+            if position_in.closing_date:
+                try:
+                    datetime.strptime(position_in.closing_date, "%Y-%m-%d")
+                except ValueError:
+                    raise ValidationException("closing_date must be in YYYY-MM-DD format")
 
             position_data = Positions(
                 user_id=user.id,
@@ -65,8 +81,20 @@ class PositionService:
         except ResourceNotFound:
             db.rollback()
             raise ResourceNotFound(message=error_messages.RESOURCE_NOT_FOUND)
-        except Exception:
+        except ValidationException as e:
             db.rollback()
+            raise ValidationException(message=str(e))
+        except IntegrityError as e:
+            db.rollback()
+            logger.error(f"Database integrity error: {e}")
+            raise DatabaseException(message="Database integrity constraint violation")
+        except SQLAlchemyError as e:
+            db.rollback()
+            logger.error(f"Database error: {e}")
+            raise DatabaseException(message="Database operation failed")
+        except Exception as e:
+            db.rollback()
+            logger.error(f"Unexpected error: {e}")
             raise DatabaseException(message=error_messages.INTERNAL_SERVER_ERROR)
 
     def update_position(
@@ -168,15 +196,15 @@ class PositionService:
                 "level_of_experience",
                 "workplace_type",
                 "pay_frequency",
-                "pathway",
+                "sector_focus",
             ]
             for key in list_filters:
                 if key in filter_copy and not isinstance(filter_copy[key], list):
                     filter_copy[key] = [filter_copy[key]]
 
-            pathways = filter_copy.pop("pathway", None)
-            if pathways:
-                filter_copy["pathways"] = pathways
+            sector_focus = filter_copy.pop("sector_focus", None)
+            if sector_focus:
+                filter_copy["sector_focus"] = sector_focus
 
             min_pays = filter_copy.pop("minimum_pay", None)
             max_pays = filter_copy.pop("maximum_pay", None)
@@ -196,7 +224,7 @@ class PositionService:
             return positions
 
         except Exception as e:
-            logger.error(f"Failed to get positions for pathways: {e}")
+            logger.error(f"Failed to get positions for careerforge: {e}")
             raise DatabaseException(message=error_messages.INTERNAL_SERVER_ERROR)
 
     def get_positions_for_talenthub(
@@ -248,7 +276,7 @@ class PositionService:
             "organization_logo_url": organization.logo_url,
             "title": position.title,
             "job_category": position.job_category,
-            "pathway": organization.select_a_pathway,
+            "sector_focus": organization.sector_focus,
             "position_type": position.position_type,
             "level_of_experience": position.level_of_experience,
             "role_description": position.role_description,
@@ -274,7 +302,7 @@ class PositionService:
         }
 
         if position.show_recruiter:
-            recruiter = self.user_crud.get(db=db, id=position.user_id)
+            recruiter = self.talent_user_crud.get(db=db, id=position.user_id)
             response_data.update(
                 {
                     "recruiter_name": f"{recruiter.first_name} {recruiter.last_name}",
@@ -308,23 +336,23 @@ class PositionService:
 
         return response_data
 
-    def get_pathway_job_counts(
+    def get_sector_job_counts(
         self, db: Session, user: UserCareerforge, platform: Platform
-    ) -> PathwayCountResponse:
+    ) -> SectorCountResponse:
         if not isinstance(user, UserCareerforge):
             raise PermissionDeniedException(
-                message="Only Careerforge users can access pathway job counts"
+                message="Only Careerforge users can access sector job counts"
             )
         try:
-            pathway_counts = self.positions_crud.get_pathway_counts(
+            sector_counts = self.positions_crud.get_sector_counts(
                 db=db,
                 platform=platform.value.lower(),
                 organization_model=Organizations,
                 position_model=Positions,
             )
-            return PathwayCountResponse(pathways_count=pathway_counts)
+            return SectorCountResponse(sectors_count=sector_counts)
         except Exception as e:
-            logger.error(f"Failed to get pathway job counts: {e}")
+            logger.error(f"Failed to get sector job counts: {e}")
             raise DatabaseException(message=error_messages.INTERNAL_SERVER_ERROR)
 
 

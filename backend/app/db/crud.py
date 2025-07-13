@@ -137,9 +137,9 @@ class CRUDBase(Generic[ModelType, CreateSchemaType, UpdateSchemaType]):
             )
 
         for attr, value in filters.items():
-            if attr == "pathways" and organization_model:
+            if attr == "sector_focus" and organization_model:
                 if value:
-                    query = query.filter(organization_model.select_a_pathway.in_(value))
+                    query = query.filter(organization_model.sector_focus.in_(value))
             elif attr not in ("minimum_pay", "maximum_pay"):
                 if hasattr(self.model, attr):
                     if isinstance(value, list):
@@ -168,7 +168,7 @@ class CRUDBase(Generic[ModelType, CreateSchemaType, UpdateSchemaType]):
             .all()
         )
 
-    def get_pathway_counts(
+    def get_sector_counts(
         self,
         db: Session,
         platform: str,
@@ -176,14 +176,12 @@ class CRUDBase(Generic[ModelType, CreateSchemaType, UpdateSchemaType]):
         position_model: Type[ModelType],
     ) -> Dict[str, int]:
         counts = (
-            db.query(
-                organization_model.select_a_pathway, func.count(position_model.id).label("count")
-            )
+            db.query(organization_model.sector_focus, func.count(position_model.id).label("count"))
             .join(position_model, organization_model.id == position_model.organization_id)
             .filter(
-                organization_model.select_a_pathway.isnot(None), position_model.platform == platform
+                organization_model.sector_focus.isnot(None), position_model.platform == platform
             )
-            .group_by(organization_model.select_a_pathway)
+            .group_by(organization_model.sector_focus)
             .all()
         )
         return dict(counts)

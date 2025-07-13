@@ -16,7 +16,7 @@ class Positions(Base, Timestamp):
     title = Column(String(128), nullable=False)
     job_category = Column(String(128), nullable=False)
     position_type = Column(String(128), nullable=False)
-    level_of_experience = Column(String(512), nullable=False)
+    level_of_experience = Column(String(64), nullable=False)
     role_description = Column(String(4096), nullable=True)
     education_level = Column(String(512), nullable=True)
     special_educational_requirements = Column(String(2048), nullable=True)

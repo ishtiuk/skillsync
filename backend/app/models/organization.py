@@ -1,9 +1,10 @@
 import uuid
 
-from sqlalchemy import ARRAY, INTEGER, Column, ForeignKey, String
+from sqlalchemy import ARRAY, INTEGER, Column, Enum, ForeignKey, String
 from sqlalchemy.dialects.postgresql import UUID
 
 from app.db.base_class import Base, Timestamp
+from app.schemas.organization import Sector
 
 
 class Organizations(Base, Timestamp):
@@ -24,5 +25,5 @@ class Organizations(Base, Timestamp):
     country = Column(String(64), nullable=True)
     overview = Column(String(4096), nullable=True)
     benefits = Column(ARRAY(String), nullable=True)
-    select_a_pathway = Column(String(512), nullable=True)
+    sector_focus = Column(Enum(Sector), nullable=True)
     logo_url = Column(String(512), nullable=True)
