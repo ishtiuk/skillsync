@@ -181,6 +181,7 @@ class PositionService:
                 organization_filters["name"] = organization_name
 
             # Get organizations matching filters
+            organizations = []
             if organization_filters:
                 organizations = self.organization_crud.get_multi_by_filters(
                     db, filters=organization_filters
