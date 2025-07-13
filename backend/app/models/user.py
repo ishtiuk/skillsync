@@ -57,7 +57,6 @@ class UserCareerforge(Base, Timestamp):
 
     experiences_fk = relationship("Experiences", backref="user_careerforge")
     tracked_jobs_fk = relationship("TrackedJobs", backref="user_careerforge")
-    cover_letters_fk = relationship("CoverLetters", backref="user_careerforge")
     milestones_fk = relationship("Milestones", backref="user_careerforge")
 
 

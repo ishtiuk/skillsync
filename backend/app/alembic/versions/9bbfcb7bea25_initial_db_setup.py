@@ -161,7 +161,7 @@ def upgrade() -> None:
     op.create_table(
         "organizations",
         sa.Column("id", sa.UUID(), nullable=False),
-        sa.Column("created_by", sa.UUID(), nullable=False),
+        sa.Column("created_by", sa.UUID(), nullable=False, unique=True),
         sa.Column("name", sa.String(length=128), nullable=False),
         sa.Column("type", sa.String(length=128), nullable=False),
         sa.Column("size", sa.String(length=32), nullable=False),

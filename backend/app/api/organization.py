@@ -27,9 +27,10 @@ organization_router = APIRouter()
 def create_organization(
     organization: OrganizationCreate,
     db: Session = Depends(get_db),
-    current_user: UserTalenthub = Depends(get_active_user),
+    current_user_info: tuple[UserTalenthub, str] = Depends(get_active_user),
 ):
     try:
+        current_user, _ = current_user_info
         organization_data = organization_service.create_organization(
             db=db, organization=organization, user=current_user
         )
@@ -60,9 +61,11 @@ def create_organization(
     "/organization", response_model=OrganizationResponse, tags=["organizations"]
 )
 def get_organization(
-    db: Session = Depends(get_db), current_user: UserTalenthub = Depends(get_active_user)
+    db: Session = Depends(get_db),
+    current_user_info: tuple[UserTalenthub, str] = Depends(get_active_user),
 ):
     try:
+        current_user, _ = current_user_info
         organization_data = organization_service.get_organization(db=db, user=current_user)
         return JSONResponse(
             content=jsonable_encoder(OrganizationResponse(**jsonable_encoder(organization_data))),
@@ -86,9 +89,10 @@ def update_organization(
     id: UUID4,
     organization_update: OrganizationUpdate,
     db: Session = Depends(get_db),
-    current_user: UserTalenthub = Depends(get_active_user),
+    current_user_info: tuple[UserTalenthub, str] = Depends(get_active_user),
 ):
     try:
+        current_user, _ = current_user_info
         updated_organization = organization_service.update_organization(
             db=db, organization_id=id, organization_update=organization_update, user=current_user
         )

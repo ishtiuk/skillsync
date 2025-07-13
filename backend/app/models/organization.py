@@ -13,8 +13,8 @@ class Organizations(Base, Timestamp):
 
     id = Column(UUID(as_uuid=True), primary_key=True, index=True, default=uuid.uuid4)
     created_by = Column(
-        UUID(as_uuid=True), ForeignKey("user_talenthub.id"), nullable=False
-    )  # adjusted FK
+        UUID(as_uuid=True), ForeignKey("user_talenthub.id"), nullable=False, unique=True
+    )
     name = Column(String(128), nullable=False)
     type = Column(String(128), nullable=False)
     size = Column(String(32), nullable=False)
