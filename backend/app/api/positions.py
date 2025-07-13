@@ -28,7 +28,7 @@ router = APIRouter()
 def create_position(
     position_in: PositionCreate,
     db: Session = Depends(get_db),
-    current_user_info: tuple[Union[UserCareerforge, UserTalenthub], str] = Depends(get_active_user),
+    current_user_info: tuple[UserTalenthub, str] = Depends(get_active_user),
     platform: Platform = Depends(get_platform),
 ):
     try:
@@ -57,7 +57,7 @@ def update_position(
     id: UUID4,
     position_in: PositionUpdate,
     db: Session = Depends(get_db),
-    current_user_info: tuple[Union[UserCareerforge, UserTalenthub], str] = Depends(get_active_user),
+    current_user_info: tuple[UserTalenthub, str] = Depends(get_active_user),
     platform: Platform = Depends(get_platform),
 ):
     try:
@@ -85,13 +85,13 @@ def update_position(
 def get_positions_for_careerforge(
     filters: PositionFilters,
     db: Session = Depends(get_db),
-    current_user_info: tuple[Union[UserCareerforge, UserTalenthub], str] = Depends(get_active_user),
+    current_user_info: tuple[UserCareerforge, str] = Depends(get_active_user),
     platform: Platform = Depends(get_platform),
     pagination: PaginationParams = Depends(),
 ):
     try:
         current_user, _ = current_user_info
-        positions = position_service.get_positions_for_pathways(
+        positions = position_service.get_positions_for_careerforge(
             db=db,
             user=current_user,
             platform=platform,
@@ -123,13 +123,13 @@ def get_positions_for_careerforge(
 @router.get("/positions/talenthub", response_model=list[PositionResponse], tags=["positions"])
 def get_positions_for_talenthub(
     db: Session = Depends(get_db),
-    current_user_info: tuple[Union[UserCareerforge, UserTalenthub], str] = Depends(get_active_user),
+    current_user_info: tuple[UserTalenthub, str] = Depends(get_active_user),
     platform: Platform = Depends(get_platform),
     pagination: PaginationParams = Depends(),
 ):
     try:
         current_user, _ = current_user_info
-        positions = position_service.get_positions_for_candid(
+        positions = position_service.get_positions_for_talenthub(
             db=db,
             user=current_user,
             platform=platform,
@@ -182,12 +182,14 @@ def get_single_position(
 @router.get("/positions/careerforge/count", response_model=PathwayCountResponse, tags=["job-roles"])
 def get_pathway_job_counts(
     db: Session = Depends(get_db),
-    current_user_info: tuple[Union[UserCareerforge, UserTalenthub], str] = Depends(get_active_user),
+    current_user_info: tuple[UserCareerforge, str] = Depends(get_active_user),
     platform: Platform = Depends(get_platform),
 ):
     try:
         current_user, _ = current_user_info
-        counts = position_service.get_pathway_job_counts(db=db, platform=platform)
+        counts = position_service.get_pathway_job_counts(
+            db=db, user=current_user, platform=platform
+        )
         return JSONResponse(
             content=jsonable_encoder(counts),
             status_code=status.HTTP_200_OK,

@@ -1,5 +1,3 @@
-from typing import Union
-
 from pydantic import UUID4
 from sqlalchemy.orm import Session
 
@@ -21,8 +19,13 @@ class PositionService:
         self.organization_crud = CRUDBase(model=Organizations)
         self.user_crud = CRUDBase(model=Users)
 
-    def create_position(self, db: Session, position_in: PositionCreate, user: Users) -> Positions:
+    def create_position(
+        self, db: Session, position_in: PositionCreate, user: UserTalenthub, platform: Platform
+    ) -> Positions:
         try:
+            if not isinstance(user, UserTalenthub):
+                raise PermissionDeniedException(message="Only Talenthub users can create positions")
+
             organization = self.organization_crud.get_by_field(
                 db, field="created_by", value=user.id
             )
@@ -67,8 +70,15 @@ class PositionService:
             raise DatabaseException(message=error_messages.INTERNAL_SERVER_ERROR)
 
     def update_position(
-        self, db: Session, position_id: UUID4, position_in: PositionUpdate, user: Users
+        self,
+        db: Session,
+        position_id: UUID4,
+        position_in: PositionUpdate,
+        user: UserTalenthub,
+        platform: Platform,
     ) -> Positions:
+        if not isinstance(user, UserTalenthub):
+            raise PermissionDeniedException(message="Only Talenthub users can update positions")
         try:
             position = self.positions_crud.get(db=db, id=position_id)
             if not position:
@@ -117,29 +127,30 @@ class PositionService:
             db.rollback()
             raise DatabaseException(message=error_messages.INTERNAL_SERVER_ERROR)
 
-    def get_positions_for_pathways(
+    def get_positions_for_careerforge(
         self,
         db: Session,
-        user: Union[UserCareerforge, UserTalenthub],
+        user: UserCareerforge,
         platform: Platform,
         filters: dict,
         page: int,
         limit: int = 5000,
     ) -> list[Positions]:
+        if not isinstance(user, UserCareerforge):
+            raise PermissionDeniedException(
+                message="Only Careerforge users can access this endpoint"
+            )
         try:
             offset = page * limit
             filter_copy = filters.copy()
 
             # Handle organization name filter
             organization_name = filter_copy.pop("organization_name", None)
-            is_bipoc_owned = filter_copy.pop("is_bipoc_owned", None)
 
             # Build organization filters
             organization_filters = {}
             if organization_name:
                 organization_filters["name"] = organization_name
-            if is_bipoc_owned is not None:
-                organization_filters["is_bipoc_owned"] = is_bipoc_owned
 
             # Get organizations matching filters
             if organization_filters:
@@ -188,14 +199,16 @@ class PositionService:
             logger.error(f"Failed to get positions for pathways: {e}")
             raise DatabaseException(message=error_messages.INTERNAL_SERVER_ERROR)
 
-    def get_positions_for_candid(
+    def get_positions_for_talenthub(
         self,
         db: Session,
-        user: Union[UserCareerforge, UserTalenthub],
+        user: UserTalenthub,
         platform: Platform,
         page: int,
         limit: int,
     ) -> list[Positions]:
+        if not isinstance(user, UserTalenthub):
+            raise PermissionDeniedException(message="Only Talenthub users can access this endpoint")
         try:
             offset = page * limit
             organization = self.organization_crud.get_by_field(
@@ -233,7 +246,6 @@ class PositionService:
             "id": position.id,
             "organization_name": organization.name,
             "organization_logo_url": organization.logo_url,
-            "is_bipoc_owned": organization.is_bipoc_owned,
             "title": position.title,
             "job_category": position.job_category,
             "pathway": organization.select_a_pathway,
@@ -296,7 +308,13 @@ class PositionService:
 
         return response_data
 
-    def get_pathway_job_counts(self, db: Session, platform: Platform) -> PathwayCountResponse:
+    def get_pathway_job_counts(
+        self, db: Session, user: UserCareerforge, platform: Platform
+    ) -> PathwayCountResponse:
+        if not isinstance(user, UserCareerforge):
+            raise PermissionDeniedException(
+                message="Only Careerforge users can access pathway job counts"
+            )
         try:
             pathway_counts = self.positions_crud.get_pathway_counts(
                 db=db,
