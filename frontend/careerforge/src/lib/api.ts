@@ -237,4 +237,38 @@ export const milestones = {
   },
 };
 
+export const positions = {
+  getPositions: async (filters: any, page: number = 0, limit: number = 20) => {
+    try {
+      const response = await api.post('/positions/careerforge', filters, {
+        params: { page, limit }
+      });
+      return response.data;
+    } catch (error) {
+      handleApiError(error);
+      throw error;
+    }
+  },
+
+  getSectorCounts: async () => {
+    try {
+      const response = await api.get('/positions/careerforge/count');
+      return response.data;
+    } catch (error) {
+      handleApiError(error);
+      throw error;
+    }
+  },
+
+  getPosition: async (id: string) => {
+    try {
+      const response = await api.get(`/positions/public/${id}`);
+      return response.data;
+    } catch (error) {
+      handleApiError(error);
+      throw error;
+    }
+  }
+};
+
 export default api;

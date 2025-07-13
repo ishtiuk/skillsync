@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -15,7 +14,7 @@ interface JobFiltersProps {
 export const JobFilters: React.FC<JobFiltersProps> = ({ onFiltersChange }) => {
   const [filters, setFilters] = useState({
     title: '',
-    organization: '',
+    company: '',
     categories: [] as string[],
     positionTypes: [] as string[],
     experienceLevels: [] as string[],
@@ -68,7 +67,7 @@ export const JobFilters: React.FC<JobFiltersProps> = ({ onFiltersChange }) => {
   const clearAllFilters = () => {
     const clearedFilters = {
       title: '',
-      organization: '',
+      company: '',
       categories: [],
       positionTypes: [],
       experienceLevels: [],
@@ -89,7 +88,7 @@ export const JobFilters: React.FC<JobFiltersProps> = ({ onFiltersChange }) => {
   const getActiveFiltersCount = () => {
     let count = 0;
     if (filters.title) count++;
-    if (filters.organization) count++;
+    if (filters.company) count++;
     count += filters.categories.length;
     count += filters.positionTypes.length;
     count += filters.experienceLevels.length;
@@ -136,12 +135,12 @@ export const JobFilters: React.FC<JobFiltersProps> = ({ onFiltersChange }) => {
             />
           </div>
           <div>
-            <Label htmlFor="organization">organization</Label>
+            <Label htmlFor="company">Company</Label>
             <Input
-              id="organization"
+              id="company"
               placeholder="e.g. Google"
-              value={filters.organization}
-              onChange={(e) => handleInputChange('organization', e.target.value)}
+              value={filters.company}
+              onChange={(e) => handleInputChange('company', e.target.value)}
             />
           </div>
         </div>
