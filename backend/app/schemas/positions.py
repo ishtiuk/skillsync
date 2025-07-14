@@ -24,7 +24,6 @@ class LevelOfExperience(str, Enum):
     mid = "Mid"
     senior = "Senior"
     executive = "Executive"
-    intermediate = "Intermediate"
 
 
 class PositionType(str, Enum):
@@ -38,7 +37,7 @@ class PositionType(str, Enum):
 class Category(str, Enum):
     software_engineering = "software-engineering"
     supply_chain = "supply-chain"
-    hr = "HR"
+    hr = "hr"
     advocacy_policy = "advocacy-policy"
     climate_sustainability = "climate-sustainability"
     investment = "investment"
