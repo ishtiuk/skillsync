@@ -122,6 +122,7 @@ class CRUDBase(Generic[ModelType, CreateSchemaType, UpdateSchemaType]):
         db: Session,
         filters: dict = {},
         organization_model: Optional[Type[ModelType]] = None,
+        sector_focus: Optional[List[str]] = None,
         min_pays: Optional[List[float]] = None,
         max_pays: Optional[List[float]] = None,
         limit: int = 100,
@@ -131,47 +132,47 @@ class CRUDBase(Generic[ModelType, CreateSchemaType, UpdateSchemaType]):
     ) -> List[ModelType]:
         query = db.query(self.model)
 
+        # Join with organizations if model is provided
         if organization_model:
             query = query.join(
                 organization_model, self.model.organization_id == organization_model.id
             )
 
-        for attr, value in filters.items():
-            if attr == "sector_focus" and organization_model:
-                if value:
-                    # Case-insensitive sector focus filtering
-                    query = query.filter(
-                        func.lower(organization_model.sector_focus).in_([v.lower() for v in value])
+            # Apply sector focus filter if provided
+            if sector_focus:
+                query = query.filter(
+                    func.lower(organization_model.sector_focus).in_(
+                        [s.lower() for s in sector_focus]
                     )
-            elif attr not in ("minimum_pay", "maximum_pay"):
-                if hasattr(self.model, attr):
-                    if isinstance(value, (list, tuple)):
-                        # Handle array values (like job categories, position types)
-                        if all(isinstance(v, str) for v in value):
-                            # Case-insensitive filtering for string arrays
-                            query = query.filter(
-                                func.lower(getattr(self.model, attr)).in_(
-                                    [v.lower() for v in value]
-                                )
-                            )
-                        else:
-                            # For non-string arrays (like numbers), use direct comparison
-                            query = query.filter(getattr(self.model, attr).in_(value))
-                    elif isinstance(value, str):
-                        # Case-insensitive filtering for string fields with ILIKE
-                        if attr in ["title", "organization_name", "city", "state", "country"]:
-                            query = query.filter(
-                                func.lower(getattr(self.model, attr)).like(f"%{value.lower()}%")
-                            )
-                        else:
-                            # For other string fields, use case-insensitive exact match
-                            query = query.filter(
-                                func.lower(getattr(self.model, attr)) == value.lower()
-                            )
-                    else:
-                        # For non-string values (like numbers), use direct comparison
-                        query = query.filter(getattr(self.model, attr) == value)
+                )
 
+        # Apply other filters
+        for attr, value in filters.items():
+            if value is not None:
+                if isinstance(value, (list, tuple)):
+                    # Handle array values (like organization_ids, job categories, position types)
+                    if all(isinstance(v, str) for v in value):
+                        # Case-insensitive filtering for string arrays
+                        query = query.filter(
+                            func.lower(getattr(self.model, attr)).in_([v.lower() for v in value])
+                        )
+                    else:
+                        # For non-string arrays (like organization_ids, numbers), use direct comparison
+                        query = query.filter(getattr(self.model, attr).in_(value))
+                elif isinstance(value, str):
+                    # Case-insensitive filtering for string fields with ILIKE
+                    if attr in ["title", "city", "state", "country"]:
+                        query = query.filter(
+                            func.lower(getattr(self.model, attr)).like(f"%{value.lower()}%")
+                        )
+                    else:
+                        # For other string fields, use case-insensitive exact match
+                        query = query.filter(func.lower(getattr(self.model, attr)) == value.lower())
+                else:
+                    # For non-string values (like numbers), use direct comparison
+                    query = query.filter(getattr(self.model, attr) == value)
+
+        # Apply pay range filters
         if min_pays and max_pays:
             salary_conditions = []
             for min_pay, max_pay in zip(min_pays, max_pays):
