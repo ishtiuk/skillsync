@@ -44,16 +44,16 @@ export const JobCard: React.FC<JobCardProps> = ({ job, onStageChange }) => {
         <div className="flex items-start justify-between">
           <div className="flex items-center space-x-3">
             <Avatar className="h-12 w-12">
-              <AvatarImage src={job.job_info.company_logo_url} alt={job.job_info.company_name} />
+              <AvatarImage src={job.job_info.organization_logo_url} alt={job.job_info.organization_name} />
               <AvatarFallback>
-                {job.job_info.company_name.charAt(0).toUpperCase()}
+                {job.job_info.organization_name.charAt(0).toUpperCase()}
               </AvatarFallback>
             </Avatar>
             <div>
               <h3 className="font-semibold text-lg leading-tight">
                 {job.job_info.title}
               </h3>
-              <p className="text-gray-600">{job.job_info.company_name}</p>
+              <p className="text-gray-600">{job.job_info.organization_name}</p>
             </div>
           </div>
           <Badge className={getStageColor(currentStage)}>

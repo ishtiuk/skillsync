@@ -236,8 +236,8 @@ async def get_user_files(
         )
 
 
-@file_router.post("/generate-upload-url/company", tags=["s3"])
-async def generate_company_logo_upload_url(
+@file_router.post("/generate-upload-url/organization", tags=["s3"])
+async def generate_organization_logo_upload_url(
     payload: S3UploadPayload, user=Depends(get_active_user), db=Depends(get_db)
 ):
     try:
@@ -259,8 +259,8 @@ async def generate_company_logo_upload_url(
         )
 
 
-@file_router.post("/generate-download-url/company", tags=["s3"])
-async def generate_company_logo_download_url(payload: S3DownloadPayload):
+@file_router.post("/generate-download-url/organization", tags=["s3"])
+async def generate_organization_logo_download_url(payload: S3DownloadPayload):
     try:
         download_url = s3_services.generate_presigned_url(
             operation="get_object",

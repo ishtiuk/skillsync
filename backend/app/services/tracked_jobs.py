@@ -8,7 +8,7 @@
 # from app.models.applied_jobs import AppliedJobs
 # from app.models.user import Users
 # from app.schemas.applied_jobs import AppliedJobCreate, AppliedJobUpdate
-# from app.services.job_role import job_role_service
+# from app.services.position import position_service
 # from app.utils.exceptions import ConflictException, DatabaseException, ResourceNotFound
 # from core.constants import constants, error_messages
 
@@ -39,8 +39,8 @@
 #         return ordered
 
 #     def format_response(self, db: Session, applied_job: AppliedJobs) -> dict:
-#         job_role = job_role_service.get_single_job_role(db=db, job_role_id=applied_job.job_id)
-#         job_info = job_role_service.format_job_role_response(job_role=job_role, db=db)
+#         position = position_service.get_single_position(db=db, position_id=applied_job.job_id)
+#         job_info = position_service.format_position_response(position=position, db=db)
 
 #         response_data = {
 #             "id": applied_job.id,

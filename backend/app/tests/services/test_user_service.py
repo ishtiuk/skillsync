@@ -122,7 +122,7 @@ def test_add_experience(db, test_user):
     user_service = UserService()
     exp_data = CreateExp(
         position_title="Software Engineer",
-        company_name="Tech Corp",
+        organization_name="Tech Corp",
         employment_type="Full-time",
         start_month=1,
         start_year=2023,
@@ -134,7 +134,7 @@ def test_add_experience(db, test_user):
     experiences = user_service.get_experiences(db=db, user=test_user)
     assert len(experiences) == 1
     assert experiences[0].position_title == exp_data.position_title
-    assert experiences[0].company_name == exp_data.company_name
+    assert experiences[0].organization_name == exp_data.organization_name
     assert experiences[0].user_id == test_user.id
 
 
@@ -142,7 +142,7 @@ def test_get_experiences(db, test_user):
     user_service = UserService()
     exp_data = CreateExp(
         position_title="Software Engineer",
-        company_name="Tech Corp",
+        organization_name="Tech Corp",
         employment_type="Full-time",
         start_month=1,
         start_year=2023,
@@ -165,7 +165,7 @@ def test_delete_experience(db, test_user):
     user_service = UserService()
     exp_data = CreateExp(
         position_title="Software Engineer",
-        company_name="Tech Corp",
+        organization_name="Tech Corp",
         employment_type="Full-time",
         start_month=1,
         start_year=2023,
@@ -339,7 +339,7 @@ def test_update_experience_success(db, test_user):
     # First create an experience
     exp_data = CreateExp(
         position_title="Software Engineer",
-        company_name="Tech Corp",
+        organization_name="Tech Corp",
         employment_type="Full-time",
         start_month=1,
         start_year=2023,
@@ -352,7 +352,7 @@ def test_update_experience_success(db, test_user):
     # Now update it
     update_data = UpdateExp(
         position_title="Senior Software Engineer",
-        company_name="New Tech Corp",
+        organization_name="New Tech Corp",
         is_current=False,
         end_month=12,
         end_year=2023,
@@ -362,7 +362,7 @@ def test_update_experience_success(db, test_user):
         db=db, exp_id=experiences[0].id, update_data=update_data
     )
     assert updated_exp.position_title == update_data.position_title
-    assert updated_exp.company_name == update_data.company_name
+    assert updated_exp.organization_name == update_data.organization_name
     assert updated_exp.is_current == update_data.is_current
     assert updated_exp.end_month == update_data.end_month
     assert updated_exp.end_year == update_data.end_year
@@ -379,7 +379,7 @@ def test_update_experience_db_error(db, test_user, mocker):
     user_service = UserService()
     exp_data = CreateExp(
         position_title="Software Engineer",
-        company_name="Tech Corp",
+        organization_name="Tech Corp",
         employment_type="Full-time",
         start_month=1,
         start_year=2023,

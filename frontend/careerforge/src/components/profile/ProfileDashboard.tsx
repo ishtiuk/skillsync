@@ -278,7 +278,7 @@ export const ProfileDashboard: React.FC = () => {
                         {exp.logo_url ? (
                           <img
                             src={exp.logo_url}
-                            alt={exp.company_name}
+                            alt={exp.organization_name}
                             className={cn(
                               "w-full h-full object-contain p-1",
                               "transition-opacity duration-200 ease-in-out"
@@ -298,7 +298,7 @@ export const ProfileDashboard: React.FC = () => {
                         )}
                       </div>
                       <span className="inline-flex gap-1.5 items-center">
-                        <span className="font-medium text-gray-700">{exp.company_name}</span>
+                        <span className="font-medium text-gray-700">{exp.organization_name}</span>
                         <span className="text-gray-400">•</span>
                         <span className="text-gray-600">{exp.employment_type}</span>
                       </span>

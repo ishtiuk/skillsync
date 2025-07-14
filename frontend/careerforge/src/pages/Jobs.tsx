@@ -1,13 +1,12 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { DashboardLayout } from '@/components/dashboard/DashboardLayout';
 import { JobFilters } from '@/components/jobs/JobFilters';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Input } from '@/components/ui/input';
-import { Checkbox } from '@/components/ui/checkbox';
 import { Label } from '@/components/ui/label';
-import { Search, MapPin, Building2, Clock, Bookmark, Filter, SlidersHorizontal, Briefcase, Users, TrendingUp } from 'lucide-react';
+import { Search, MapPin, Building2, Clock, Bookmark, SlidersHorizontal, Briefcase, Users, TrendingUp } from 'lucide-react';
 import {
   Select,
   SelectContent,
@@ -15,124 +14,124 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
+import { Position } from '@/types/positions';
+import { positions } from '@/lib/api';
+import { Category } from '@/types/positions';
+
+interface JobFilters {
+  title?: string;
+  organization_name?: string;
+  job_category?: string[];
+  position_type?: string[];
+  level_of_experience?: string[];
+  workplace_type?: string[];
+  city?: string;
+  state?: string;
+  country?: string;
+  pay_type?: string;
+  minimum_pay?: string;
+  maximum_pay?: string;
+  pay_frequency?: string;
+  sector_focus?: string[];
+}
 
 const Jobs: React.FC = () => {
+  console.log('Jobs component rendering');
+
   const [showFilters, setShowFilters] = useState(true);
   const [searchTerm, setSearchTerm] = useState('');
-  const [location, setLocation] = useState('');
-  const [experienceLevel, setExperienceLevel] = useState('');
-  const [sortBy, setSortBy] = useState('Most Recent');
-  const [bipocOwned, setBipocOwned] = useState(false);
-  const [filters, setFilters] = useState({});
+  const [workplaceType, setWorkplaceType] = useState('all');
+  const [experienceLevel, setExperienceLevel] = useState('all');
+  const [sortBy, setSortBy] = useState('recent');
+  const [filters, setFilters] = useState<JobFilters>({});
+  const [jobs, setJobs] = useState<Position[]>([]);
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
 
-  const featuredJobs = [
-    {
-      id: 1,
-      title: 'Senior Software Engineer',
-      company: 'TechFlow Solutions',
-      location: 'San Francisco, CA',
-      type: 'Full-time',
-      salary: '$150K - $200K',
-      posted: '2 hours ago',
-      experience: '5-7 years experience',
-      remote: true,
-      logo: '💻',
-      description: 'Join our growing team to build the next generation of our B2B platform. You\'ll work with cutting-edge technologies and solve complex problems.',
-      skills: ['React', 'TypeScript', 'AWS', 'GraphQL'],
-      companySize: '201-500 employees',
-      bipocOwned: true
-    },
-    {
-      id: 2,
-      title: 'Product Manager - AI/ML',
-      company: 'Innovation Labs',
-      location: 'New York, NY',
-      type: 'Full-time',
-      salary: '$110k - $140k',
-      posted: '1 day ago',
-      experience: '3-5 years experience',
-      remote: false,
-      logo: '🚀',
-      description: 'Lead product strategy for our AI/ML initiatives and drive innovation in our core platform.',
-      skills: ['Product Management', 'AI/ML', 'Strategy', 'Analytics'],
-      companySize: '51-200 employees',
-      bipocOwned: false
-    },
-    {
-      id: 3,
-      title: 'UX Designer',
-      company: 'Design Studio',
-      location: 'Remote',
-      type: 'Contract',
-      salary: '$80k - $100k',
-      posted: '3 days ago',
-      experience: '2-4 years experience',
-      remote: true,
-      logo: '🎨',
-      description: 'Create beautiful and intuitive user experiences for our digital products.',
-      skills: ['Figma', 'UI/UX', 'Prototyping', 'User Research'],
-      companySize: '11-50 employees',
-      bipocOwned: true
-    },
-    {
-      id: 4,
-      title: 'Data Scientist',
-      company: 'Analytics Corp',
-      location: 'Austin, TX',
-      type: 'Full-time',
-      salary: '$95k - $130k',
-      posted: '5 days ago',
-      experience: '2-5 years experience',
-      remote: false,
-      logo: '📊',
-      description: 'Analyze complex datasets and build predictive models to drive business insights.',
-      skills: ['Python', 'SQL', 'Machine Learning', 'Statistics'],
-      companySize: '501-1000 employees',
-      bipocOwned: false
-    },
-    {
-      id: 5,
-      title: 'DevOps Engineer',
-      company: 'Cloud Systems',
-      location: 'Seattle, WA',
-      type: 'Full-time',
-      salary: '$120k - $155k',
-      posted: '1 week ago',
-      experience: '3-6 years experience',
-      remote: true,
-      logo: '⚙️',
-      description: 'Build and maintain scalable infrastructure and deployment pipelines.',
-      skills: ['AWS', 'Docker', 'Kubernetes', 'CI/CD'],
-      companySize: '201-500 employees',
-      bipocOwned: false
-    },
-    {
-      id: 6,
-      title: 'Frontend Developer',
-      company: 'StartupHub',
-      location: 'Los Angeles, CA',
-      type: 'Full-time',
-      salary: '$85k - $115k',
-      posted: '1 week ago',
-      experience: '1-3 years experience',
-      remote: false,
-      logo: '🌟',
-      description: 'Build responsive and interactive web applications using modern frameworks.',
-      skills: ['React', 'JavaScript', 'CSS', 'HTML'],
-      companySize: '11-50 employees',
-      bipocOwned: true
+  // Transform frontend filters to match backend schema
+  const transformFilters = (filters: JobFilters) => {
+    console.log('Transforming filters:', filters);
+    const transformed: any = {};
+
+    if (filters.title || searchTerm) transformed.title = filters.title || searchTerm;
+    if (filters.organization_name) transformed.organization_name = filters.organization_name;
+
+    // Transform job categories to match backend enum values
+    if (filters.job_category?.length) {
+      transformed.job_category = filters.job_category.map((cat: string) =>
+        cat.toLowerCase().replace(/\s+&\s+/g, '-').replace(/\s+/g, '_') as Category
+      );
     }
-  ];
 
-  const handleFiltersChange = (newFilters: any) => {
+    // Transform arrays to match backend types
+    if (filters.position_type?.length) transformed.position_type = filters.position_type;
+    if (experienceLevel && experienceLevel !== 'all') transformed.level_of_experience = [experienceLevel];
+    if (workplaceType && workplaceType !== 'all') transformed.workplace_type = [workplaceType];
+
+    // Transform location filters - make case insensitive by converting to title case
+    if (filters.city) transformed.city = filters.city.replace(/\w\S*/g, (w: string) => w.charAt(0).toUpperCase() + w.substr(1).toLowerCase());
+    if (filters.state) transformed.state = filters.state.replace(/\w\S*/g, (w: string) => w.charAt(0).toUpperCase() + w.substr(1).toLowerCase());
+    if (filters.country) transformed.country = filters.country.replace(/\w\S*/g, (w: string) => w.charAt(0).toUpperCase() + w.substr(1).toLowerCase());
+
+    // Transform compensation filters
+    if (filters.pay_type) transformed.pay_type = filters.pay_type;
+    if (filters.minimum_pay && filters.minimum_pay.trim()) transformed.minimum_pay = [parseFloat(filters.minimum_pay)];
+    if (filters.maximum_pay && filters.maximum_pay.trim()) transformed.maximum_pay = [parseFloat(filters.maximum_pay)];
+    if (filters.pay_frequency && filters.pay_frequency !== 'all') transformed.pay_frequency = [filters.pay_frequency];
+
+    console.log('Transformed filters:', transformed);
+    return transformed;
+  };
+
+  const fetchJobs = async (filters: JobFilters = {}) => {
+    console.log('Fetching jobs with filters:', filters);
+    try {
+      setLoading(true);
+      setError(null);
+      console.log('Current auth:', localStorage.getItem('skillsync-auth'));
+
+      const transformedFilters = transformFilters(filters);
+      console.log('Calling API with filters:', transformedFilters);
+      const data = await positions.getPositions(transformedFilters);
+      console.log('Received jobs:', data);
+      setJobs(data);
+    } catch (err) {
+      console.error('Error fetching jobs:', err);
+      setError(err instanceof Error ? err.message : 'An error occurred while fetching jobs');
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  // Update jobs when filters change
+  useEffect(() => {
+    fetchJobs(filters);
+  }, [filters]);
+
+  const handleFiltersChange = (newFilters: JobFilters) => {
     setFilters(newFilters);
-    console.log('Filters updated:', newFilters);
+  };
+
+  const handleSearch = () => {
+    const newFilters = {
+      ...filters,
+      title: searchTerm || undefined,
+      workplace_type: workplaceType ? [workplaceType] : undefined,
+      level_of_experience: experienceLevel ? [experienceLevel] : undefined
+    };
+    setFilters(newFilters);
+  };
+
+  const handleKeyPress = (e: React.KeyboardEvent) => {
+    if (e.key === 'Enter') {
+      handleSearch();
+    }
   };
 
   const statsData = [
-    { label: 'Total Jobs', value: '6', icon: Briefcase },
+    { label: 'Total Jobs', value: jobs.length.toString(), icon: Briefcase },
     { label: 'New This Week', value: '3', icon: TrendingUp },
-    { label: 'Remote Jobs', value: '4', icon: Users },
+    { label: 'Remote Jobs', value: jobs.filter(j => j.workplace_type === 'Remote').length.toString(), icon: Users },
   ];
 
   return (
@@ -177,19 +176,25 @@ const Jobs: React.FC = () => {
                     className="h-12 text-base"
                     value={searchTerm}
                     onChange={(e) => setSearchTerm(e.target.value)}
+                    onKeyPress={handleKeyPress}
+                    onKeyDown={handleKeyPress}
                   />
                 </div>
                 <div className="lg:col-span-3">
-                  <Label htmlFor="location" className="text-sm font-medium mb-2 block">
-                    Location
+                  <Label htmlFor="workplace" className="text-sm font-medium mb-2 block">
+                    Workplace Type
                   </Label>
-                  <Input
-                    id="location"
-                    placeholder="City, State, or Remote"
-                    className="h-12 text-base"
-                    value={location}
-                    onChange={(e) => setLocation(e.target.value)}
-                  />
+                  <Select value={workplaceType} onValueChange={setWorkplaceType}>
+                    <SelectTrigger className="h-12">
+                      <SelectValue placeholder="All Types" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="all">All Types</SelectItem>
+                      <SelectItem value="Onsite">Onsite</SelectItem>
+                      <SelectItem value="Remote">Remote</SelectItem>
+                      <SelectItem value="Hybrid">Hybrid</SelectItem>
+                    </SelectContent>
+                  </Select>
                 </div>
                 <div className="lg:col-span-3">
                   <Label className="text-sm font-medium mb-2 block">
@@ -200,15 +205,19 @@ const Jobs: React.FC = () => {
                       <SelectValue placeholder="All Levels" />
                     </SelectTrigger>
                     <SelectContent>
-                      <SelectItem value="entry">Entry Level</SelectItem>
-                      <SelectItem value="mid">Mid Level</SelectItem>
-                      <SelectItem value="senior">Senior Level</SelectItem>
-                      <SelectItem value="executive">Executive</SelectItem>
+                      <SelectItem value="all">All Levels</SelectItem>
+                      <SelectItem value="Entry">Entry Level</SelectItem>
+                      <SelectItem value="Mid">Mid Level</SelectItem>
+                      <SelectItem value="Senior">Senior Level</SelectItem>
+                      <SelectItem value="Executive">Executive</SelectItem>
                     </SelectContent>
                   </Select>
                 </div>
                 <div className="lg:col-span-2 flex gap-2">
-                  <Button className="h-12 flex-1 bg-primary hover:bg-primary/90 text-primary-foreground">
+                  <Button
+                    className="h-12 flex-1 bg-primary hover:bg-primary/90 text-primary-foreground"
+                    onClick={handleSearch}
+                  >
                     <Search className="w-4 h-4 mr-2" />
                     Search
                   </Button>
@@ -239,100 +248,108 @@ const Jobs: React.FC = () => {
             {/* Results Header */}
             <div className="flex items-center justify-between mb-6">
               <div>
-                <h2 className="text-2xl font-bold text-foreground">6 Jobs Found</h2>
-                <p className="text-sm text-muted-foreground mt-1">
-                  Showing opportunities that match your criteria
-                </p>
+                <h2 className="text-lg font-semibold">
+                  {loading ? 'Loading...' : `${jobs.length} Jobs Found`}
+                </h2>
+                {error && <p className="text-red-500">{error}</p>}
               </div>
-              <div className="flex items-center gap-4">
-                <span className="text-sm text-muted-foreground">Sort by:</span>
-                <Select value={sortBy} onValueChange={setSortBy}>
-                  <SelectTrigger className="w-48">
-                    <SelectValue />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="Most Recent">Most Recent</SelectItem>
-                    <SelectItem value="Salary High">Salary: High to Low</SelectItem>
-                    <SelectItem value="Salary Low">Salary: Low to High</SelectItem>
-                    <SelectItem value="Relevance">Relevance</SelectItem>
-                  </SelectContent>
-                </Select>
-              </div>
+              <Select value={sortBy} onValueChange={setSortBy}>
+                <SelectTrigger className="w-[180px]">
+                  <SelectValue placeholder="Sort by" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="recent">Most Recent</SelectItem>
+                  <SelectItem value="salary_high">Salary High to Low</SelectItem>
+                  <SelectItem value="salary_low">Salary Low to High</SelectItem>
+                </SelectContent>
+              </Select>
             </div>
 
-            {/* Job Listings */}
-            <div className="space-y-6">
-              {featuredJobs.map((job) => (
-                <Card key={job.id} className="hover:shadow-xl transition-all duration-300 border-0 bg-gradient-to-r from-card to-card/80">
+            {/* Job Cards */}
+            <div className="space-y-4">
+              {jobs.map((job) => (
+                <Card key={job.id} className="hover:shadow-lg transition-shadow duration-200">
                   <CardContent className="p-6">
-                    <div className="flex items-start justify-between">
-                      <div className="flex items-start space-x-4 flex-1">
-                        <div className="w-16 h-16 bg-gradient-to-br from-primary/10 to-primary/5 rounded-xl flex items-center justify-center text-2xl border border-primary/20">
-                          {job.logo}
-                        </div>
-                        <div className="flex-1">
-                          <div className="flex items-start justify-between">
-                            <div>
-                              <h3 className="font-bold text-xl text-foreground mb-1 hover:text-primary transition-colors">
-                                {job.title}
-                              </h3>
-                              <p className="text-foreground font-semibold mb-2">{job.company}</p>
-                            </div>
-                            <Button variant="outline" size="sm" className="hover:bg-primary/10">
-                              <Bookmark className="w-4 h-4" />
-                            </Button>
-                          </div>
+                    <div className="flex items-start gap-4">
+                      {/* Company Logo */}
+                      <div className="w-12 h-12 rounded-lg bg-muted flex items-center justify-center text-2xl">
+                        {job.organization_logo_url ? (
+                          <img
+                            src={job.organization_logo_url}
+                            alt={`${job.organization_name} logo`}
+                            className="w-full h-full object-contain rounded-lg"
+                          />
+                        ) : (
+                          '🏢'
+                        )}
+                      </div>
 
-                          <div className="flex items-center flex-wrap gap-4 mb-3 text-sm text-muted-foreground">
+                      {/* Job Details */}
+                      <div className="flex-1 space-y-2">
+                        <div className="flex items-start justify-between">
+                          <div>
+                            <h3 className="text-lg font-semibold hover:text-primary">
+                              {job.title}
+                            </h3>
+                            <p className="text-muted-foreground">
+                              {job.organization_name}
+                            </p>
+                          </div>
+                          <Button variant="ghost" size="icon">
+                            <Bookmark className="w-4 h-4" />
+                          </Button>
+                        </div>
+
+                        <div className="flex flex-wrap gap-2 text-sm text-muted-foreground">
+                          {job.city && job.state && (
                             <div className="flex items-center">
                               <MapPin className="w-4 h-4 mr-1" />
-                              {job.location}
+                              {`${job.city}, ${job.state}`}
                             </div>
+                          )}
+                          <div className="flex items-center">
+                            <Building2 className="w-4 h-4 mr-1" />
+                            {job.position_type}
+                          </div>
+                          {(job.minimum_pay || job.maximum_pay) && (
                             <div className="flex items-center">
                               <Clock className="w-4 h-4 mr-1" />
-                              {job.posted}
+                              {job.minimum_pay && job.maximum_pay
+                                ? `$${job.minimum_pay.toLocaleString()} - $${job.maximum_pay.toLocaleString()}`
+                                : job.minimum_pay
+                                ? `From $${job.minimum_pay.toLocaleString()}`
+                                : `Up to $${job.maximum_pay.toLocaleString()}`}
                             </div>
-                            <div className="flex items-center">
-                              <Building2 className="w-4 h-4 mr-1" />
-                              {job.companySize}
-                            </div>
-                          </div>
-
-                          <div className="flex items-center flex-wrap gap-2 mb-4">
-                            <Badge variant="outline" className="font-medium">{job.type}</Badge>
-                            <Badge className="bg-primary/10 text-primary border-primary/20 font-semibold">
-                              {job.salary}
-                            </Badge>
-                            <span className="text-sm text-muted-foreground">• {job.experience}</span>
-                            {job.remote && (
-                              <Badge variant="outline" className="text-primary border-primary/30 bg-primary/5">
-                                Remote OK
-                              </Badge>
-                            )}
-                            {job.bipocOwned && (
-                              <Badge className="bg-accent/50 text-accent-foreground border-accent">
-                                BIPOC-Owned
-                              </Badge>
-                            )}
-                          </div>
-
-                          <p className="text-muted-foreground mb-4 line-clamp-2 leading-relaxed">
-                            {job.description}
-                          </p>
-
-                          <div className="flex flex-wrap gap-2 mb-4">
-                            {job.skills.map((skill, index) => (
-                              <Badge key={index} variant="secondary" className="text-xs px-3 py-1">
-                                {skill}
-                              </Badge>
-                            ))}
-                          </div>
+                          )}
                         </div>
-                      </div>
-                      <div className="ml-6">
-                        <Button className="bg-primary hover:bg-primary/90 text-primary-foreground font-semibold px-6">
-                          Apply Now
-                        </Button>
+
+                        {/* Tags */}
+                        <div className="flex flex-wrap gap-2">
+                          {job.workplace_type && (
+                            <Badge variant="secondary">
+                              {job.workplace_type}
+                            </Badge>
+                          )}
+                          {job.level_of_experience && (
+                            <Badge variant="secondary">
+                              {job.level_of_experience}
+                            </Badge>
+                          )}
+                        </div>
+
+                        {/* Job Description Preview */}
+                        {job.role_description && (
+                          <p className="text-sm text-muted-foreground line-clamp-2 mt-2">
+                            {job.role_description}
+                          </p>
+                        )}
+
+                        <div className="flex items-center justify-between mt-4">
+                          <div className="text-sm text-muted-foreground">
+                            Posted {new Date(job.created_at).toLocaleDateString()}
+                          </div>
+                          <Button variant="default">View Details</Button>
+                        </div>
                       </div>
                     </div>
                   </CardContent>

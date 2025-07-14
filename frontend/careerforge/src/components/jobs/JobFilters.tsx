@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -8,26 +7,37 @@ import { Checkbox } from '@/components/ui/checkbox';
 import { Badge } from '@/components/ui/badge';
 import { X, RotateCcw } from 'lucide-react';
 
+interface Filters {
+  organization_name: string;
+  job_category: string[];
+  position_type: string[];
+  city: string;
+  state: string;
+  country: string;
+  pay_type: string;
+  minimum_pay: string;
+  maximum_pay: string;
+  pay_frequency: string;
+  sector_focus: string[];
+}
+
 interface JobFiltersProps {
-  onFiltersChange: (filters: any) => void;
+  onFiltersChange: (filters: Filters) => void;
 }
 
 export const JobFilters: React.FC<JobFiltersProps> = ({ onFiltersChange }) => {
-  const [filters, setFilters] = useState({
-    title: '',
-    company: '',
-    categories: [] as string[],
-    positionTypes: [] as string[],
-    experienceLevels: [] as string[],
-    workplaceTypes: [] as string[],
+  const [filters, setFilters] = useState<Filters>({
+    organization_name: '',
+    job_category: [] as string[],
+    position_type: [] as string[],
     city: '',
     state: '',
     country: '',
-    payType: '',
-    minPay: '',
-    maxPay: '',
-    payFrequency: '',
-    bipocOwned: false,
+    pay_type: '',
+    minimum_pay: '',
+    maximum_pay: '',
+    pay_frequency: '',
+    sector_focus: [] as string[],
   });
 
   const jobCategories = [
@@ -38,8 +48,7 @@ export const JobFilters: React.FC<JobFiltersProps> = ({ onFiltersChange }) => {
   ];
 
   const positionTypes = ['Full-Time', 'Part-Time', 'Contract', 'Internship', 'Volunteer'];
-  const experienceLevels = ['Entry', 'Mid', 'Senior', 'Executive', 'Intermediate'];
-  const workplaceTypes = ['Onsite', 'Remote', 'Hybrid'];
+
   const payFrequencies = ['Weekly', 'Bi-Weekly', 'Monthly'];
 
   const handleMultiSelectChange = (field: string, value: string) => {
@@ -66,21 +75,18 @@ export const JobFilters: React.FC<JobFiltersProps> = ({ onFiltersChange }) => {
   };
 
   const clearAllFilters = () => {
-    const clearedFilters = {
-      title: '',
-      company: '',
-      categories: [],
-      positionTypes: [],
-      experienceLevels: [],
-      workplaceTypes: [],
+    const clearedFilters: Filters = {
+      organization_name: '',
+      job_category: [],
+      position_type: [],
       city: '',
       state: '',
       country: '',
-      payType: '',
-      minPay: '',
-      maxPay: '',
-      payFrequency: '',
-      bipocOwned: false,
+      pay_type: '',
+      minimum_pay: '',
+      maximum_pay: '',
+      pay_frequency: '',
+      sector_focus: [],
     };
     setFilters(clearedFilters);
     onFiltersChange(clearedFilters);
@@ -88,20 +94,17 @@ export const JobFilters: React.FC<JobFiltersProps> = ({ onFiltersChange }) => {
 
   const getActiveFiltersCount = () => {
     let count = 0;
-    if (filters.title) count++;
-    if (filters.company) count++;
-    count += filters.categories.length;
-    count += filters.positionTypes.length;
-    count += filters.experienceLevels.length;
-    count += filters.workplaceTypes.length;
+    if (filters.organization_name) count++;
+    count += filters.job_category.length;
+    count += filters.position_type.length;
     if (filters.city) count++;
     if (filters.state) count++;
     if (filters.country) count++;
-    if (filters.payType) count++;
-    if (filters.minPay) count++;
-    if (filters.maxPay) count++;
-    if (filters.payFrequency) count++;
-    if (filters.bipocOwned) count++;
+    if (filters.pay_type) count++;
+    if (filters.minimum_pay) count++;
+    if (filters.maximum_pay) count++;
+    if (filters.pay_frequency) count++;
+    count += filters.sector_focus.length;
     return count;
   };
 
@@ -124,26 +127,15 @@ export const JobFilters: React.FC<JobFiltersProps> = ({ onFiltersChange }) => {
         </div>
       </CardHeader>
       <CardContent className="space-y-6">
-        {/* Basic Search */}
-        <div className="space-y-3">
-          <div>
-            <Label htmlFor="title">Job Title/Keywords</Label>
-            <Input
-              id="title"
-              placeholder="e.g. Software Engineer"
-              value={filters.title}
-              onChange={(e) => handleInputChange('title', e.target.value)}
-            />
-          </div>
-          <div>
-            <Label htmlFor="company">Company</Label>
-            <Input
-              id="company"
-              placeholder="e.g. Google"
-              value={filters.company}
-              onChange={(e) => handleInputChange('company', e.target.value)}
-            />
-          </div>
+        {/* Company Search */}
+        <div>
+          <Label htmlFor="organization_name">Company</Label>
+          <Input
+            id="organization_name"
+            placeholder="e.g. Google"
+            value={filters.organization_name}
+            onChange={(e) => handleInputChange('organization_name', e.target.value)}
+          />
         </div>
 
         {/* Job Categories */}
@@ -154,8 +146,8 @@ export const JobFilters: React.FC<JobFiltersProps> = ({ onFiltersChange }) => {
               <div key={category} className="flex items-center space-x-2">
                 <Checkbox
                   id={category}
-                  checked={filters.categories.includes(category)}
-                  onCheckedChange={() => handleMultiSelectChange('categories', category)}
+                  checked={filters.job_category.includes(category)}
+                  onCheckedChange={() => handleMultiSelectChange('job_category', category)}
                 />
                 <Label htmlFor={category} className="text-sm">{category}</Label>
               </div>
@@ -171,8 +163,8 @@ export const JobFilters: React.FC<JobFiltersProps> = ({ onFiltersChange }) => {
               <div key={type} className="flex items-center space-x-2">
                 <Checkbox
                   id={type}
-                  checked={filters.positionTypes.includes(type)}
-                  onCheckedChange={() => handleMultiSelectChange('positionTypes', type)}
+                  checked={filters.position_type.includes(type)}
+                  onCheckedChange={() => handleMultiSelectChange('position_type', type)}
                 />
                 <Label htmlFor={type} className="text-sm">{type}</Label>
               </div>
@@ -180,39 +172,7 @@ export const JobFilters: React.FC<JobFiltersProps> = ({ onFiltersChange }) => {
           </div>
         </div>
 
-        {/* Experience Level */}
-        <div>
-          <Label className="text-sm font-medium">Experience Level</Label>
-          <div className="mt-2 space-y-2">
-            {experienceLevels.map((level) => (
-              <div key={level} className="flex items-center space-x-2">
-                <Checkbox
-                  id={level}
-                  checked={filters.experienceLevels.includes(level)}
-                  onCheckedChange={() => handleMultiSelectChange('experienceLevels', level)}
-                />
-                <Label htmlFor={level} className="text-sm">{level}</Label>
-              </div>
-            ))}
-          </div>
-        </div>
 
-        {/* Workplace Type */}
-        <div>
-          <Label className="text-sm font-medium">Workplace Type</Label>
-          <div className="mt-2 space-y-2">
-            {workplaceTypes.map((type) => (
-              <div key={type} className="flex items-center space-x-2">
-                <Checkbox
-                  id={type}
-                  checked={filters.workplaceTypes.includes(type)}
-                  onCheckedChange={() => handleMultiSelectChange('workplaceTypes', type)}
-                />
-                <Label htmlFor={type} className="text-sm">{type}</Label>
-              </div>
-            ))}
-          </div>
-        </div>
 
         {/* Location Filters */}
         <div className="space-y-3">
@@ -242,21 +202,21 @@ export const JobFilters: React.FC<JobFiltersProps> = ({ onFiltersChange }) => {
           <div className="space-y-2">
             <Input
               placeholder="Pay Type (e.g. Salary, Hourly)"
-              value={filters.payType}
-              onChange={(e) => handleInputChange('payType', e.target.value)}
+              value={filters.pay_type}
+              onChange={(e) => handleInputChange('pay_type', e.target.value)}
             />
             <div className="grid grid-cols-2 gap-2">
               <Input
                 placeholder="Min Pay"
                 type="number"
-                value={filters.minPay}
-                onChange={(e) => handleInputChange('minPay', e.target.value)}
+                value={filters.minimum_pay}
+                onChange={(e) => handleInputChange('minimum_pay', e.target.value)}
               />
               <Input
                 placeholder="Max Pay"
                 type="number"
-                value={filters.maxPay}
-                onChange={(e) => handleInputChange('maxPay', e.target.value)}
+                value={filters.maximum_pay}
+                onChange={(e) => handleInputChange('maximum_pay', e.target.value)}
               />
             </div>
             <div>
@@ -266,9 +226,9 @@ export const JobFilters: React.FC<JobFiltersProps> = ({ onFiltersChange }) => {
                   <div key={frequency} className="flex items-center space-x-2">
                     <Checkbox
                       id={frequency}
-                      checked={filters.payFrequency === frequency}
-                      onCheckedChange={() => handleInputChange('payFrequency',
-                        filters.payFrequency === frequency ? '' : frequency)}
+                      checked={filters.pay_frequency === frequency}
+                      onCheckedChange={() => handleInputChange('pay_frequency',
+                        filters.pay_frequency === frequency ? '' : frequency)}
                     />
                     <Label htmlFor={frequency} className="text-sm">{frequency}</Label>
                   </div>
@@ -278,17 +238,7 @@ export const JobFilters: React.FC<JobFiltersProps> = ({ onFiltersChange }) => {
           </div>
         </div>
 
-        {/* Additional Filters */}
-        <div>
-          <div className="flex items-center space-x-2">
-            <Checkbox
-              id="bipocOwned"
-              checked={filters.bipocOwned}
-              onCheckedChange={(checked) => handleBooleanChange('bipocOwned', checked as boolean)}
-            />
-            <Label htmlFor="bipocOwned" className="text-sm">BIPOC-Owned Business</Label>
-          </div>
-        </div>
+
       </CardContent>
     </Card>
   );

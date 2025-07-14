@@ -2,6 +2,7 @@ import uuid
 
 from sqlalchemy import JSON, Column, ForeignKey, String
 from sqlalchemy.dialects.postgresql import UUID
+from sqlalchemy.orm import relationship
 
 from app.db.base_class import Base, Timestamp
 
@@ -16,3 +17,5 @@ class CoverLetters(Base, Timestamp):
     style = Column(String(128), nullable=True)
     tone = Column(JSON, nullable=True)
     topics = Column(JSON, nullable=True)
+
+    cover_letters = relationship("CoverLetters", back_populates="user_careerforge")

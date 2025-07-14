@@ -34,14 +34,14 @@ const Dashboard: React.FC = () => {
     {
       id: 1,
       title: 'Sustainability Consultant (Analyst Level)',
-      company: 'Green Jobs Board',
+      organization: 'Green Jobs Board',
       date: 'Sep 12',
       logo: '🌱'
     },
     {
       id: 2,
       title: 'Digital Marketing and Communications Manager',
-      company: 'The Nature Conservancy',
+      organization: 'The Nature Conservancy',
       date: 'Sep 12',
       logo: '🌿'
     }
@@ -51,7 +51,7 @@ const Dashboard: React.FC = () => {
     {
       id: 1,
       title: 'Director of Development',
-      company: 'Waterfront Alliance',
+      organization: 'Waterfront Alliance',
       date: 'Sep 12',
       logo: '🌊'
     }
@@ -68,7 +68,7 @@ const Dashboard: React.FC = () => {
     {
       id: 1,
       title: 'Sustainability Consultant (Analyst Level)',
-      company: 'Green Jobs Board',
+      organization: 'Green Jobs Board',
       type: 'Remote',
       schedule: 'Full Time',
       featured: true,
@@ -77,7 +77,7 @@ const Dashboard: React.FC = () => {
     {
       id: 2,
       title: 'Executive Director',
-      company: 'Conservation Corps Minnesota and Iowa',
+      organization: 'Conservation Corps Minnesota and Iowa',
       type: 'Hybrid',
       schedule: 'Full Time',
       featured: true,
@@ -86,7 +86,7 @@ const Dashboard: React.FC = () => {
     {
       id: 3,
       title: 'Executive Director',
-      company: 'Luckiamute Watershed Council',
+      organization: 'Luckiamute Watershed Council',
       type: 'Onsite',
       schedule: 'Full Time',
       featured: true,
@@ -151,7 +151,7 @@ const Dashboard: React.FC = () => {
                       </div>
                       <div className="flex-1 min-w-0">
                         <h4 className="font-medium text-sm truncate">{job.title}</h4>
-                        <p className="text-xs text-gray-600">{job.company}</p>
+                        <p className="text-xs text-gray-600">{job.organization}</p>
                         <p className="text-xs text-gray-500">{job.date}</p>
                       </div>
                       <Button variant="outline" size="sm">View Job</Button>
@@ -178,7 +178,7 @@ const Dashboard: React.FC = () => {
                       </div>
                       <div className="flex-1 min-w-0">
                         <h4 className="font-medium text-sm truncate">{job.title}</h4>
-                        <p className="text-xs text-gray-600">{job.company}</p>
+                        <p className="text-xs text-gray-600">{job.organization}</p>
                         <p className="text-xs text-gray-500">{job.date}</p>
                       </div>
                       <Button variant="outline" size="sm">View Job</Button>
@@ -234,7 +234,7 @@ const Dashboard: React.FC = () => {
                         {job.logo}
                       </div>
                       <div className="flex-1">
-                        <p className="text-xs text-gray-600 mb-1">{job.company}</p>
+                        <p className="text-xs text-gray-600 mb-1">{job.organization}</p>
                       </div>
                     </div>
                     {job.featured && (

@@ -29,7 +29,7 @@ const OrganizationTalentHub: React.FC = () => {
                 Organization Settings
               </h1>
               <p className="text-[hsl(var(--talenthub-muted-foreground))] mt-1">
-                Manage your company profile and settings
+                Manage your organization profile and settings
               </p>
             </div>
             <Button className="bg-[hsl(var(--talenthub-primary))] hover:bg-[hsl(var(--talenthub-primary))]/90">
@@ -38,12 +38,12 @@ const OrganizationTalentHub: React.FC = () => {
             </Button>
           </div>
 
-          {/* Company Profile */}
+          {/* organization Profile */}
           <Card className="bg-white border-[hsl(var(--talenthub-border))]">
             <CardHeader className="flex flex-row items-center justify-between">
               <CardTitle className="text-xl text-[hsl(var(--talenthub-secondary-foreground))] flex items-center gap-2">
                 <Building2 className="w-5 h-5 text-[hsl(var(--talenthub-primary))]" />
-                Company Profile
+                organization Profile
               </CardTitle>
               <Button variant="ghost" size="sm" className="text-[hsl(var(--talenthub-primary))]">
                 <Edit3 className="w-4 h-4" />
@@ -53,10 +53,10 @@ const OrganizationTalentHub: React.FC = () => {
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                 <div className="space-y-2">
                   <label className="text-sm font-medium text-[hsl(var(--talenthub-secondary-foreground))]">
-                    Company Name
+                    organization Name
                   </label>
                   <Input
-                    placeholder="Enter company name"
+                    placeholder="Enter organization name"
                     defaultValue="TechCorp Inc."
                     className="border-[hsl(var(--talenthub-border))]"
                   />
@@ -75,11 +75,11 @@ const OrganizationTalentHub: React.FC = () => {
 
               <div className="space-y-2">
                 <label className="text-sm font-medium text-[hsl(var(--talenthub-secondary-foreground))]">
-                  Company Description
+                  organization Description
                 </label>
                 <Textarea
-                  placeholder="Describe your company..."
-                  defaultValue="We are a leading technology company focused on innovative solutions."
+                  placeholder="Describe your organization..."
+                  defaultValue="We are a leading technology organization focused on innovative solutions."
                   className="border-[hsl(var(--talenthub-border))] min-h-[100px]"
                 />
               </div>
@@ -92,7 +92,7 @@ const OrganizationTalentHub: React.FC = () => {
                   <div className="relative">
                     <Globe className="absolute left-3 top-3 h-4 w-4 text-[hsl(var(--talenthub-muted-foreground))]" />
                     <Input
-                      placeholder="https://yourcompany.com"
+                      placeholder="https://yourorganization.com"
                       defaultValue="https://techcorp.com"
                       className="pl-10 border-[hsl(var(--talenthub-border))]"
                     />
@@ -100,7 +100,7 @@ const OrganizationTalentHub: React.FC = () => {
                 </div>
                 <div className="space-y-2">
                   <label className="text-sm font-medium text-[hsl(var(--talenthub-secondary-foreground))]">
-                    Company Size
+                    organization Size
                   </label>
                   <div className="relative">
                     <Users className="absolute left-3 top-3 h-4 w-4 text-[hsl(var(--talenthub-muted-foreground))]" />
@@ -130,7 +130,7 @@ const OrganizationTalentHub: React.FC = () => {
                 <div className="relative">
                   <MapPin className="absolute left-3 top-3 h-4 w-4 text-[hsl(var(--talenthub-muted-foreground))]" />
                   <Input
-                    placeholder="Company address"
+                    placeholder="organization address"
                     defaultValue="123 Tech Street, San Francisco, CA 94105"
                     className="pl-10 border-[hsl(var(--talenthub-border))]"
                   />
@@ -145,7 +145,7 @@ const OrganizationTalentHub: React.FC = () => {
                   <div className="relative">
                     <Mail className="absolute left-3 top-3 h-4 w-4 text-[hsl(var(--talenthub-muted-foreground))]" />
                     <Input
-                      placeholder="contact@company.com"
+                      placeholder="contact@organization.com"
                       defaultValue="hr@techcorp.com"
                       className="pl-10 border-[hsl(var(--talenthub-border))]"
                     />

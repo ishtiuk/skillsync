@@ -156,7 +156,7 @@ class UpdatePasswordRequest(BaseModel):
 class CreateExp(BaseModel):
     user_id: Optional[UUID4] = None
     position_title: str
-    company_name: str
+    organization_name: str
     employment_type: str
     is_current: bool
     start_month: int
@@ -169,7 +169,7 @@ class CreateExp(BaseModel):
 class ExpResponse(BaseModel):
     id: UUID4
     position_title: str
-    company_name: str
+    organization_name: str
     employment_type: str
     is_current: bool
     start_month: int
@@ -181,7 +181,7 @@ class ExpResponse(BaseModel):
 
 class UpdateExp(BaseModel):
     position_title: Optional[str] = None
-    company_name: Optional[str] = None
+    organization_name: Optional[str] = None
     employment_type: Optional[str] = None
     is_current: Optional[bool] = None
     start_month: Optional[int] = None

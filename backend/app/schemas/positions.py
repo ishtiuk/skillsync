@@ -4,6 +4,8 @@ from typing import Dict, List, Optional
 
 from pydantic import UUID4, BaseModel
 
+from app.schemas.organization import Sector
+
 
 class WorkplaceType(str, Enum):
     onsite = "Onsite"
@@ -22,7 +24,6 @@ class LevelOfExperience(str, Enum):
     mid = "Mid"
     senior = "Senior"
     executive = "Executive"
-    intermediate = "Intermediate"
 
 
 class PositionType(str, Enum):
@@ -36,7 +37,7 @@ class PositionType(str, Enum):
 class Category(str, Enum):
     software_engineering = "software-engineering"
     supply_chain = "supply-chain"
-    hr = "HR"
+    hr = "hr"
     advocacy_policy = "advocacy-policy"
     climate_sustainability = "climate-sustainability"
     investment = "investment"
@@ -121,16 +122,16 @@ class PositionFilters(BaseModel):
     minimum_pay: Optional[List[float]] = None
     maximum_pay: Optional[List[float]] = None
     pay_frequency: Optional[List[PayFrequency]] = None
-    company_name: Optional[str] = None
-    pathway: Optional[List[str]] = None
+    organization_name: Optional[str] = None
+    sector_focus: Optional[List[Sector]] = None
 
 
 class PositionResponse(PositionBase):
     id: UUID4
-    company_name: str
-    company_logo_url: str
+    organization_name: str
+    organization_logo_url: str
     created_at: datetime
-    pathway: str
+    sector_focus: Sector
     recruiter_name: Optional[str] = None
     recruiter_job_title: Optional[str] = None
     recruiter_email: Optional[str] = None
@@ -141,5 +142,5 @@ class PositionResponse(PositionBase):
         from_attributes = True
 
 
-class PathwayCountResponse(BaseModel):
-    pathways_count: Dict[str, int]
+class SectorCountResponse(BaseModel):
+    sectors_count: Dict[str, int]
