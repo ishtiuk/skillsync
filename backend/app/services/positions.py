@@ -1,6 +1,7 @@
 from datetime import datetime
 
 from pydantic import UUID4
+from sqlalchemy import func
 from sqlalchemy.exc import IntegrityError, SQLAlchemyError
 from sqlalchemy.orm import Session
 
@@ -62,7 +63,6 @@ class PositionService:
                 city=position_in.city,
                 state=position_in.state,
                 country=position_in.country,
-                pay_type=position_in.pay_type,
                 minimum_pay=position_in.minimum_pay,
                 maximum_pay=position_in.maximum_pay,
                 pay_frequency=position_in.pay_frequency,
@@ -127,7 +127,6 @@ class PositionService:
                 "city",
                 "state",
                 "country",
-                "pay_type",
                 "minimum_pay",
                 "maximum_pay",
                 "pay_frequency",
@@ -172,25 +171,24 @@ class PositionService:
             offset = page * limit
             filter_copy = filters.copy()
 
-            # Handle organization name filter
+            # Handle organization name filter separately
             organization_name = filter_copy.pop("organization_name", None)
 
-            # Build organization filters
-            organization_filters = {}
+            # Get organizations matching name filter
+            organization_ids = []
             if organization_name:
-                organization_filters["name"] = organization_name
-
-            # Get organizations matching filters
-            organizations = []
-            if organization_filters:
-                organizations = self.organization_crud.get_multi_by_filters(
-                    db, filters=organization_filters
+                # Case-insensitive partial match for organization name
+                organizations = (
+                    db.query(Organizations)
+                    .filter(func.lower(Organizations.name).like(f"%{organization_name.lower()}%"))
+                    .all()
                 )
                 if not organizations:
-                    logger.info("No organizations match the filters, returning empty result.")
+                    logger.info("No organizations match the name filter, returning empty result.")
                     return []
-                filter_copy["organization_id"] = [organization.id for organization in organizations]
+                organization_ids = [org.id for org in organizations]
 
+            # Handle list type filters
             list_filters = [
                 "job_category",
                 "position_type",
@@ -203,17 +201,23 @@ class PositionService:
                 if key in filter_copy and not isinstance(filter_copy[key], list):
                     filter_copy[key] = [filter_copy[key]]
 
+            # Handle sector focus filter
             sector_focus = filter_copy.pop("sector_focus", None)
-            if sector_focus:
-                filter_copy["sector_focus"] = sector_focus
 
+            # Handle salary range filters
             min_pays = filter_copy.pop("minimum_pay", None)
             max_pays = filter_copy.pop("maximum_pay", None)
 
+            # Add organization filter if organization name was provided
+            if organization_ids:
+                filter_copy["organization_id"] = organization_ids
+
+            # Get positions with all filters applied
             positions = self.positions_crud.get_filtered_positions(
                 db=db,
                 filters=filter_copy,
-                organization_model=organizations,
+                organization_model=Organizations,
+                sector_focus=sector_focus,
                 min_pays=min_pays,
                 max_pays=max_pays,
                 limit=limit,
@@ -287,7 +291,6 @@ class PositionService:
             "city": position.city,
             "state": position.state,
             "country": position.country,
-            "pay_type": position.pay_type,
             "minimum_pay": position.minimum_pay,
             "maximum_pay": position.maximum_pay,
             "pay_frequency": position.pay_frequency,

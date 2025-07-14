@@ -99,7 +99,6 @@
         "city": "San Francisco",
         "state": "CA",
         "country": "USA",
-        "pay_type": "Salary",
         "minimum_pay": 100000,
         "maximum_pay": 150000,
         "pay_frequency": "Monthly",

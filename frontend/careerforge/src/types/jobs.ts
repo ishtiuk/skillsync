@@ -1,4 +1,3 @@
-
 export interface Position {
   id: string;
   title: string;
@@ -14,7 +13,6 @@ export interface Position {
   country?: string;
 
   // Compensation
-  pay_type?: string;
   minimum_pay?: number;
   maximum_pay?: number;
   pay_frequency?: string;

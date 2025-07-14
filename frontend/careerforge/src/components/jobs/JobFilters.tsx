@@ -14,7 +14,6 @@ interface Filters {
   city: string;
   state: string;
   country: string;
-  pay_type: string;
   minimum_pay: string;
   maximum_pay: string;
   pay_frequency: string;
@@ -33,7 +32,6 @@ export const JobFilters: React.FC<JobFiltersProps> = ({ onFiltersChange }) => {
     city: '',
     state: '',
     country: '',
-    pay_type: '',
     minimum_pay: '',
     maximum_pay: '',
     pay_frequency: '',
@@ -41,10 +39,19 @@ export const JobFilters: React.FC<JobFiltersProps> = ({ onFiltersChange }) => {
   });
 
   const jobCategories = [
-    'Software Engineering', 'Supply Chain', 'HR', 'Advocacy & Policy',
-    'Climate & Sustainability', 'Investment', 'Sales & Account Management',
-    'Content', 'Marketing & Design', 'Product', 'Data', 'Education',
-    'Finance, Legal & Compliance', 'Operations, Program Management & Strategy', 'Science'
+    'Software Engineering',
+    'Supply Chain',
+    'HR',
+    'Advocacy & Policy',
+    'Climate & Sustainability',
+    'Investment',
+    'Sales & Account Management',
+    'Content',
+    'Marketing & Design',
+    'Product',
+    'Data',
+    'Education',
+    'Science'
   ];
 
   const positionTypes = ['Full-Time', 'Part-Time', 'Contract', 'Internship', 'Volunteer'];
@@ -53,8 +60,9 @@ export const JobFilters: React.FC<JobFiltersProps> = ({ onFiltersChange }) => {
 
   const handleMultiSelectChange = (field: string, value: string) => {
     const currentValues = filters[field as keyof typeof filters] as string[];
-    const newValues = currentValues.includes(value)
-      ? currentValues.filter(item => item !== value)
+    const valueToCompare = value.toLowerCase();
+    const newValues = currentValues.map(v => v.toLowerCase()).includes(valueToCompare)
+      ? currentValues.filter(item => item.toLowerCase() !== valueToCompare)
       : [...currentValues, value];
 
     const newFilters = { ...filters, [field]: newValues };
@@ -63,6 +71,7 @@ export const JobFilters: React.FC<JobFiltersProps> = ({ onFiltersChange }) => {
   };
 
   const handleInputChange = (field: string, value: string) => {
+    // Store the original case for display purposes
     const newFilters = { ...filters, [field]: value };
     setFilters(newFilters);
     onFiltersChange(newFilters);
@@ -82,7 +91,6 @@ export const JobFilters: React.FC<JobFiltersProps> = ({ onFiltersChange }) => {
       city: '',
       state: '',
       country: '',
-      pay_type: '',
       minimum_pay: '',
       maximum_pay: '',
       pay_frequency: '',
@@ -100,7 +108,6 @@ export const JobFilters: React.FC<JobFiltersProps> = ({ onFiltersChange }) => {
     if (filters.city) count++;
     if (filters.state) count++;
     if (filters.country) count++;
-    if (filters.pay_type) count++;
     if (filters.minimum_pay) count++;
     if (filters.maximum_pay) count++;
     if (filters.pay_frequency) count++;
@@ -200,11 +207,6 @@ export const JobFilters: React.FC<JobFiltersProps> = ({ onFiltersChange }) => {
         <div className="space-y-3">
           <Label className="text-sm font-medium">Compensation</Label>
           <div className="space-y-2">
-            <Input
-              placeholder="Pay Type (e.g. Salary, Hourly)"
-              value={filters.pay_type}
-              onChange={(e) => handleInputChange('pay_type', e.target.value)}
-            />
             <div className="grid grid-cols-2 gap-2">
               <Input
                 placeholder="Min Pay"
@@ -220,8 +222,8 @@ export const JobFilters: React.FC<JobFiltersProps> = ({ onFiltersChange }) => {
               />
             </div>
             <div>
-              <Label className="text-xs text-gray-600">Pay Frequency</Label>
-              <div className="mt-1 space-y-1">
+              <Label className="text-sm font-medium">Pay Frequency</Label>
+              <div className="mt-2 space-y-2">
                 {payFrequencies.map((frequency) => (
                   <div key={frequency} className="flex items-center space-x-2">
                     <Checkbox
