@@ -38,8 +38,6 @@ export enum Category {
   Product = "product",
   Data = "data",
   Education = "education",
-  FinanceLegalCompliance = "finance-legal-compliance",
-  OperationsProgramManagementStrategy = "operations-program-management-strategy",
   Science = "science",
 }
 
@@ -52,7 +50,6 @@ export interface PositionFilters {
   city?: string;
   state?: string;
   country?: string;
-  pay_type?: string;
   minimum_pay?: number[];
   maximum_pay?: number[];
   pay_frequency?: PayFrequency[];
@@ -76,7 +73,6 @@ export interface Position {
   city?: string;
   state?: string;
   country?: string;
-  pay_type?: string;
   minimum_pay?: number;
   maximum_pay?: number;
   pay_frequency?: PayFrequency;

@@ -139,34 +139,71 @@ class CRUDBase(Generic[ModelType, CreateSchemaType, UpdateSchemaType]):
         for attr, value in filters.items():
             if attr == "sector_focus" and organization_model:
                 if value:
-                    query = query.filter(organization_model.sector_focus.in_(value))
+                    # Case-insensitive sector focus filtering
+                    query = query.filter(
+                        func.lower(organization_model.sector_focus).in_([v.lower() for v in value])
+                    )
             elif attr not in ("minimum_pay", "maximum_pay"):
                 if hasattr(self.model, attr):
-                    if isinstance(value, list):
-                        query = query.filter(getattr(self.model, attr).in_(value))
+                    if isinstance(value, (list, tuple)):
+                        # Handle array values (like job categories, position types)
+                        if all(isinstance(v, str) for v in value):
+                            # Case-insensitive filtering for string arrays
+                            query = query.filter(
+                                func.lower(getattr(self.model, attr)).in_(
+                                    [v.lower() for v in value]
+                                )
+                            )
+                        else:
+                            # For non-string arrays (like numbers), use direct comparison
+                            query = query.filter(getattr(self.model, attr).in_(value))
+                    elif isinstance(value, str):
+                        # Case-insensitive filtering for string fields with ILIKE
+                        if attr in ["title", "organization_name", "city", "state", "country"]:
+                            query = query.filter(
+                                func.lower(getattr(self.model, attr)).like(f"%{value.lower()}%")
+                            )
+                        else:
+                            # For other string fields, use case-insensitive exact match
+                            query = query.filter(
+                                func.lower(getattr(self.model, attr)) == value.lower()
+                            )
                     else:
+                        # For non-string values (like numbers), use direct comparison
                         query = query.filter(getattr(self.model, attr) == value)
 
         if min_pays and max_pays:
             salary_conditions = []
             for min_pay, max_pay in zip(min_pays, max_pays):
-                salary_conditions.append(
-                    and_(self.model.minimum_pay >= min_pay, self.model.maximum_pay <= max_pay)
+                condition = and_(
+                    or_(self.model.minimum_pay.is_(None), self.model.minimum_pay >= min_pay),
+                    or_(self.model.maximum_pay.is_(None), self.model.maximum_pay <= max_pay),
                 )
+                salary_conditions.append(condition)
             if salary_conditions:
                 query = query.filter(or_(*salary_conditions))
         elif min_pays:
-            query = query.filter(self.model.minimum_pay >= min(min_pays))
+            query = query.filter(
+                or_(
+                    *[self.model.minimum_pay >= min_pay for min_pay in min_pays],
+                    *[self.model.maximum_pay >= min_pay for min_pay in min_pays],
+                )
+            )
         elif max_pays:
-            query = query.filter(self.model.maximum_pay <= max(max_pays))
+            query = query.filter(
+                or_(
+                    *[self.model.maximum_pay <= max_pay for max_pay in max_pays],
+                    *[self.model.minimum_pay <= max_pay for max_pay in max_pays],
+                )
+            )
 
-        sort_func = desc if sort_order == "desc" else asc
-        return (
-            query.order_by(sort_func(getattr(self.model, sort_field)))
-            .limit(limit)
-            .offset(offset)
-            .all()
-        )
+        # Add sorting
+        sort_column = getattr(self.model, sort_field)
+        if sort_order.lower() == "desc":
+            sort_column = sort_column.desc()
+        query = query.order_by(sort_column)
+
+        return query.offset(offset).limit(limit).all()
 
     def get_sector_counts(
         self,

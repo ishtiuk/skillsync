@@ -47,8 +47,6 @@ class Category(str, Enum):
     product = "product"
     data = "data"
     education = "education"
-    finance_legal_compliance = "finance-legal-compliance"
-    operations_program_management_strategy = "operations-program-management-strategy"
     science = "science"
 
 
@@ -64,10 +62,9 @@ class PositionBase(BaseModel):
     city: Optional[str] = None
     state: Optional[str] = None
     country: Optional[str] = None
-    pay_type: Optional[str] = None
+    pay_frequency: Optional[PayFrequency] = None
     minimum_pay: Optional[float] = None
     maximum_pay: Optional[float] = None
-    pay_frequency: Optional[PayFrequency] = None
     closing_date: Optional[str] = None
     external_link: Optional[str] = None
     required_files: Optional[List[str]] = None
@@ -94,10 +91,8 @@ class PositionUpdate(BaseModel):
     city: Optional[str] = None
     state: Optional[str] = None
     country: Optional[str] = None
-    pay_type: Optional[str] = None
     minimum_pay: Optional[float] = None
     maximum_pay: Optional[float] = None
-    pay_frequency: Optional[PayFrequency] = None
     closing_date: Optional[str] = None
     external_link: Optional[str] = None
     required_files: Optional[List[str]] = None
@@ -118,7 +113,6 @@ class PositionFilters(BaseModel):
     city: Optional[str] = None
     state: Optional[str] = None
     country: Optional[str] = None
-    pay_type: Optional[str] = None
     minimum_pay: Optional[List[float]] = None
     maximum_pay: Optional[List[float]] = None
     pay_frequency: Optional[List[PayFrequency]] = None

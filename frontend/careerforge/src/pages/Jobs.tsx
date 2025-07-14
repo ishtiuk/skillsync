@@ -28,7 +28,6 @@ interface JobFilters {
   city?: string;
   state?: string;
   country?: string;
-  pay_type?: string;
   minimum_pay?: string;
   maximum_pay?: string;
   pay_frequency?: string;
@@ -59,25 +58,30 @@ const Jobs: React.FC = () => {
     // Transform job categories to match backend enum values
     if (filters.job_category?.length) {
       transformed.job_category = filters.job_category.map((cat: string) =>
-        cat.toLowerCase().replace(/\s+&\s+/g, '-').replace(/\s+/g, '_') as Category
+        cat.toLowerCase()
+           .replace(/\s+&\s+/g, '-')  // Replace " & " with "-"
+           .replace(/\s+/g, '-')      // Replace all other spaces with "-"
+           .replace(/_/g, '-')        // Replace any underscores with hyphens
       );
     }
 
-    // Transform arrays to match backend types
+    // Transform arrays to match backend types while preserving case for enums
     if (filters.position_type?.length) transformed.position_type = filters.position_type;
     if (experienceLevel && experienceLevel !== 'all') transformed.level_of_experience = [experienceLevel];
     if (workplaceType && workplaceType !== 'all') transformed.workplace_type = [workplaceType];
 
-    // Transform location filters - make case insensitive by converting to title case
-    if (filters.city) transformed.city = filters.city.replace(/\w\S*/g, (w: string) => w.charAt(0).toUpperCase() + w.substr(1).toLowerCase());
-    if (filters.state) transformed.state = filters.state.replace(/\w\S*/g, (w: string) => w.charAt(0).toUpperCase() + w.substr(1).toLowerCase());
-    if (filters.country) transformed.country = filters.country.replace(/\w\S*/g, (w: string) => w.charAt(0).toUpperCase() + w.substr(1).toLowerCase());
+    // Pass location filters as is, backend will handle case-insensitive search
+    if (filters.city) transformed.city = filters.city;
+    if (filters.state) transformed.state = filters.state;
+    if (filters.country) transformed.country = filters.country;
 
     // Transform compensation filters
-    if (filters.pay_type) transformed.pay_type = filters.pay_type;
     if (filters.minimum_pay && filters.minimum_pay.trim()) transformed.minimum_pay = [parseFloat(filters.minimum_pay)];
     if (filters.maximum_pay && filters.maximum_pay.trim()) transformed.maximum_pay = [parseFloat(filters.maximum_pay)];
     if (filters.pay_frequency && filters.pay_frequency !== 'all') transformed.pay_frequency = [filters.pay_frequency];
+
+    // Handle sector focus if present
+    if (filters.sector_focus?.length) transformed.sector_focus = filters.sector_focus;
 
     console.log('Transformed filters:', transformed);
     return transformed;

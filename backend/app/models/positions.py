@@ -24,7 +24,6 @@ class Positions(Base, Timestamp):
     city = Column(String(64), nullable=True)
     state = Column(String(64), nullable=True)
     country = Column(String(64), nullable=True)
-    pay_type = Column(String(64), nullable=True)
     minimum_pay = Column(Float, nullable=True)
     maximum_pay = Column(Float, nullable=True)
     pay_frequency = Column(String(64), nullable=True)
