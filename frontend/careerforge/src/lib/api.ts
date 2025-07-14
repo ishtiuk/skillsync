@@ -1,5 +1,6 @@
 import axios from 'axios';
 import { toast } from '@/components/ui/use-toast';
+import { PositionFilters } from '@/types/positions';
 
 // Error handling utility
 export const handleApiError = (error: any) => {
@@ -40,20 +41,27 @@ const api = axios.create({
 });
 
 api.interceptors.request.use((config) => {
+  console.log('Making API request to:', config.url);
   const authData = localStorage.getItem('skillsync-auth');
   if (authData) {
     try {
       const { state } = JSON.parse(authData);
+      console.log('Auth state:', state);
       if (state?.token) {
         config.headers.Authorization = `Bearer ${state.token}`;
         // Add platform to headers for backend context
         if (state?.platform) {
           config.headers['X-Platform'] = state.platform;
         }
+        console.log('Request headers:', config.headers);
+      } else {
+        console.warn('No token found in auth state');
       }
     } catch (e) {
       console.error('Error parsing auth data:', e);
     }
+  } else {
+    console.warn('No auth data found in localStorage');
   }
   return config;
 });
@@ -238,11 +246,13 @@ export const milestones = {
 };
 
 export const positions = {
-  getPositions: async (filters: any, page: number = 0, limit: number = 20) => {
+  getPositions: async (filters: PositionFilters, page: number = 0, limit: number = 20) => {
     try {
+      console.log('Sending filters to API:', filters);
       const response = await api.post('/positions/careerforge', filters, {
         params: { page, limit }
       });
+      console.log('API response:', response.data);
       return response.data;
     } catch (error) {
       handleApiError(error);
@@ -270,5 +280,7 @@ export const positions = {
     }
   }
 };
+
+
 
 export default api;
