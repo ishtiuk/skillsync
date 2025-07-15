@@ -16,5 +16,12 @@ services:
     volumes:
       - test_db_data:/bitnami/postgresql
 
+  test_redis:
+    image: redis:7.0-alpine
+    container_name: skillsync-test_redis
+    ports:
+      - "6380:6379"
+    command: redis-server --save 60 1 --loglevel warning
+
 volumes:
   test_db_data:
