@@ -1,5 +1,5 @@
-
 import React from 'react';
+import { useNavigate } from 'react-router-dom';
 import { Card, CardContent, CardHeader } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
@@ -13,6 +13,7 @@ interface JobCardProps {
 }
 
 export const JobCard: React.FC<JobCardProps> = ({ job, onStageChange }) => {
+  const navigate = useNavigate();
   const getCurrentStage = () => {
     const stages = ['saved', 'applied', 'interview-1', 'interview-2', 'interview-3', 'offer', 'hired'];
     for (let i = stages.length - 1; i >= 0; i--) {
@@ -100,6 +101,7 @@ export const JobCard: React.FC<JobCardProps> = ({ job, onStageChange }) => {
               variant="ghost"
               size="sm"
               className="text-gray-600"
+              onClick={() => navigate(`/jobs/${job.id}`, { state: { job: job.job_info } })}
             >
               View Details
             </Button>

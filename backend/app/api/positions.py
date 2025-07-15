@@ -99,6 +99,13 @@ def get_positions_for_careerforge(
             page=pagination.page,
             limit=pagination.limit,
         )
+        # If positions are already formatted (from cache), use them directly
+        if positions and isinstance(positions[0], dict):
+            return JSONResponse(
+                content=jsonable_encoder(positions),
+                status_code=status.HTTP_200_OK,
+            )
+        # Otherwise, format the SQLAlchemy objects
         response_data = [
             position_service.format_position_response(
                 position=position, db=db, include_stage=True, user_id=current_user.id

@@ -3,8 +3,7 @@ from typing import Optional
 
 import boto3
 from dotenv import load_dotenv
-from pydantic import ConfigDict
-from pydantic_settings import BaseSettings
+from pydantic_settings import BaseSettings, SettingsConfigDict
 
 if not os.getenv("SQLALCHEMY_DATABASE_URI"):
     load_dotenv()
@@ -17,7 +16,7 @@ boto3.setup_default_session(
 
 
 class Settings(BaseSettings):
-    model_config = ConfigDict(case_sensitive=True)
+    model_config = SettingsConfigDict(env_file=".env", case_sensitive=True)
 
     PROJECT_NAME: str = "Green Jobs Backend"
     APP_ENV: str = os.environ["APP_ENV"]
@@ -41,6 +40,13 @@ class Settings(BaseSettings):
 
     # openai
     OPENAI_API_KEY: Optional[str] = os.environ["OPENAI_API_KEY"]
+
+    # Redis settings
+    REDIS_HOST: str = "localhost"
+    REDIS_PORT: int = 6379
+    REDIS_PASSWORD: str = ""  # Add password if needed
+    REDIS_SSL: bool = False
+    REDIS_CACHE_EXPIRY: int = 300  # 5 minutes default
 
 
 settings = Settings()

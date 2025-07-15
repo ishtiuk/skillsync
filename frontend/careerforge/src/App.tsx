@@ -8,6 +8,7 @@ import Profile from "./pages/Profile";
 import PublicProfile from "./pages/PublicProfile";
 import Register from "./pages/Register";
 import Jobs from "./pages/Jobs";
+import JobDetails from "./pages/JobDetails";
 import Milestones from "./pages/Milestones";
 import Auth from "./pages/Auth";
 import NotFound from "./pages/NotFound";
@@ -26,6 +27,7 @@ const App = () => (
           <Route path="/profile/:userId" element={<PublicProfile />} />
           <Route path="/register" element={<Register />} />
           <Route path="/jobs" element={<Jobs />} />
+          <Route path="/jobs/:id" element={<JobDetails />} />
           <Route path="/milestones" element={<Milestones />} />
           <Route path="/auth" element={<Auth />} />
           {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}

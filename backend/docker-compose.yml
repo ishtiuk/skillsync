@@ -4,6 +4,7 @@ services:
     restart: on-failure
     depends_on:
       - skillsync_db
+      - redis
     env_file:
       - .env
 
@@ -12,6 +13,9 @@ services:
       dockerfile: Dockerfile
     ports:
       - "8000:5000"
+    environment:
+      - REDIS_HOST=redis
+      - REDIS_PORT=6379
 
   skillsync_db:
     image: bitnami/postgresql:15.3.0-debian-11-r85
@@ -24,5 +28,16 @@ services:
       - POSTGRESQL_PASSWORD=password
       - POSTGRESQL_DATABASE=skillsync_db
 
+  redis:
+    container_name: skillsync_redis
+    image: redis:7.0.15
+    ports:
+      - "6379:6379"
+    volumes:
+      - redis-data:/data
+    command: redis-server --appendonly yes
+    restart: always
+
 volumes:
   skillsync-db:
+  redis-data:
