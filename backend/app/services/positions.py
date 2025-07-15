@@ -18,6 +18,7 @@ from app.utils.exceptions import (
     ResourceNotFound,
     ValidationException,
 )
+from app.utils.redis_utils import redis_client
 from core.constants import error_messages
 from core.logger import logger
 
@@ -28,6 +29,15 @@ class PositionService:
         self.organization_crud = CRUDBase(model=Organizations)
         self.careerforge_user_crud = CRUDBase(model=UserCareerforge)
         self.talent_user_crud = CRUDBase(model=UserTalenthub)
+
+    def _invalidate_position_cache(self, platform: Platform) -> None:
+        """Invalidate all position-related cache entries for a platform"""
+        try:
+            pattern = f"positions:{platform.value}:*"
+            redis_client.delete_pattern(pattern)
+            logger.info(f"Invalidated position cache for platform {platform.value}")
+        except Exception as e:
+            logger.error(f"Failed to invalidate position cache: {e}")
 
     def create_position(
         self, db: Session, position_in: PositionCreate, user: UserTalenthub, platform: Platform
@@ -77,6 +87,10 @@ class PositionService:
                 show_recruiter=position_in.show_recruiter,
             )
             position = self.positions_crud.create(db=db, obj_in=position_data)
+
+            # Invalidate cache after creating new position
+            self._invalidate_position_cache(platform)
+
             return position
         except ResourceNotFound:
             db.rollback()
@@ -146,13 +160,53 @@ class PositionService:
                 if value is not None:
                     setattr(position, attr, value)
 
-            return self.positions_crud.update(db=db, obj_in=position)
+            updated_position = self.positions_crud.update(db=db, obj_in=position)
+
+            # Invalidate cache after updating position
+            self._invalidate_position_cache(platform)
+
+            return updated_position
         except (ResourceNotFound, PermissionDeniedException) as e:
             db.rollback()
             raise e
         except Exception:
             db.rollback()
             raise DatabaseException(message=error_messages.INTERNAL_SERVER_ERROR)
+
+    def _generate_cache_key(self, platform: str, filters: dict, page: int, limit: int) -> str:
+        """Generate a unique cache key based on filters and pagination"""
+        # Sort filters to ensure consistent cache keys
+        sorted_filters = dict(sorted(filters.items()))
+        cache_key = f"positions:{platform}:page_{page}:limit_{limit}"
+
+        # Add each filter to the cache key
+        for key, value in sorted_filters.items():
+            if value is None:
+                continue
+
+            if isinstance(value, list):
+                # Handle list of enum values
+                formatted_value = []
+                for v in value:
+                    if hasattr(v, "value"):
+                        formatted_value.append(str(v.value))
+                    elif isinstance(v, (int, float)):
+                        formatted_value.append(str(v))
+                    else:
+                        formatted_value.append(str(v))
+                formatted_value.sort()  # Sort for consistent keys
+                cache_key += f":{key}_{formatted_value}"
+            else:
+                # Handle single value (enum or plain)
+                if hasattr(value, "value"):
+                    formatted_value = str(value.value)
+                elif isinstance(value, (int, float)):
+                    formatted_value = str(value)
+                else:
+                    formatted_value = str(value)
+                cache_key += f":{key}_{formatted_value}"
+
+        return cache_key
 
     def get_positions_for_careerforge(
         self,
@@ -162,12 +216,23 @@ class PositionService:
         filters: dict,
         page: int,
         limit: int = 5000,
-    ) -> list[Positions]:
+    ) -> list[dict]:
         if not isinstance(user, UserCareerforge):
             raise PermissionDeniedException(
                 message="Only Careerforge users can access this endpoint"
             )
+
         try:
+            # Generate cache key based on filters and pagination
+            cache_key = self._generate_cache_key(platform.value, filters, page, limit)
+
+            # Try to get cached data
+            cached_data = redis_client.get(cache_key)
+            if cached_data:
+                logger.info(f"Cache hit for key: {cache_key}")
+                return cached_data
+
+            # If not in cache, proceed with database query
             offset = page * limit
             filter_copy = filters.copy()
 
@@ -225,6 +290,21 @@ class PositionService:
                 sort_field="created_at",
                 sort_order="desc",
             )
+
+            # Convert positions to serializable format and cache
+            if positions:
+                # Format each position into a serializable dictionary
+                formatted_positions = [
+                    self.format_position_response(
+                        position=position, db=db, include_stage=True, user_id=user.id
+                    )
+                    for position in positions
+                ]
+
+                # Cache the formatted results
+                redis_client.set_with_expiry(cache_key, formatted_positions)
+                logger.info(f"Cached positions with key: {cache_key}")
+                return formatted_positions
 
             return positions
 
